@@ -24,3 +24,6 @@ Route::group(['prefix' => 'admin'], function () {
     Voyager::routes();
 });
 
+Route::group(['prefix' => 'wechat'], function () {
+    Route::any('/', 'WechatController@serve');
+});
