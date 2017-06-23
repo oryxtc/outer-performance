@@ -11,16 +11,6 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Route::group(['prefix' => 'wechat'], function () {
+    Route::any('/', 'WechatController@serve');
 });
-
-Auth::routes();
-
-Route::get('/home', 'HomeController@index')->name('home');
-
-
-Route::group(['prefix' => 'admin'], function () {
-    Voyager::routes();
-});
-
