@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\WechatUser;
 use Illuminate\Http\Request;
+use PhpParser\Builder\Class_;
 
 class WechatController extends Controller
 {
@@ -13,22 +15,31 @@ class WechatController extends Controller
      */
     public function serve()
     {
-//        dd(session('wechat.oauth_user'));
         \EasyWeChat::server()->setMessageHandler(function($message){
-            //获取用户的openid
-//            $id = session('wechat.oauth_user')->id;
-//            switch ($message->MsgType){
-//                case 'text':
-//                    if(preg_match("/^('个人信息')$/",$message->Content)){
-//                       return '这是个人信息';
-//                    }else{
-//                        return '未识别信息';
-//                    }
-//            }
-            return '123123';
+            return '消息回复测试成功';
         });
 
         return \EasyWeChat::server()->serve();
+    }
+
+    public function demoServe(){
+        $message=new WechatUser();
+        //获取用户openid
+        $openid = session('wechat.oauth_user')->id;
+        switch ($message->MsgType){
+            case 'text':
+                //如果匹配 个人信息
+                if(preg_match('/^(\x{4E2A}\x{4EBA}\x{4FE1}\x{606F})$/u',$message->Content)){
+                    //查询该用户个人信息
+                    $user_info=\DB::table('users')
+                        ->select('')
+                        ->where('openid',$openid)
+                        ->first();
+                    return '这是个人信息';
+                }else{
+                    return '未识别信息';
+                }
+        }
     }
 
 
