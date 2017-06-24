@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\WechatUser;
 use Illuminate\Http\Request;
-use PhpParser\Builder\Class_;
 
 class WechatController extends Controller
 {
