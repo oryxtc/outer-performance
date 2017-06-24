@@ -15,7 +15,7 @@ class WechatController extends Controller
     {
 
         \EasyWeChat::server()->setMessageHandler(function($message){
-            $user = session('wechat.oauth_user')['id'];
+            $user = session('wechat.oauth_user')->id;
             return $user;
         });
 
