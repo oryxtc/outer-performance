@@ -21,6 +21,8 @@ class WechatController extends Controller
                 case 'text':
                     if(preg_match("/^('个人信息')$/",$message->Content)){
                        return '这是个人信息';
+                    }else{
+                        return '未识别信息';
                     }
             }
         });
