@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Voyager;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use TCG\Voyager\Facades\Voyager;
-use TCG\Voyager\Http\Controllers\Traits\BreadRelationshipParser;
+use App\Http\Controllers\Voyager\Traits\BreadRelationshipParser;
 
 class VoyagerBreadController extends Controller
 {
