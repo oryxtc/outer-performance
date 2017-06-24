@@ -21,7 +21,7 @@ Route::get('/home', 'HomeController@index')->name('home');
 
 
 Route::group(['prefix' => 'admin'], function () {
-    Voyager::routes();
+    require base_path().'/routes/voyager.php';
 });
 
 Route::group(['prefix' => 'wechat','middleware'=>['web','wechat.oauth']], function () {
