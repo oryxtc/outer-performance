@@ -74,8 +74,8 @@
                 </div>
 
                 <button type="submit" class="btn btn-block login-button">
-                    <span class="signingin hidden"><span class="glyphicon glyphicon-refresh"></span> 登录</span>
-                    <span class="signin">Login</span>
+                    <span class="signingin hidden"><span class="glyphicon glyphicon-refresh"></span> 登录中</span>
+                    <span class="signin">登录</span>
                 </button>
                
               </form>

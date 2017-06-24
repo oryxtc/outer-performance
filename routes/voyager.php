@@ -12,7 +12,7 @@ use TCG\Voyager\Models\DataType;
 |
 */
 
-Route::group(['as' => 'voyager.','middleware'=>['web','errors.session']], function () {
+Route::group(['as' => 'voyager.'], function () {
     event('voyager.routing', app('router'));
 
     $namespacePrefix = '\\'.config('voyager.controllers.namespace').'\\';
