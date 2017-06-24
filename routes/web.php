@@ -14,13 +14,14 @@
 Route::get('/', function () {
     return view('welcome');
 });
-
-Auth::routes();
-
 Route::get('/home', 'HomeController@index')->name('home');
 
+Route::group(['middleware' => 'admin','middleware'=>['web','errors.session']], function () {
+    Auth::routes();
+});
 
-Route::group(['prefix' => 'admin'], function () {
+
+Route::group(['prefix' => 'admin','middleware'=>['web','errors.session']], function () {
     require base_path().'/routes/voyager.php';
 });
 
