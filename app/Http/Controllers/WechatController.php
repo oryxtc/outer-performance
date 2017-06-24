@@ -16,15 +16,16 @@ class WechatController extends Controller
 //        dd(session('wechat.oauth_user'));
         \EasyWeChat::server()->setMessageHandler(function($message){
             //获取用户的openid
-            $id = session('wechat.oauth_user')->id;
-            switch ($message->MsgType){
-                case 'text':
-                    if(preg_match("/^('个人信息')$/",$message->Content)){
-                       return '这是个人信息';
-                    }else{
-                        return '未识别信息';
-                    }
-            }
+//            $id = session('wechat.oauth_user')->id;
+//            switch ($message->MsgType){
+//                case 'text':
+//                    if(preg_match("/^('个人信息')$/",$message->Content)){
+//                       return '这是个人信息';
+//                    }else{
+//                        return '未识别信息';
+//                    }
+//            }
+            return '123123';
         });
 
         return \EasyWeChat::server()->serve();
