@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 
 class WechatController extends Controller
 {
+    public $user;
+
     /**
      * 处理微信的请求消息
      *
@@ -39,6 +41,10 @@ class WechatController extends Controller
                     return '未识别信息';
                 }
         }
+    }
+
+    public function bind(){
+        return view('wechat.bind');
     }
 
 
