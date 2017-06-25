@@ -34,11 +34,11 @@ class BindWechat
     {
         if(session('wechat.oauth_user')){
             $openid=session('wechat.oauth_user')->id;
-
-            //认证用户
+            //绑定用户
             if(\Auth::attempt(['openid'=>$openid],true)===false){
                 \EasyWeChat::server()->setMessageHandler(function($message){
-                    return "<a href='route('wechat.bind')'>请先完成用户绑定!</a>";
+                    $content='请点击链接: '.route('wechat.bind').' 完成用户绑定!';
+                    return $content;
                 });
                 return \EasyWeChat::server()->serve();
             }
