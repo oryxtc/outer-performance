@@ -38,7 +38,7 @@ class BindWechat
             //认证用户
             if(\Auth::attempt(['openid'=>$openid],true)===false){
                 \EasyWeChat::server()->setMessageHandler(function($message){
-                    return route('wechat.bind');
+                    return "<a href='route('wechat.bind')'>请先完成用户绑定!</a>";
                 });
                 return \EasyWeChat::server()->serve();
             }
