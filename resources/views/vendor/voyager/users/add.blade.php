@@ -75,15 +75,6 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="password">头像</label>
-                                @if(isset($dataTypeContent->avatar))
-                                    <img src="{{ Voyager::image( $dataTypeContent->avatar ) }}"
-                                         style="width:200px; height:auto; clear:both; display:block; padding:2px; border:1px solid #ddd; margin-bottom:10px;">
-                                @endif
-                                <input type="file" name="avatar">
-                            </div>
-
-                            <div class="form-group">
                                 <label for="role">用户角色</label>
                                 <select name="role_id" id="role" class="form-control">
                                     <?php $roles = TCG\Voyager\Models\Role::all(); ?>
@@ -93,6 +84,28 @@
                                     @endforeach
                                 </select>
                             </div>
+
+                            <div class="form-group">
+                                <label for="sex">性别</label>
+                                <select name="sex" id="sex" class="form-control">
+                                    <?php $sex = (object)[0=>"女性",1=>"男性"]; ?>
+                                    @foreach($sex as $key=>$value)
+                                        <option value="{{$key}}"
+                                                @if(isset($dataTypeContent) && $dataTypeContent->sex == $key) selected @endif>{{$value}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="password">头像</label>
+                                @if(isset($dataTypeContent->avatar))
+                                    <img src="{{ Voyager::image( $dataTypeContent->avatar ) }}"
+                                         style="width:200px; height:auto; clear:both; display:block; padding:2px; border:1px solid #ddd; margin-bottom:10px;">
+                                @endif
+                                <input type="file" name="avatar">
+                            </div>
+
+
 
 
                         </div><!-- panel-body -->

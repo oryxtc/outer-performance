@@ -5,14 +5,14 @@
 @stop
 
 @if(isset($dataTypeContent->id))
-    @section('page_title','Edit '.$dataType->display_name_singular)
+    @section('page_title','修改 '.$dataType->display_name_singular)
 @else
-    @section('page_title','Add '.$dataType->display_name_singular)
+    @section('page_title','新增 '.$dataType->display_name_singular)
 @endif
 
 @section('page_header')
     <h1 class="page-title">
-        <i class="{{ $dataType->icon }}"></i> @if(isset($dataTypeContent->id)){{ 'Edit' }}@else{{ 'New' }}@endif {{ $dataType->display_name_singular }}
+        <i class="{{ $dataType->icon }}"></i> @if(isset($dataTypeContent->id)){{ '修改' }}@else{{ '新增' }}@endif {{ $dataType->display_name_singular }}
     </h1>
     @include('voyager::multilingual.language-selector')
 @stop
@@ -25,7 +25,7 @@
                 <div class="panel panel-bordered">
 
                     <div class="panel-heading">
-                        <h3 class="panel-title">@if(isset($dataTypeContent->id)){{ 'Edit' }}@else{{ 'Add New' }}@endif {{ $dataType->display_name_singular }}</h3>
+                        <h3 class="panel-title">@if(isset($dataTypeContent->id)){{ '修改' }}@else{{ '新增' }}@endif {{ $dataType->display_name_singular }}</h3>
                     </div>
                     <!-- /.box-header -->
                     <!-- form start -->
@@ -126,7 +126,7 @@
                         </div><!-- panel-body -->
 
                         <div class="panel-footer">
-                            <button type="submit" class="btn btn-primary save">Save</button>
+                            <button type="submit" class="btn btn-primary save">保存</button>
                         </div>
                     </form>
 
@@ -151,16 +151,16 @@
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal"
                             aria-hidden="true">&times;</button>
-                    <h4 class="modal-title"><i class="voyager-warning"></i> Are You Sure</h4>
+                    <h4 class="modal-title"><i class="voyager-warning"></i>你确定?</h4>
                 </div>
 
                 <div class="modal-body">
-                    <h4>Are you sure you want to delete '<span class="confirm_delete_name"></span>'</h4>
+                    <h4>你确定想删除 '<span class="confirm_delete_name"></span>'</h4>
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-danger" id="confirm_delete">Yes, Delete it!
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-danger" id="confirm_delete">确认,删除
                     </button>
                 </div>
             </div>
