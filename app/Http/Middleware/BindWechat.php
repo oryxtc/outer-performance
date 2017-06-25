@@ -37,7 +37,10 @@ class BindWechat
 
             //认证用户
             if(\Auth::attempt(['openid'=>$openid],true)===false){
-                return redirect(route('wechat.bind'));
+                \EasyWeChat::server()->setMessageHandler(function($message){
+                    return route('wechat.bind');
+                });
+                return \EasyWeChat::server()->serve();
             }
         }
         return $next($request);
