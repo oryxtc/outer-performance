@@ -33,6 +33,16 @@ abstract class Controller
         return new ControllerMiddlewareOptions($options);
     }
 
+    /*
+     * 返回封装json数据
+     */
+    public function apiJson($status = true, $message = '',$data = []){
+        $response_data['data'] = $data;
+        $response_data['status'] = $status;
+        $response_data['message'] = $message;
+        return response()->json($response_data);
+    }
+
     /**
      * Get the middleware assigned to the controller.
      *

@@ -48,8 +48,10 @@ Route::group(['as' => 'voyager.'], function () {
         Route::resource('roles', $namespacePrefix.'VoyagerRoleController');
 
         //用户路由
-        // Role Routes
         Route::resource('users', $namespacePrefix.'VoyagerUserController');
+
+        //重置密码
+        Route::post('users/{id}/resetPass',['uses' =>'Voyager\VoyagerUserController@resetPass']);
 
         // Menu Routes
         Route::group([
