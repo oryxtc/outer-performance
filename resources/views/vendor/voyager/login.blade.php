@@ -60,7 +60,7 @@
                 <form action="{{ route('voyager.login') }}" method="POST">
                 {{ csrf_field() }}
                 <div class="group">      
-                  <input type="text" name="company_email" value="{{ old('company_email') }}" required>
+                  <input type="text" name="email" value="{{ old('email') }}" required>
                   <span class="highlight"></span>
                   <span class="bar"></span>
                   <label><i class="glyphicon glyphicon-user"></i><span class="span-input"> 企业邮箱</span></label>
