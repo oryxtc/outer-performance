@@ -19,39 +19,103 @@
                     <div class="panel-body">
                         <table id="dataTable" class="table table-hover">
                             <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Created At</th>
-                                    <th>Avatar</th>
-                                    <th>Role</th>
-                                    <th class="actions">Actions</th>
-                                </tr>
+                            <tr>
+                                @foreach($dataType->browseRows as $rows)
+                                    <th>{{ $rows->display_name }}</th>
+                                @endforeach
+                                <th class="actions">Actions</th>
+                            </tr>
                             </thead>
                             <tbody>
                             @foreach($dataTypeContent as $data)
                                 <tr>
-                                    <td>{{ucwords($data->name)}}</td>
-                                    <td>{{$data->email}}</td>
-                                    <td>{{ \Carbon\Carbon::parse($data->created_at)->format('F jS, Y h:i A') }}</td> 
-                                    <td>
-                                        <img src="@if( strpos($data->avatar, 'http://') === false && strpos($data->avatar, 'https://') === false){{ Voyager::image( $data->avatar ) }}@else{{ $data->avatar }}@endif" style="width:100px">
-                                    </td>
-                                    <td>{{ $data->role ? $data->role->display_name : '' }}</td>
-                                    <td class="no-sort no-click">
+                                    @foreach($dataType->browseRows as $row)
+                                        <td>
+                                            <?php $options = json_decode($row->details); ?>
+                                            @if($row->type == 'image')
+                                                <img src="@if( strpos($data->{$row->field}, 'http://') === false && strpos($data->{$row->field}, 'https://') === false){{ Voyager::image( $data->{$row->field} ) }}@else{{ $data->{$row->field} }}@endif"
+                                                     style="width:100px">
+                                            @elseif($row->type == 'select_multiple')
+                                                @if(property_exists($options, 'relationship'))
+
+                                                    @foreach($data->{$row->field} as $item)
+                                                        @if($item->{$row->field . '_page_slug'})
+                                                            <a href="{{ $item->{$row->field . '_page_slug'} }}">{{ $item->{$row->field} }}</a>@if(!$loop->last)
+                                                                , @endif
+                                                        @else
+                                                            {{ $item->{$row->field} }}
+                                                        @endif
+                                                    @endforeach
+
+                                                    {{-- $data->{$row->field}->implode($options->relationship->label, ', ') --}}
+                                                @elseif(property_exists($options, 'options'))
+                                                    @foreach($data->{$row->field} as $item)
+                                                        {{ $options->options->{$item} . (!$loop->last ? ', ' : '') }}
+                                                    @endforeach
+                                                @endif
+
+                                            @elseif($row->type == 'select_dropdown' && property_exists($options, 'options'))
+
+                                                @if($data->{$row->field . '_page_slug'})
+                                                    <a href="{{ $data->{$row->field . '_page_slug'} }}">{!! $options->options->{$data->{$row->field}} !!}</a>
+                                                @else
+                                                    {!! $options->options->{$data->{$row->field}} !!}
+                                                @endif
+
+
+                                            @elseif($row->type == 'select_dropdown' && $data->{$row->field . '_page_slug'})
+                                                <a href="{{ $data->{$row->field . '_page_slug'} }}">{{ $data->{$row->field} }}</a>
+                                            @elseif($row->type == 'date')
+                                                {{ $options && property_exists($options, 'format') ? \Carbon\Carbon::parse($data->{$row->field})->formatLocalized($options->format) : $data->{$row->field} }}
+                                            @elseif($row->type == 'checkbox')
+                                                @if($options && property_exists($options, 'on') && property_exists($options, 'off'))
+                                                    @if($data->{$row->field})
+                                                        <span class="label label-info">{{ $options->on }}</span>
+                                                    @else
+                                                        <span class="label label-primary">{{ $options->off }}</span>
+                                                    @endif
+                                                @else
+                                                    {{ $data->{$row->field} }}
+                                                @endif
+                                            @elseif($row->type == 'text')
+                                                @include('voyager::multilingual.input-hidden-bread-browse')
+                                                <div class="readmore">{{ strlen( $data->{$row->field} ) > 200 ? substr($data->{$row->field}, 0, 200) . ' ...' : $data->{$row->field} }}</div>
+                                            @elseif($row->type == 'text_area')
+                                                @include('voyager::multilingual.input-hidden-bread-browse')
+                                                <div class="readmore">{{ strlen( $data->{$row->field} ) > 200 ? substr($data->{$row->field}, 0, 200) . ' ...' : $data->{$row->field} }}</div>
+                                            @elseif($row->type == 'file' && !empty($data->{$row->field}) )
+                                                @include('voyager::multilingual.input-hidden-bread-browse')
+                                                <a href="/storage/{{ $data->{$row->field} }}">Download</a>
+                                            @elseif($row->type == 'rich_text_box')
+                                                @include('voyager::multilingual.input-hidden-bread-browse')
+                                                <div class="readmore">{{ strlen( strip_tags($data->{$row->field}, '<b><i><u>') ) > 200 ? substr(strip_tags($data->{$row->field}, '<b><i><u>'), 0, 200) . ' ...' : strip_tags($data->{$row->field}, '<b><i><u>') }}</div>
+                                            @else
+                                                @include('voyager::multilingual.input-hidden-bread-browse')
+                                                <span>{{ $data->{$row->field} }}</span>
+                                            @endif
+                                        </td>
+                                    @endforeach
+                                    <td class="no-sort no-click" id="bread-actions">
                                         @if (Voyager::can('delete_'.$dataType->name))
-                                            <div class="btn-sm btn-danger pull-right delete" data-id="{{ $data->id }}" id="delete-{{ $data->id }}">
-                                                <i class="voyager-trash"></i> Delete
-                                            </div>
+                                            <a href="javascript:;" title="Delete"
+                                               class="btn btn-sm btn-danger pull-right delete" data-id="{{ $data->id }}"
+                                               id="delete-{{ $data->id }}">
+                                                <i class="voyager-trash"></i> <span
+                                                        class="hidden-xs hidden-sm">Delete</span>
+                                            </a>
                                         @endif
                                         @if (Voyager::can('edit_'.$dataType->name))
-                                            <a href="{{ route('voyager.'.$dataType->slug.'.edit', $data->id) }}" class="btn-sm btn-primary pull-right edit">
-                                                <i class="voyager-edit"></i> Edit
+                                            <a href="{{ route('voyager.'.$dataType->slug.'.edit', $data->id) }}"
+                                               title="Edit" class="btn btn-sm btn-primary pull-right edit">
+                                                <i class="voyager-edit"></i> <span
+                                                        class="hidden-xs hidden-sm">Edit</span>
                                             </a>
                                         @endif
                                         @if (Voyager::can('read_'.$dataType->name))
-                                            <a href="{{ route('voyager.'.$dataType->slug.'.show', $data->id) }}" class="btn-sm btn-warning pull-right">
-                                                <i class="voyager-eye"></i> View
+                                            <a href="{{ route('voyager.'.$dataType->slug.'.show', $data->id) }}"
+                                               title="View" class="btn btn-sm btn-warning pull-right">
+                                                <i class="voyager-eye"></i> <span
+                                                        class="hidden-xs hidden-sm">View</span>
                                             </a>
                                         @endif
                                     </td>
@@ -61,7 +125,10 @@
                         </table>
                         @if (isset($dataType->server_side) && $dataType->server_side)
                             <div class="pull-left">
-                                <div role="status" class="show-res" aria-live="polite">Showing {{ $dataTypeContent->firstItem() }} to {{ $dataTypeContent->lastItem() }} of {{ $dataTypeContent->total() }} entries</div>
+                                <div role="status" class="show-res" aria-live="polite">
+                                    Showing {{ $dataTypeContent->firstItem() }} to {{ $dataTypeContent->lastItem() }}
+                                    of {{ $dataTypeContent->total() }} entries
+                                </div>
                             </div>
                             <div class="pull-right">
                                 {{ $dataTypeContent->links() }}
@@ -87,7 +154,7 @@
                         {{ method_field("DELETE") }}
                         {{ csrf_field() }}
                         <input type="submit" class="btn btn-danger pull-right delete-confirm"
-                                 value="Yes, Delete This {{ $dataType->display_name_singular }}">
+                               value="Yes, Delete This {{ $dataType->display_name_singular }}">
                     </form>
                     <button type="button" class="btn btn-default pull-right" data-dismiss="modal">Cancel</button>
                 </div>
@@ -101,8 +168,8 @@
     <script>
         @if (!$dataType->server_side)
             $(document).ready(function () {
-                $('#dataTable').DataTable({ "order": [] });
-            });
+            $('#dataTable').DataTable({"order": []});
+        });
         @endif
 
         $('td').on('click', '.delete', function (e) {

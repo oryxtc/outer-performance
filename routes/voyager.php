@@ -47,6 +47,10 @@ Route::group(['as' => 'voyager.'], function () {
         // Role Routes
         Route::resource('roles', $namespacePrefix.'VoyagerRoleController');
 
+        //用户路由
+        // Role Routes
+        Route::resource('users', $namespacePrefix.'VoyagerUserController');
+
         // Menu Routes
         Route::group([
             'as'     => 'menus.',
