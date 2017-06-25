@@ -51,7 +51,9 @@ class WechatController extends Controller
     }
 
     public function bind(){
-        return view('wechat.bind');
+        //获取用户openid
+        $openid = session('wechat.oauth_user')->id;
+        return view('wechat.bind',['openid'=>$openid]);
     }
 
 
