@@ -32,8 +32,9 @@ class BindWechat
      */
     public function handle($request, Closure $next)
     {
-        if($this->wechat->oauth->user()){
-            $openid=$this->wechat->oauth->user()->id;
+        if(session('wechat.oauth_user')){
+            $openid=session('wechat.oauth_user')->id;
+
             //认证用户
             if(\Auth::attempt(['openid'=>$openid],true)===false){
                 return redirect(route('wechat.bind'));

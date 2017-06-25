@@ -9,6 +9,13 @@ class WechatController extends Controller
 {
     public $user;
 
+    public function __construct()
+    {
+        $this->middleware('web');
+        $this->middleware('wechat.oauth');
+        $this->middleware('wechat.bind')->except('bind');
+    }
+
     /**
      * 处理微信的请求消息
      *

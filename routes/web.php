@@ -25,7 +25,7 @@ Route::group(['prefix' => 'admin','middleware'=>['web','errors.session']], funct
     require base_path().'/routes/voyager.php';
 });
 
-Route::group(['as'=>'wechat.','prefix' => 'wechat','middleware'=>['web','wechat.oauth','wechat.bind']], function () {
+Route::group(['as'=>'wechat.','prefix' => 'wechat'], function () {
     Route::any('/', 'WechatController@serve');
 
     Route::any('/demoServe', 'WechatController@demoServe');
