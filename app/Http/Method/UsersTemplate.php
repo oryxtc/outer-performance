@@ -22,6 +22,7 @@ class UsersTemplate extends NewExcelFile
         'formal_at'=>'转正时间',
         'leave_at'=>'离职时间',
         'email'=>'企业邮箱',
+        'password'=>'密码',
         'trial_pay'=>'试用薪酬',
         'formal_pay'=>'转正薪酬',
         'bank_number'=>'银行卡号',

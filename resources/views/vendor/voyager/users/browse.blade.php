@@ -11,6 +11,34 @@
         <a href="{{ route('excel.exportUsersTemplate') }}" class="btn btn-success">
             <i class="voyager-plus"></i> 导出模板
         </a>
+        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#myModal">
+            <i class="voyager-plus"></i> 导入员工
+        </button>
+        {{--导入员工模态框--}}
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                    aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="myModalLabel">导入员工</h4>
+                    </div>
+                    {{--提示框--}}
+                    <div class="alert alert-success" role="alert" hidden>导入成功!</div>
+                    <div class="alert alert-danger" role="alert" hidden></div>
+
+                    <form method="post" enctype="multipart/form-data" id="uploadForm">
+                        <div class="modal-body">
+                            <input id="file" type="file" name="file"/>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                            <button id="upload" type="button" class="btn btn-primary">确认</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </h1>
 @stop
 
@@ -190,5 +218,24 @@
                     ? action.replace(/([0-9]+$)/, id)
                     : action + '/' + id;
         }
+
+        $("#upload").click(function () {
+            $.ajax({
+                url: '/importUsers',
+                type: 'POST',
+                cache: false,
+                data: new FormData($('#uploadForm')[0]),
+                processData: false,
+                contentType: false
+            }).done(function(res) {
+                if(res.status===true){
+                    $(".alert-success").show().delay(3000).hide(0)
+                }else {
+                    $(".alert-danger").html(res.message).show()
+                }
+            }).fail(function(res) {
+                $(".alert-danger").text('导入失败!').show().delay(3000).hide(0)
+            });
+        })
     </script>
 @stop
