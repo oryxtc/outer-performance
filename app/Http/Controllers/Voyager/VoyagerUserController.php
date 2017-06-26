@@ -128,6 +128,7 @@ class VoyagerUserController extends VoyagerBreadController
     }
 
 
+
     /**
      * Get a validator for an incoming registration request.
      *

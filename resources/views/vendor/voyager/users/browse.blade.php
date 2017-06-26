@@ -8,6 +8,9 @@
                 <i class="voyager-plus"></i> 新增
             </a>
         @endif
+        <a href="{{ route('excel.exportUsersTemplate') }}" class="btn btn-success">
+            <i class="voyager-plus"></i> 导出模板
+        </a>
     </h1>
 @stop
 

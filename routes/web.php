@@ -11,26 +11,34 @@
 |
 */
 
-Route::get('/', function () {
+use Illuminate\Routing\Route;
+
+\Route::get('/', function () {
     return view('welcome');
 });
-Route::get('/home', 'HomeController@index')->name('home');
 
-Route::group(['middleware' => 'admin','middleware'=>['web','errors.session']], function () {
-    Auth::routes();
+\Route::get('/home', 'HomeController@index')->name('home');
+
+\Route::group(['middleware' => 'admin','middleware'=>['web','errors.session']], function () {
+    \Auth::routes();
 });
 
 
-Route::group(['prefix' => 'admin','middleware'=>['web','errors.session']], function () {
+\Route::group(['prefix' => 'admin','middleware'=>['web','errors.session']], function () {
     require base_path().'/routes/voyager.php';
 });
 
-Route::group(['as'=>'wechat.','prefix' => 'wechat'], function () {
-    Route::any('/', 'WechatController@serve');
+\Route::group(['as'=>'wechat.','prefix' => 'wechat'], function () {
+    \Route::any('/', 'WechatController@serve');
 
-    Route::any('/demoServe', 'WechatController@demoServe');
+    \Route::any('/demoServe', 'WechatController@demoServe');
 
-    Route::get('/createMenu', 'WechatController@createMenu');
+    \Route::get('/createMenu', 'WechatController@createMenu');
 
-    Route::any('/bind', 'WechatController@bind')->name('bind');
+    \Route::any('/bind', 'WechatController@bind')->name('bind');
+});
+
+\Route::group(['as'=>'excel.'],function (){
+    //导出用户模板
+    \Route::get('exportUsersTemplate', 'ExcelController@exportUsersTemplate')->name('exportUsersTemplate');
 });

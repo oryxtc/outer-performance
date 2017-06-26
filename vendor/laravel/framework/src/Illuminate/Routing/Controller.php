@@ -44,6 +44,19 @@ abstract class Controller
     }
 
     /**
+     * 对象转数组
+     * @param $object
+     * @return array
+     */
+    public function stdClassToArray($object){
+        $object=collect($object)->toArray();
+        foreach ($object as $key=>&$item){
+            $item=collect($item)->toArray();
+        }
+        return $object;
+    }
+
+    /**
      * Get the middleware assigned to the controller.
      *
      * @return array
