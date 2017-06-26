@@ -10,16 +10,17 @@ class ExcelController extends Controller
 
     public function exportUsersTemplate(UsersTemplate $export)
     {
-
-        $data = \DB::table('users')
-            ->select('belong_company', 'job_number', 'name', 'status', 'contract_at', 'entry_at', 'formal_at', 'leave_at')
-            ->get();
-        $data=$this->stdClassToArray($data);
-        $export->sheet('员工信息表', function ($sheet) use ($data) {
-            $sheet->fromArray($data);
+        $head_list=UsersTemplate::HEAD_lIST;
+        $head_list_value = array_values($head_list);
+        //导出数据
+        $export->sheet('员工信息表', function ($sheet) use ($head_list_value) {
+            $sheet->setAutoSize(true);
+            $sheet->setWidth('A',10);
+            //填充头部
+            $sheet->prependRow($head_list_value);
         });
 
-        return $export->export('xls');
+        return $export->export('xlsx');
 
     }
     //
