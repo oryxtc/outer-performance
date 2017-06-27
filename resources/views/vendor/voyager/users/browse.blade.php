@@ -8,12 +8,17 @@
                 <i class="voyager-plus"></i> 新增
             </a>
         @endif
-        <a href="{{ route('excel.exportUsersTemplate') }}" class="btn btn-success">
-            <i class="voyager-plus"></i> 导出模板
-        </a>
+
+        <button type="button" class="btn btn-success" id="exportUsers">
+            <i class="voyager-plus"></i> 导出员工
+        </button>
         <button type="button" class="btn btn-success" data-toggle="modal" data-target="#myModal">
             <i class="voyager-plus"></i> 导入员工
         </button>
+
+        <a href="{{ route('excel.exportUsersTemplate') }}" class="btn btn-success pull-right">
+            <i class="voyager-plus"></i> 导出模板
+        </a>
         {{--导入员工模态框--}}
         <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
             <div class="modal-dialog" role="document">
@@ -40,6 +45,19 @@
             </div>
         </div>
     </h1>
+    {{--多选控制--}}
+    <h3 class="page-title">
+        <i class="voyager-search"></i> 勾选显示字段
+        <div>
+            @foreach($checkData as $key=>$value)
+                <label>
+                    <input type="checkbox" name="checkData" value="{{$key}}">
+
+                    {{$value}}&nbsp;&nbsp;
+                </label>
+            @endforeach
+        </div>
+    </h3>
 @stop
 
 @section('content')
@@ -53,7 +71,7 @@
                             <thead>
                             <tr>
                                 @foreach($dataType->browseRows as $rows)
-                                    <th>{{ $rows->display_name }}</th>
+                                    <th class="{{$rows->field}}" hidden>{{ $rows->display_name }}</th>
                                 @endforeach
                                 <th class="actions text-center">操作</th>
                             </tr>
@@ -62,7 +80,7 @@
                             @foreach($dataTypeContent as $data)
                                 <tr>
                                     @foreach($dataType->browseRows as $row)
-                                        <td>
+                                        <td class="{{$row->field}}" hidden>
                                             <?php $options = json_decode($row->details); ?>
                                             @if($row->type == 'image')
                                                 <img src="@if( strpos($data->{$row->field}, 'http://') === false && strpos($data->{$row->field}, 'https://') === false){{ Voyager::image( $data->{$row->field} ) }}@else{{ $data->{$row->field} }}@endif"
@@ -205,6 +223,30 @@
         });
         @endif
 
+        //初始化勾选
+        $("input[name='checkData'][value='belong_company']").attr('checked', true)
+        $("input[name='checkData'][value='username']").attr('checked', true)
+
+        //初始化勾选栏
+        var checkData = $("input[name='checkData']");
+        $.each(checkData, function (key, item) {
+            var ele = "." + $(item).val();
+            if ($(item).prop('checked')) {
+                $(ele).show();
+            }
+        })
+
+        //时间绑定
+        $(checkData).on('click', function (e) {
+            var ele = "." + $(e.target).val();
+            if ($(e.target).prop('checked')) {
+                $(ele).show();
+            } else {
+                $(ele).hide();
+            }
+            console.log($(e.target).val())
+        })
+
         $('td').on('click', '.delete', function (e) {
             var form = $('#delete_form')[0];
 
@@ -227,15 +269,23 @@
                 data: new FormData($('#uploadForm')[0]),
                 processData: false,
                 contentType: false
-            }).done(function(res) {
-                if(res.status===true){
+            }).done(function (res) {
+                if (res.status === true) {
                     $(".alert-success").show().delay(3000).hide(0)
-                }else {
+                } else {
                     $(".alert-danger").html(res.message).show()
                 }
-            }).fail(function(res) {
+            }).fail(function (res) {
                 $(".alert-danger").text('导入失败!').show().delay(3000).hide(0)
             });
+        })
+
+        //导出员工信息列表
+        $('#exportUsers').click(function () {
+//            var username=$("input[name='username']").val();
+            $.post('/exportUsers', function (data) {
+                console.log(data)
+            })
         })
     </script>
 @stop
