@@ -1,7 +1,7 @@
 @extends('voyager::master')
 
 @section('page_header')
-    <h1 class="page-title">
+    <h1 class="page-title" style="width: 96%">
         <i class="{{ $dataType->icon }}"></i> {{ $dataType->display_name_plural }}
         @if (Voyager::can('add_'.$dataType->name))
             <a href="{{ route('voyager.'.$dataType->slug.'.create') }}" class="btn btn-success">
@@ -9,11 +9,11 @@
             </a>
         @endif
 
-        <button type="button" class="btn btn-success" id="exportUsers">
-            <i class="voyager-plus"></i> 导出员工
-        </button>
         <button type="button" class="btn btn-success" data-toggle="modal" data-target="#myModal">
-            <i class="voyager-plus"></i> 导入员工
+            <i class="voyager-double-down"></i> 导入员工
+        </button>
+        <button type="button" class="btn btn-success" id="exportUsers">
+            <i class="voyager-double-up"></i> 导出员工
         </button>
 
         <a href="{{ route('excel.exportUsersTemplate') }}" class="btn btn-success pull-right">
