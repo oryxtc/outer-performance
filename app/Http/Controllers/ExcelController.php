@@ -95,16 +95,34 @@ class ExcelController extends Controller
     }
 
 
+    /**
+     * 导出用户
+     * @param Request $request
+     * @param UsersTemplate $export
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function exportUsers(Request $request, UsersTemplate $export)
     {
-        $head_list = static::HEAD_lIST;
-        $head_list_value = array_values($head_list);
+        $check_data=$request->get('checkData',null);
+        $search_data=$request->get('searchData',null);
+
+        if(empty($check_data)){
+            return $this->apiJson(false,'请选择需要导出的字段!');
+        }
+        //如果是查询全部
+        $check_data=in_array('*',$check_data)?'*':$check_data;
         //查询数据
         $users_data = \DB::table('users')
-            ->where()
-            ->get();
+            ->select($check_data);
+        //如果有查询条件
+        if(!empty($search_data)){
+            $users_data=$users_data
+                ->where(key($search_data),'like','%'.$search_data[key($search_data)].'%');
+        }
+        //获取最终数据
+        $users_data=$users_data->get();
         $users_data = $this->stdClassToArray($users_data);
-
+        dd($users_data);
         //导出数据
         $export->sheet('员工信息表', function ($sheet) use ($head_list_value, $users_data) {
             $sheet->setAutoSize(true);

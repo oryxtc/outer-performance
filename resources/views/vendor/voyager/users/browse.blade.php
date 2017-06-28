@@ -46,12 +46,12 @@
         </div>
     </h1>
     {{--多选控制--}}
-    <h3 class="page-title">
+    <h3 class="page-title" >
         <i class="voyager-search"></i> 勾选显示字段
-        <div>
+        <div class="ckeck-data">
             @foreach($checkData as $key=>$value)
                 <label>
-                    <input type="checkbox" name="checkData" value="{{$key}}">
+                    <input type="checkbox" name="checkData" value="{{$key}}" data-name="{{$value}}">
 
                     {{$value}}&nbsp;&nbsp;
                 </label>
@@ -62,6 +62,18 @@
 
 @section('content')
     <div class="page-content container-fluid">
+        {{--下来选择框--}}
+        <div class="dropdown" style="margin-left: 4%">
+            <button  id="dLabel" type="button" data-toggle="dropdown" data-value="" aria-haspopup="true" aria-expanded="false" style="width: 116px">
+                请选择字段
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" aria-labelledby="dLabel">
+
+            </ul>
+            <input type="text" id="search-data">
+            <button type="button" id="search-btn">搜索</button>
+        </div>
         @include('voyager::alerts')
         <div class="row">
             <div class="col-md-12">
@@ -282,10 +294,43 @@
 
         //导出员工信息列表
         $('#exportUsers').click(function () {
-//            var username=$("input[name='username']").val();
-            $.post('/exportUsers', function (data) {
-                console.log(data)
+            var data={}
+            var search_data={}
+            var check_data={}
+            var check_data_list=$(".ckeck-data input:checked")
+            //选择的
+            $(check_data_list).each(function (key,value) {
+                check_data[key]=$(value).val();
             })
+            //搜索栏
+            var search_key=$("#dLabel").data('value')
+            var search_value=$("#search-data").val()
+            search_data[search_key]=search_value;
+
+            data.checkData=check_data;
+            data.searchData=search_data;
+
+            $.post('/exportUsers',data, function (data) {
+//                console.log(data)
+            })
+        })
+
+        $("#dLabel").on('click',function (e) {
+            var check_data_list=$(".ckeck-data input:checked")
+            //清空节点
+            $(".dropdown-menu li").remove();
+            //选择的
+            $(check_data_list).each(function (key,value) {
+                var html="<li data-value='"+$(value).val()+"'>"+$(value).data('name')+"</li>"
+               $(".dropdown-menu").append(html)
+            })
+        })
+        
+        $(".dropdown-menu").bind('click',function (e) {
+            var name=$(e.target).text()
+            var value=$(e.target).data('value')
+            $("#dLabel").text(name)
+            $("#dLabel").data('value',value)
         })
     </script>
 @stop
