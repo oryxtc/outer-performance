@@ -107,7 +107,7 @@ class ExcelController extends Controller
         $search_data=$request->get('searchData',null);
         $head_list = static::HEAD_lIST;
         if(empty($check_data)){
-            return $this->apiJson(false,'请选择需要导出的字段!');
+            return ;
         }
         //如果是查询全部
         $check_data=in_array('*',$check_data)?'*':$check_data;
@@ -133,7 +133,7 @@ class ExcelController extends Controller
             //填充头部
             $sheet->prependRow($head_list_value);
             //填充主体
-            $sheet->fromArray($users_data);
+            $sheet->fromArray($users_data,null,'A2',true,false);
         });
         return $export->export('xlsx');
     }

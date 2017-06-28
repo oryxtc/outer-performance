@@ -15,6 +15,9 @@
         <button type="button" class="btn btn-success" id="exportUsers">
             <i class="voyager-double-up"></i> 导出员工
         </button>
+        <form hidden method="post" action="/exportUsers" id="search-form" target="_blank">
+
+        </form>
 
         <a href="{{ route('excel.exportUsersTemplate') }}" class="btn btn-success pull-right">
             <i class="voyager-plus"></i> 导出模板
@@ -46,7 +49,7 @@
         </div>
     </h1>
     {{--多选控制--}}
-    <h3 class="page-title" >
+    <h3 class="page-title">
         <i class="voyager-search"></i> 勾选显示字段
         <div class="ckeck-data">
             @foreach($checkData as $key=>$value)
@@ -64,7 +67,8 @@
     <div class="page-content container-fluid">
         {{--下来选择框--}}
         <div class="dropdown" style="margin-left: 4%">
-            <button  id="dLabel" type="button" data-toggle="dropdown" data-value="" aria-haspopup="true" aria-expanded="false" style="width: 116px">
+            <button id="dLabel" type="button" data-toggle="dropdown" data-value="" aria-haspopup="true"
+                    aria-expanded="false" style="width: 116px">
                 请选择字段
                 <span class="caret"></span>
             </button>
@@ -294,43 +298,42 @@
 
         //导出员工信息列表
         $('#exportUsers').click(function () {
-            var data={}
-            var search_data={}
-            var check_data={}
-            var check_data_list=$(".ckeck-data input:checked")
+            var data = {}
+            var check_data_list = $(".ckeck-data input:checked")
+            //必须至少选择一个
+            if($(check_data_list).length==0){
+                $(".alert-danger").text('请至少选择一个字段进行导出!').show().delay(3000).hide(0)
+                return
+            }
+            $("#search-form input").remove();
             //选择的
-            $(check_data_list).each(function (key,value) {
-                check_data[key]=$(value).val();
+            $(check_data_list).each(function (key, value) {
+                $('#search-form').append("<input type='text' name=checkData[" + key + "] value=" + $(value).val() + " />")
             })
             //搜索栏
-            var search_key=$("#dLabel").data('value')
-            var search_value=$("#search-data").val()
-            search_data[search_key]=search_value;
-
-            data.checkData=check_data;
-            data.searchData=search_data;
-
-            $.post('/exportUsers',data, function (data) {
-//                console.log(data)
-            })
+            if($("#search-data").val()){
+                var search_key = $("#dLabel").data('value')
+                $('#search-form').append("<input type='text' name=searchData[" + search_key + "] value=" + $("#search-data").val() + " >")
+            }
+            $("#search-form").submit()
         })
 
-        $("#dLabel").on('click',function (e) {
-            var check_data_list=$(".ckeck-data input:checked")
+        $("#dLabel").on('click', function (e) {
+            var check_data_list = $(".ckeck-data input:checked")
             //清空节点
             $(".dropdown-menu li").remove();
             //选择的
-            $(check_data_list).each(function (key,value) {
-                var html="<li data-value='"+$(value).val()+"'>"+$(value).data('name')+"</li>"
-               $(".dropdown-menu").append(html)
+            $(check_data_list).each(function (key, value) {
+                var html = "<li data-value='" + $(value).val() + "'>" + $(value).data('name') + "</li>"
+                $(".dropdown-menu").append(html)
             })
         })
-        
-        $(".dropdown-menu").bind('click',function (e) {
-            var name=$(e.target).text()
-            var value=$(e.target).data('value')
+
+        $(".dropdown-menu").bind('click', function (e) {
+            var name = $(e.target).text()
+            var value = $(e.target).data('value')
             $("#dLabel").text(name)
-            $("#dLabel").data('value',value)
+            $("#dLabel").data('value', value)
         })
     </script>
 @stop
