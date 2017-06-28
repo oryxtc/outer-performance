@@ -105,7 +105,7 @@ class ExcelController extends Controller
     {
         $check_data=$request->get('checkData',null);
         $search_data=$request->get('searchData',null);
-
+        $head_list = static::HEAD_lIST;
         if(empty($check_data)){
             return $this->apiJson(false,'请选择需要导出的字段!');
         }
@@ -122,7 +122,10 @@ class ExcelController extends Controller
         //获取最终数据
         $users_data=$users_data->get();
         $users_data = $this->stdClassToArray($users_data);
-        dd($users_data);
+
+        foreach ($check_data as $key=>$value){
+            $head_list_value[]=$head_list[$value];
+        }
         //导出数据
         $export->sheet('员工信息表', function ($sheet) use ($head_list_value, $users_data) {
             $sheet->setAutoSize(true);
@@ -130,7 +133,7 @@ class ExcelController extends Controller
             //填充头部
             $sheet->prependRow($head_list_value);
             //填充主体
-            $sheet->fromData($users_data);
+            $sheet->fromArray($users_data);
         });
         return $export->export('xlsx');
     }
