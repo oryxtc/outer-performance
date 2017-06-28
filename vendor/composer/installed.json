@@ -4927,5 +4927,68 @@
             "import",
             "laravel"
         ]
+    },
+    {
+        "name": "yajra/laravel-datatables-oracle",
+        "version": "v7.8.1",
+        "version_normalized": "7.8.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/yajra/laravel-datatables.git",
+            "reference": "03a06201ab128724b3953731752038475920fd25"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://files.phpcomposer.com/files/yajra/laravel-datatables/03a06201ab128724b3953731752038475920fd25.zip",
+            "reference": "03a06201ab128724b3953731752038475920fd25",
+            "shasum": ""
+        },
+        "require": {
+            "illuminate/database": "5.4.*",
+            "illuminate/filesystem": "5.4.*",
+            "illuminate/http": "5.4.*",
+            "illuminate/support": "5.4.*",
+            "illuminate/view": "5.4.*",
+            "php": ">=5.6.4"
+        },
+        "require-dev": {
+            "mockery/mockery": "0.9.*",
+            "orchestra/testbench": "^3.4",
+            "phpunit/phpunit": "~5.7"
+        },
+        "suggest": {
+            "league/fractal": "Transform your api response into something you won't hate.",
+            "yajra/laravel-datatables-buttons": "Plugin for server-side exporting of dataTable.",
+            "yajra/laravel-datatables-html": "Plugin for server-side HTML builder of dataTable."
+        },
+        "time": "2017-06-27T13:52:09+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "7.0-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Yajra\\Datatables\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Arjay Angeles",
+                "email": "aqangeles@gmail.com"
+            }
+        ],
+        "description": "jQuery DataTables API for Laravel 4|5",
+        "keywords": [
+            "datatables",
+            "jquery",
+            "laravel"
+        ]
     }
 ]
