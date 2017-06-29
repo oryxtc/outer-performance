@@ -188,10 +188,18 @@ class VoyagerUserController extends VoyagerBreadController
      * @return mixed
      */
     public function getUsersList(Request $request){
-        $check_data=empty($request->get('checkData',[]))?ExcelController::CHECK_DATA:$request->get('checkData');
         $head_list = ExcelController::HEAD_LIST;
-
-        $users = User::query();
+        if(empty($request->get('checkData',[]))){
+            $check_data=ExcelController::CHECK_DATA;
+        }else{
+            $request_check_data=$request->get('checkData',[]);
+            foreach ($request_check_data as $key=>$value){
+                if ($value==='true'){
+                    $check_data[]=$key;
+                }
+            }
+        }
+        $users = User::select($check_data);
         $response_data=\Datatables::eloquent($users);
         //指定搜索栏模糊匹配
         $response_data=$response_data->filter(function ($query) use ($request,$head_list) {
@@ -202,23 +210,14 @@ class VoyagerUserController extends VoyagerBreadController
                 }
             });
         //添加列
-        foreach ($check_data as $key=>$value){
-            if($value==='true'){
-                $response_data=$response_data
-                    ->addColumn($key,$value)
-                    ->setRowAttr([
-                        'class' => function($user) {
-                            return 'row-' . $user->id;
-                        }
-                    ]);
-            }else{
-                $response_data=$response_data
-                    ->remove_column($key)
-                    ->setRowClass(function ($user) {
-                    return $user->id % 2 == 0 ? 'alert-success' : 'alert-warning';
-                });
-            }
-        };
+//        foreach ($check_data as $key=>$value){
+//            $response_data=$response_data->addColumn($key,$value);
+//            if($value==='true'){
+//                $response_data=$response_data->addColumn($key,$value);
+//            }else{
+//                $response_data=$response_data->remove_column($key);
+//            }
+//        };
         //生成实例
         $response_data=$response_data->make();
         return $response_data;

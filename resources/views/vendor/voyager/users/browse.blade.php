@@ -90,9 +90,7 @@
                         <table id="users-table" class="table table-bordered">
                             <thead>
                             <tr>
-                                @foreach($checkData as $key=>$value)
-                                    <th class="{{$key}}">{{$value}}</th>
-                                @endforeach
+
                             </tr>
                             </thead>
                         </table>
@@ -131,16 +129,29 @@
     <script>
 
         $(function () {
+            function parseActionUrl(action, id) {
+                return action.match(/\/[0-9]+$/)
+                    ? action.replace(/([0-9]+$)/, id)
+                    : action + '/' + id;
+            };
+
+            function initTableTh() {
+                $("input[name='checkData']:checked").each(function (key,value) {
+                    var check_name=$(value).data('name');
+                    $("#users-table thead tr").append("<th>"+check_name+"</th>");
+                })
+            }
+
             {{--//初始化勾选--}}
-           $("input[name='checkData'][value='belong_company']").attr('checked', true);
+            $("input[name='checkData'][value='belong_company']").attr('checked', true);
             $("input[name='checkData'][value='username']").attr('checked', true);
             $("input[name='checkData'][value='sex']").attr('checked', true);
             $("input[name='checkData'][value='email']").attr('checked', true);
-            function parseActionUrl(action, id) {
-                return action.match(/\/[0-9]+$/)
-                        ? action.replace(/([0-9]+$)/, id)
-                        : action + '/' + id;
-            };
+
+            //初始化th
+            initTableTh();
+
+
 
             //初始化datatables
             var oTable = $('#users-table').DataTable({
@@ -161,12 +172,9 @@
                 }
             });
 
-
             $('td').on('click', '.delete', function (e) {
                 var form = $('#delete_form')[0];
-
                 form.action = parseActionUrl(form.action, $(this).data('id'));
-
                 $('#delete_modal').modal('show');
             });
 
@@ -176,7 +184,6 @@
                 var value = $(e.target).data('value')
                 $("#dLabel").text(name)
                 $("#search-data").data('name', value)
-//                $("#dLabel").data('value', value)
             })
 
             //点击搜索按钮
@@ -187,15 +194,11 @@
 
             //点击多选框触发 列改变事件
             $("input[name='checkData']").on('click', function (e) {
-                $.each($("input[name='checkData']"), function (key, item) {
-                    $("#users-table thead th").remove()
-                    var th_html='';
-                    if($(item).prop('checked')){
-                        th_html+="<th></th>";
-                    }
-                    $("#users-table thead tr").append(th_html)
-                })
-
+                //先清空
+                $("#users-table thead tr th").remove()
+                //初始化th
+                initTableTh();
+                
                 oTable.clear();
                 oTable.destroy();
                 oTable = $('#users-table').DataTable({
