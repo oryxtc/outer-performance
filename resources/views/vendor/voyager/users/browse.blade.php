@@ -1,7 +1,7 @@
 @extends('voyager::master')
 
 @section('page_header')
-    <h1 class="page-title" style="width: 96%">
+    <h1 class="page-title" style="width: 96%;height: 50px">
         <i class="{{ $dataType->icon }}"></i> {{ $dataType->display_name_plural }}
         @if (Voyager::can('add_'.$dataType->name))
             <a href="{{ route('voyager.'.$dataType->slug.'.create') }}" class="btn btn-success">
@@ -49,7 +49,7 @@
         </div>
     </h1>
     {{--多选控制--}}
-    <h3 class="page-title">
+    <h3 class="page-title" style="height: 50px">
         <i class="voyager-search"></i> 勾选显示字段
         <div class="ckeck-data">
             @foreach($checkData as $key=>$value)
@@ -68,7 +68,7 @@
         {{--下来选择框--}}
         <form method="post" id="search-form" class="form-inline" role="form">
             <div class="dropdown" style="margin-left: 4%">
-                <button id="dLabel" type="button" data-toggle="dropdown" data-value="" aria-haspopup="true"
+                <button id="dLabel" type="button" class="btn btn-info" data-toggle="dropdown" data-value="" aria-haspopup="true"
                         aria-expanded="false" style="width: 116px">
                     请选择字段
                     <span class="caret"></span>
@@ -136,9 +136,11 @@
                         : action + '/' + id;
             };
 
+            //初始化datatables
             var oTable = $('#users-table').DataTable({
                 processing: true,
                 serverSide: true,
+                searching: false,
                 ajax: {
                     url:'{!! route('getUsersList') !!}',
                     data: function (d) {
@@ -189,7 +191,7 @@
                 $(".dropdown-menu li").remove();
                 //选择的
                 $(check_data_list).each(function (key, value) {
-                    var html = "<li data-value='" + $(value).val() + "'>" + $(value).data('name') + "</li>"
+                    var html = "<li class='btn-default' data-value='" + $(value).val() + "'>" + $(value).data('name') + "</li>"
                     $(".dropdown-menu").append(html)
                 })
             })

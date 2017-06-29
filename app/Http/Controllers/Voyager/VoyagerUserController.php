@@ -201,8 +201,6 @@ class VoyagerUserController extends VoyagerBreadController
             ->make(true);
     }
 
-
-
     /**
      * Get a validator for an incoming registration request.
      *
