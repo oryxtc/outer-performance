@@ -135,11 +135,32 @@
                     : action + '/' + id;
             };
 
+            //初始化表头
             function initTableTh() {
                 $("input[name='checkData']:checked").each(function (key,value) {
                     var check_name=$(value).data('name');
                     $("#users-table thead tr").append("<th>"+check_name+"</th>");
                 })
+            }
+
+            var initTable=function () {
+                $('#users-table').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    searching: false,
+                    ajax: {
+                        url: '{!! route('getUsersList') !!}',
+                        data: function (d) {
+                            var name = $("#search-data").data('name');
+                            d[name] = $("#search-data").val();
+                            //多选框
+                            var checkData = d.checkData = {}
+                            $($("input[name='checkData']")).each(function (key, value) {
+                                checkData[$(value).val()] = $(value).prop('checked')
+                            })
+                        }
+                    }
+                });
             }
 
             {{--//初始化勾选--}}
@@ -151,26 +172,8 @@
             //初始化th
             initTableTh();
 
-
-
             //初始化datatables
-            var oTable = $('#users-table').DataTable({
-                processing: true,
-                serverSide: true,
-                searching: false,
-                ajax: {
-                    url: '{!! route('getUsersList') !!}',
-                    data: function (d) {
-                        var name = $("#search-data").data('name');
-                        d[name] = $("#search-data").val();
-                        //多选框
-                        var checkData = d.checkData = {}
-                        $($("input[name='checkData']")).each(function (key, value) {
-                            checkData[$(value).val()] = $(value).prop('checked')
-                        })
-                    }
-                }
-            });
+            initTable();
 
             $('td').on('click', '.delete', function (e) {
                 var form = $('#delete_form')[0];
@@ -188,7 +191,7 @@
 
             //点击搜索按钮
             $("#search-btn").click(function (e) {
-                oTable.draw();
+                initTable.draw();
                 e.preventDefault();
             });
 
@@ -198,28 +201,13 @@
                 $("#users-table thead tr th").remove()
                 //初始化th
                 initTableTh();
-                
-                oTable.clear();
-                oTable.destroy();
-                oTable = $('#users-table').DataTable({
-                    processing: true,
-                    serverSide: true,
-                    searching: false,
-                    ajax: {
-                        url: '{!! route('getUsersList') !!}',
-                        data: function (d) {
-                            var name = $("#search-data").data('name');
-                            d[name] = $("#search-data").val();
-                            //多选框
-                            var checkData = d.checkData = {}
-                            $($("input[name='checkData']")).each(function (key, value) {
-                                checkData[$(value).val()] = $(value).prop('checked')
-                            })
-                        }
-                    }
-                });
-                oTable.draw();
+
+                initTable.clear();
+                initTable.destroy();
+                initTable();
+                initTable.draw();
             })
+
             //点击选择按钮更新下来列表
             $("#dLabel").on('click', function (e) {
                 var check_data_list = $(".ckeck-data input:checked")
@@ -273,16 +261,5 @@
                 $("#search-form").submit()
             })
         });
-
-
-        //初始化勾选栏
-        //                $.each($("input[name='checkData']"), function (key, item) {
-        //                    var ele = "." + $(item).val();
-        //                    if ($(item).prop('checked')) {
-        //                        $(ele).show();
-        //                    }
-        //                })
-
-
     </script>
 @stop
