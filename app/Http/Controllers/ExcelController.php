@@ -12,16 +12,11 @@ class ExcelController extends Controller
         'belong_company' => '所属公司',
         'job_number' => '工号',
         'username' => '姓名',
-        'status' => '状态',
-        'property' => '性质',
-        'contract_at' => '合同到期时间',
-        'entry_at' => '入职时间',
-        'formal_at' => '转正时间',
-        'leave_at' => '离职时间',
         'email' => '企业邮箱',
+        'sex' => '性别',
     ];
 
-    const HEAD_lIST = [
+    const HEAD_LIST = [
         'belong_company' => '所属公司',
         'job_number' => '工号',
         'username' => '姓名',
@@ -82,7 +77,7 @@ class ExcelController extends Controller
      */
     public function exportUsersTemplate(UsersTemplate $export)
     {
-        $head_list = static::HEAD_lIST;
+        $head_list = static::HEAD_LIST;
         $head_list_value = array_values($head_list);
         //导出数据
         $export->sheet('员工信息表', function ($sheet) use ($head_list_value) {
@@ -105,7 +100,7 @@ class ExcelController extends Controller
     {
         $check_data=$request->get('checkData',null);
         $search_data=$request->get('searchData',null);
-        $head_list = static::HEAD_lIST;
+        $head_list = static::HEAD_LIST;
         if(empty($check_data)){
             return ;
         }
@@ -147,8 +142,8 @@ class ExcelController extends Controller
             // reader methods
         })->get()->toArray();
         //准备数据
-        $head_list = UsersTemplate::HEAD_lIST;
-        $head_list_flip = array_flip(UsersTemplate::HEAD_lIST);
+        $head_list = UsersTemplate::HEAD_LIST;
+        $head_list_flip = array_flip($head_list);
         $save_data = [];
         $errors_mes = [];
         //处理数据

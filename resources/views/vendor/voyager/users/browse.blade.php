@@ -48,27 +48,29 @@
             </div>
         </div>
     </h1>
-    {{--多选控制--}}
-    <h3 class="page-title" style="height: 50px">
-        <i class="voyager-search"></i> 勾选显示字段
-        <div class="ckeck-data">
-            @foreach($checkData as $key=>$value)
-                <label>
-                    <input type="checkbox" name="checkData" value="{{$key}}" data-name="{{$value}}">
 
-                    {{$value}}&nbsp;&nbsp;
-                </label>
-            @endforeach
-        </div>
-    </h3>
 @stop
 
 @section('content')
     <div class="page-content container-fluid">
         {{--下来选择框--}}
         <form method="post" id="search-form" class="form-inline" role="form">
+            {{--多选控制--}}
+            <h3 class="page-title" style="height: 50px">
+                <i class="voyager-search"></i> 勾选显示字段
+                <div class="ckeck-data">
+                    @foreach($checkData as $key=>$value)
+                        <label>
+                            <input type="checkbox" name="checkData" value="{{$key}}" data-name="{{$value}}">
+
+                            {{$value}}&nbsp;&nbsp;
+                        </label>
+                    @endforeach
+                </div>
+            </h3>
             <div class="dropdown" style="margin-left: 4%">
-                <button id="dLabel" type="button" class="btn btn-info" data-toggle="dropdown" data-value="" aria-haspopup="true"
+                <button id="dLabel" type="button" class="btn btn-info" data-toggle="dropdown" data-value=""
+                        aria-haspopup="true"
                         aria-expanded="false" style="width: 116px">
                     请选择字段
                     <span class="caret"></span>
@@ -76,7 +78,7 @@
                 <ul class="dropdown-menu" aria-labelledby="dLabel">
 
                 </ul>
-                <input type="text" id="search-data" class="form-control"  data-name="">
+                <input type="text" id="search-data" class="form-control" data-name="">
                 <button type="submit" id="search-btn" class="btn btn-primary">搜索</button>
             </div>
         </form>
@@ -88,9 +90,9 @@
                         <table id="users-table" class="table table-bordered">
                             <thead>
                             <tr>
-                                <th>Id</th>
-                                <th>Username</th>
-                                <th>Email</th>
+                                @foreach($checkData as $key=>$value)
+                                    <th class="{{$key}}">{{$value}}</th>
+                                @endforeach
                             </tr>
                             </thead>
                         </table>
@@ -129,7 +131,11 @@
     <script>
 
         $(function () {
-
+            {{--//初始化勾选--}}
+           $("input[name='checkData'][value='belong_company']").attr('checked', true);
+            $("input[name='checkData'][value='username']").attr('checked', true);
+            $("input[name='checkData'][value='sex']").attr('checked', true);
+            $("input[name='checkData'][value='email']").attr('checked', true);
             function parseActionUrl(action, id) {
                 return action.match(/\/[0-9]+$/)
                         ? action.replace(/([0-9]+$)/, id)
@@ -142,23 +148,18 @@
                 serverSide: true,
                 searching: false,
                 ajax: {
-                    url:'{!! route('getUsersList') !!}',
+                    url: '{!! route('getUsersList') !!}',
                     data: function (d) {
-                        var name=$("#search-data").data('name');
+                        var name = $("#search-data").data('name');
                         d[name] = $("#search-data").val();
+                        //多选框
+                        var checkData = d.checkData = {}
+                        $($("input[name='checkData']")).each(function (key, value) {
+                            checkData[$(value).val()] = $(value).prop('checked')
+                        })
                     }
-                },
-                columns: [
-                    {data: 'id', name: 'id'},
-                    {data: 'username', name: 'username'},
-                    {data: 'email', name: 'email'},
-                ]
+                }
             });
-
-
-            {{--//初始化勾选--}}
-            $("input[name='checkData'][value='belong_company']").attr('checked', true);
-            $("input[name='checkData'][value='username']").attr('checked', true);
 
 
             $('td').on('click', '.delete', function (e) {
@@ -174,7 +175,7 @@
                 var name = $(e.target).text()
                 var value = $(e.target).data('value')
                 $("#dLabel").text(name)
-                $("#search-data").data('name',value)
+                $("#search-data").data('name', value)
 //                $("#dLabel").data('value', value)
             })
 
@@ -184,6 +185,38 @@
                 e.preventDefault();
             });
 
+            //点击多选框触发 列改变事件
+            $("input[name='checkData']").on('click', function (e) {
+                $.each($("input[name='checkData']"), function (key, item) {
+                    $("#users-table thead th").remove()
+                    var th_html='';
+                    if($(item).prop('checked')){
+                        th_html+="<th></th>";
+                    }
+                    $("#users-table thead tr").append(th_html)
+                })
+
+                oTable.clear();
+                oTable.destroy();
+                oTable = $('#users-table').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    searching: false,
+                    ajax: {
+                        url: '{!! route('getUsersList') !!}',
+                        data: function (d) {
+                            var name = $("#search-data").data('name');
+                            d[name] = $("#search-data").val();
+                            //多选框
+                            var checkData = d.checkData = {}
+                            $($("input[name='checkData']")).each(function (key, value) {
+                                checkData[$(value).val()] = $(value).prop('checked')
+                            })
+                        }
+                    }
+                });
+                oTable.draw();
+            })
             //点击选择按钮更新下来列表
             $("#dLabel").on('click', function (e) {
                 var check_data_list = $(".ckeck-data input:checked")
@@ -240,25 +273,12 @@
 
 
         //初始化勾选栏
-        //        var checkData = $("input[name='checkData']");
-        //        $.each(checkData, function (key, item) {
-        //            var ele = "." + $(item).val();
-        //            if ($(item).prop('checked')) {
-        //                $(ele).show();
-        //            }
-        //        })
-
-        //时间绑定
-        //        $(checkData).on('click', function (e) {
-        //            var ele = "." + $(e.target).val();
-        //            if ($(e.target).prop('checked')) {
-        //                $(ele).show();
-        //            } else {
-        //                $(ele).hide();
-        //            }
-        //            console.log($(e.target).val())
-        //        })
-
+        //                $.each($("input[name='checkData']"), function (key, item) {
+        //                    var ele = "." + $(item).val();
+        //                    if ($(item).prop('checked')) {
+        //                        $(ele).show();
+        //                    }
+        //                })
 
 
     </script>

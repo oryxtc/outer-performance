@@ -188,17 +188,40 @@ class VoyagerUserController extends VoyagerBreadController
      * @return mixed
      */
     public function getUsersList(Request $request){
-        $head_list = ExcelController::CHECK_DATA;
-        $users = User::select(['id', 'username', 'email']);
-        return \Datatables::eloquent($users)
-            ->filter(function ($query) use ($request,$head_list) {
+        $check_data=empty($request->get('checkData',[]))?ExcelController::CHECK_DATA:$request->get('checkData');
+        $head_list = ExcelController::HEAD_LIST;
+
+        $users = User::query();
+        $response_data=\Datatables::eloquent($users);
+        //指定搜索栏模糊匹配
+        $response_data=$response_data->filter(function ($query) use ($request,$head_list) {
                 foreach ($head_list as $key=>$value){
                     if ($request->has($key)) {
                         $query->where($key, 'like', "%{$request->get($key)}%");
                     }
                 }
-            })
-            ->make(true);
+            });
+        //添加列
+        foreach ($check_data as $key=>$value){
+            if($value==='true'){
+                $response_data=$response_data
+                    ->addColumn($key,$value)
+                    ->setRowAttr([
+                        'class' => function($user) {
+                            return 'row-' . $user->id;
+                        }
+                    ]);
+            }else{
+                $response_data=$response_data
+                    ->remove_column($key)
+                    ->setRowClass(function ($user) {
+                    return $user->id % 2 == 0 ? 'alert-success' : 'alert-warning';
+                });
+            }
+        };
+        //生成实例
+        $response_data=$response_data->make();
+        return $response_data;
     }
 
     /**
