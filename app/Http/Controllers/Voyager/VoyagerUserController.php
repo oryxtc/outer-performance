@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Voyager;
 
 use App\Http\Controllers\ExcelController;
+use App\User;
 use Illuminate\Http\Request;
 use TCG\Voyager\Facades\Voyager;
 
@@ -178,6 +179,26 @@ class VoyagerUserController extends VoyagerBreadController
             return $this->apiJson(false,'重置密码失败!');
         }
         return $this->apiJson(true,'重置密码成功!');
+    }
+
+
+    /**
+     * 获取用户列表
+     * @param Request $request
+     * @return mixed
+     */
+    public function getUsersList(Request $request){
+        $head_list = ExcelController::CHECK_DATA;
+        $users = User::select(['id', 'username', 'email']);
+        return \Datatables::eloquent($users)
+            ->filter(function ($query) use ($request,$head_list) {
+                foreach ($head_list as $key=>$value){
+                    if ($request->has($key)) {
+                        $query->where($key, 'like', "%{$request->get($key)}%");
+                    }
+                }
+            })
+            ->make(true);
     }
 
 

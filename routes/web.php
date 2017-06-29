@@ -26,6 +26,7 @@ use Illuminate\Routing\Route;
 
 \Route::group(['prefix' => 'admin','middleware'=>['web','errors.session']], function () {
     require base_path().'/routes/voyager.php';
+    \Route::any('getUsersList','Voyager\VoyagerUserController@getUsersList')->name('getUsersList');
 });
 
 \Route::group(['as'=>'wechat.','prefix' => 'wechat'], function () {

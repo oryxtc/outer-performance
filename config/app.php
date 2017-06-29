@@ -186,6 +186,8 @@ return [
         //laravel-excel
         Maatwebsite\Excel\ExcelServiceProvider::class,
 
+        Yajra\Datatables\DatatablesServiceProvider::class,
+
     ],
 
     /*
