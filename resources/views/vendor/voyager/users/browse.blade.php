@@ -143,25 +143,7 @@
                 })
             }
 
-            var initTable=function () {
-                $('#users-table').DataTable({
-                    processing: true,
-                    serverSide: true,
-                    searching: false,
-                    ajax: {
-                        url: '{!! route('getUsersList') !!}',
-                        data: function (d) {
-                            var name = $("#search-data").data('name');
-                            d[name] = $("#search-data").val();
-                            //多选框
-                            var checkData = d.checkData = {}
-                            $($("input[name='checkData']")).each(function (key, value) {
-                                checkData[$(value).val()] = $(value).prop('checked')
-                            })
-                        }
-                    }
-                });
-            }
+            
 
             {{--//初始化勾选--}}
             $("input[name='checkData'][value='belong_company']").attr('checked', true);
@@ -173,7 +155,23 @@
             initTableTh();
 
             //初始化datatables
-            initTable();
+            var oTable = $('#users-table').DataTable({
+                processing: true,
+                serverSide: true,
+                searching: false,
+                ajax: {
+                    url: '{!! route('getUsersList') !!}',
+                    data: function (d) {
+                        var name = $("#search-data").data('name');
+                        d[name] = $("#search-data").val();
+                        //多选框
+                        var checkData = d.checkData = {}
+                        $($("input[name='checkData']")).each(function (key, value) {
+                            checkData[$(value).val()] = $(value).prop('checked')
+                        })
+                    }
+                }
+            });
 
             $('td').on('click', '.delete', function (e) {
                 var form = $('#delete_form')[0];
@@ -191,7 +189,7 @@
 
             //点击搜索按钮
             $("#search-btn").click(function (e) {
-                initTable.draw();
+                oTable.draw();
                 e.preventDefault();
             });
 
@@ -201,13 +199,27 @@
                 $("#users-table thead tr th").remove()
                 //初始化th
                 initTableTh();
-
-                initTable.clear();
-                initTable.destroy();
-                initTable();
-                initTable.draw();
+                oTable.clear();
+                oTable.destroy();
+                oTable = $('#users-table').DataTable({
+                    processing: true,
+                    serverSide: true,
+                    searching: false,
+                    ajax: {
+                        url: '{!! route('getUsersList') !!}',
+                        data: function (d) {
+                            var name = $("#search-data").data('name');
+                            d[name] = $("#search-data").val();
+                            //多选框
+                            var checkData = d.checkData = {}
+                            $($("input[name='checkData']")).each(function (key, value) {
+                                checkData[$(value).val()] = $(value).prop('checked')
+                            })
+                        }
+                    }
+                });
+                oTable.draw();
             })
-
             //点击选择按钮更新下来列表
             $("#dLabel").on('click', function (e) {
                 var check_data_list = $(".ckeck-data input:checked")
@@ -260,6 +272,6 @@
                 }
                 $("#search-form").submit()
             })
-        });
+        }); 
     </script>
 @stop
