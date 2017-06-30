@@ -8,6 +8,10 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class User extends Authenticatable
 {
     use Notifiable;
+
+    public function getRole(){
+        return $this->hasOne('App\Role','id','role_id');
+    }
 //
 //    /**
 //     * The attributes that are mass assignable.

@@ -146,6 +146,8 @@
             
 
             {{--//初始化勾选--}}
+            $("input[name='checkData'][value='id']").attr('checked', true);
+            $("input[name='checkData'][value='role_id']").attr('checked', true);
             $("input[name='checkData'][value='belong_company']").attr('checked', true);
             $("input[name='checkData'][value='username']").attr('checked', true);
             $("input[name='checkData'][value='sex']").attr('checked', true);

@@ -6,6 +6,7 @@ use App\Http\Controllers\ExcelController;
 use App\User;
 use Illuminate\Http\Request;
 use TCG\Voyager\Facades\Voyager;
+use TCG\Voyager\Models\Role;
 
 class VoyagerUserController extends VoyagerBreadController
 {
@@ -201,6 +202,11 @@ class VoyagerUserController extends VoyagerBreadController
         }
         $users = User::select($check_data);
         $response_data=\Datatables::eloquent($users);
+
+        //过滤字段
+        $response_data=$response_data->editColumn('role_id', function(User $user) {
+            return User::find($user->id)->getRole->display_name;
+        });
         //指定搜索栏模糊匹配
         $response_data=$response_data->filter(function ($query) use ($request,$head_list) {
                 foreach ($head_list as $key=>$value){
