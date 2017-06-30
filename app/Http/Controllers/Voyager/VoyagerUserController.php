@@ -209,15 +209,6 @@ class VoyagerUserController extends VoyagerBreadController
                     }
                 }
             });
-        //添加列
-//        foreach ($check_data as $key=>$value){
-//            $response_data=$response_data->addColumn($key,$value);
-//            if($value==='true'){
-//                $response_data=$response_data->addColumn($key,$value);
-//            }else{
-//                $response_data=$response_data->remove_column($key);
-//            }
-//        };
         //生成实例
         $response_data=$response_data->make();
         return $response_data;

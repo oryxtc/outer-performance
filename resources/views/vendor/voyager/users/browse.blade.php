@@ -267,7 +267,7 @@
                 })
                 //搜索栏
                 if ($("#search-data").val()) {
-                    var search_key = $("#dLabel").data('value')
+                    var search_key = $("#search-data").data('name');
                     $('#search-form').append("<input type='text' name=searchData[" + search_key + "] value=" + $("#search-data").val() + " >")
                 }
                 $("#search-form").submit()
