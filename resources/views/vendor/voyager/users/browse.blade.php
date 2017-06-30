@@ -252,7 +252,7 @@
                     if (res.status === true) {
                         $(".alert-success").show().delay(3000).hide(0)
                     } else {
-                        $(".alert-danger").html(res.message).show()
+                        $(".alert-danger").html(res.message).delay(5000).show()
                     }
                 }).fail(function (res) {
                     $(".alert-danger").text('导入失败!').show().delay(3000).hide(0)

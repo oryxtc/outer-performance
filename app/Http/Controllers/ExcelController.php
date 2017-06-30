@@ -142,7 +142,7 @@ class ExcelController extends Controller
             // reader methods
         })->get()->toArray();
         //准备数据
-        $head_list = UsersTemplate::HEAD_LIST;
+        $head_list = static::HEAD_LIST;
         $head_list_flip = array_flip($head_list);
         $save_data = [];
         $errors_mes = [];
