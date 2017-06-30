@@ -69,7 +69,7 @@
                 </div>
             </h3>
             <div class="dropdown" style="margin-left: 4%">
-                <button id="dLabel" type="button" class="btn btn-info" data-toggle="dropdown" data-value=""
+                <button id="dLabel" type="button" class="btn btn-info" data-toggle="dropdown" data-value="" data-name=""
                         aria-haspopup="true"
                         aria-expanded="false" style="width: 116px">
                     请选择字段
@@ -189,6 +189,13 @@
 
             //点击搜索按钮
             $("#search-btn").click(function (e) {
+                //赋值
+                var search_key=$("#search-data").data('name');
+                var search_value=$("#search-data").val();
+                console.log(search_key)
+                console.log(search_value)
+                $("#dLabel").data('name',search_key);
+                $("#dLabel").data('value',search_value);
                 oTable.draw();
                 e.preventDefault();
             });
@@ -266,9 +273,10 @@
                     $('#search-form').append("<input type='text' name=checkData[" + key + "] value=" + $(value).val() + " />")
                 })
                 //搜索栏
-                if ($("#search-data").val()) {
-                    var search_key = $("#search-data").data('name');
-                    $('#search-form').append("<input type='text' name=searchData[" + search_key + "] value=" + $("#search-data").val() + " >")
+                if ($("#dLabel").data('value')) {
+                    var search_key = $("#dLabel").data('name');
+                    var search_value = $("#dLabel").data('value');
+                    $('#search-form').append("<input type='text' name=searchData[" + search_key + "] value=" + search_value + " >")
                 }
                 $("#search-form").submit()
             })
