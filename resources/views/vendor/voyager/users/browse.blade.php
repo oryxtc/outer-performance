@@ -146,7 +146,7 @@
                     $("#users-table thead tr").append("<th>"+check_name+"</th>");
                 })
                 //添加操作列
-                $("#users-table thead tr").append("<th>操作</th>");
+                $("#users-table thead tr").append("<th class='text-center' style='width: 230px'>操作</th>");
             }
 
             
