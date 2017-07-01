@@ -15,6 +15,10 @@
         <button type="button" class="btn btn-success" id="exportUsers">
             <i class="voyager-double-up"></i> 导出员工
         </button>
+        <a href="{{ route('excel.exportUsers',['checkData'=>'*']) }}" class="btn btn-success">
+            <i class="voyager-plus"></i> 导出所有员工
+        </a>
+
         <form hidden method="post" action="/exportUsers" id="search-form" target="_blank">
 
         </form>
@@ -146,7 +150,6 @@
             
 
             {{--//初始化勾选--}}
-            $("input[name='checkData'][value='id']").attr('checked', true);
             $("input[name='checkData'][value='role_id']").attr('checked', true);
             $("input[name='checkData'][value='belong_company']").attr('checked', true);
             $("input[name='checkData'][value='username']").attr('checked', true);

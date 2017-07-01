@@ -45,5 +45,5 @@ use Illuminate\Routing\Route;
     //导入用户
     \Route::post('importUsers', 'ExcelController@importUsers')->name('importUsers');
     //导出用户
-    \Route::post('exportUsers', 'ExcelController@exportUsers')->name('exportUsers');
+    \Route::any('exportUsers', 'ExcelController@exportUsers')->name('exportUsers');
 });

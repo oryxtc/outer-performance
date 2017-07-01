@@ -3,13 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Http\Method\UsersTemplate;
+use App\Role;
+use App\User;
 use Illuminate\Http\Request;
 
 class ExcelController extends Controller
 {
 
     const CHECK_DATA = [
-        'id' => 'Id',
         'role_id' => '角色',
         'belong_company' => '所属公司',
         'job_number' => '工号',
@@ -68,6 +69,7 @@ class ExcelController extends Controller
     ];
 
     const HEAD_LIST = [
+        'role_id' => '角色',
         'belong_company' => '所属公司',
         'job_number' => '工号',
         'username' => '姓名',
@@ -152,28 +154,31 @@ class ExcelController extends Controller
      */
     public function exportUsers(Request $request, UsersTemplate $export)
     {
-        $check_data=$request->get('checkData',null);
-        $search_data=$request->get('searchData',null);
+        $check_data = $request->get('checkData', null);
+        $search_data = $request->get('searchData', null);
         $head_list = static::HEAD_LIST;
-        if(empty($check_data)){
-            return ;
+        //导出时过滤掉密码
+        unset($head_list['password']);
+        if (empty($check_data)) {
+            return;
         }
         //如果是查询全部
-        $check_data=in_array('*',$check_data)?'*':$check_data;
+        $check_data = ($check_data === '*' || in_array('*', $check_data)) ? array_keys($head_list) : $check_data;
         //查询数据
-        $users_data = \DB::table('users')
-            ->select($check_data);
+        $users_data = User::select($check_data);
         //如果有查询条件
-        if(!empty($search_data)){
-            $users_data=$users_data
-                ->where(key($search_data),'like','%'.$search_data[key($search_data)].'%');
+        if (!empty($search_data)) {
+            $users_data = $users_data
+                ->where(key($search_data), 'like', '%' . $search_data[key($search_data)] . '%');
         }
         //获取最终数据
-        $users_data=$users_data->get();
-        $users_data = $this->stdClassToArray($users_data);
-
-        foreach ($check_data as $key=>$value){
-            $head_list_value[]=$head_list[$value];
+        $users_data = $users_data->get()->toArray();
+        //角色id转为角色名称
+        foreach ($users_data as $key=>&$user){
+            $user['role_id']=$this->getRoleName($user['role_id']);
+        }
+        foreach ($check_data as $key => $value) {
+            $head_list_value[] = $head_list[$value];
         }
         //导出数据
         $export->sheet('员工信息表', function ($sheet) use ($head_list_value, $users_data) {
@@ -182,12 +187,17 @@ class ExcelController extends Controller
             //填充头部
             $sheet->prependRow($head_list_value);
             //填充主体
-            $sheet->fromArray($users_data,null,'A2',true,false);
+            $sheet->fromArray($users_data, null, 'A2', true, false);
         });
         return $export->export('xlsx');
     }
 
 
+    /**
+     * 导入员工
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function importUsers(Request $request)
     {
         //从导入的excel中获取数据
@@ -237,4 +247,18 @@ class ExcelController extends Controller
         }
         return $this->apiJson(true, $errors_mes);
     }
+
+    /**
+     * 获取角色名称
+     * @param $role_id
+     * @return string
+     */
+    protected function getRoleName($role_id){
+        if(empty($role_id)){
+            return '未设置角色';
+        }else{
+            return Role::where('id',$role_id)->value('display_name');
+        }
+    }
+
 }

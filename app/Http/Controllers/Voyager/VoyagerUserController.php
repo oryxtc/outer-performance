@@ -200,12 +200,12 @@ class VoyagerUserController extends VoyagerBreadController
                 }
             }
         }
-        $users = User::select($check_data);
+        $users = User::select($check_data)->orderBy('id','DESC');
         $response_data=\Datatables::eloquent($users);
 
         //过滤字段
         $response_data=$response_data->editColumn('role_id', function(User $user) {
-            return User::find($user->id)->getRole->display_name;
+            return empty($user->role_id)?'未设置角色':$user->getRole->display_name;
         });
         //指定搜索栏模糊匹配
         $response_data=$response_data->filter(function ($query) use ($request,$head_list) {
