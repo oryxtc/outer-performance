@@ -57,7 +57,6 @@ class VoyagerUserController extends VoyagerBreadController
         }
         //多选框字段
         $checkData=ExcelController::CHECK_DATA;
-
         return view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable','checkData'));
     }
 
@@ -200,12 +199,16 @@ class VoyagerUserController extends VoyagerBreadController
                 }
             }
         }
-        $users = User::select($check_data)->orderBy('id','DESC');
+        $users = User::select(array_merge($check_data,['id']))->orderBy('id','DESC');
         $response_data=\Datatables::eloquent($users);
 
         //过滤字段
         $response_data=$response_data->editColumn('role_id', function(User $user) {
             return empty($user->role_id)?'未设置角色':$user->getRole->display_name;
+        });
+        //添加编辑
+        $response_data=$response_data->addColumn('action', function (User $user){
+           return view('voyager::users.operate',['user'=>$user]);
         });
         //指定搜索栏模糊匹配
         $response_data=$response_data->filter(function ($query) use ($request,$head_list) {
@@ -215,6 +218,8 @@ class VoyagerUserController extends VoyagerBreadController
                     }
                 }
             });
+        //删除id
+        $response_data=$response_data->removeColumn('id');
         //生成实例
         $response_data=$response_data->make();
         return $response_data;

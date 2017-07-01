@@ -145,6 +145,8 @@
                     var check_name=$(value).data('name');
                     $("#users-table thead tr").append("<th>"+check_name+"</th>");
                 })
+                //添加操作列
+                $("#users-table thead tr").append("<th>操作</th>");
             }
 
             
@@ -178,12 +180,6 @@
                 }
             });
 
-            $('td').on('click', '.delete', function (e) {
-                var form = $('#delete_form')[0];
-                form.action = parseActionUrl(form.action, $(this).data('id'));
-                $('#delete_modal').modal('show');
-            });
-
             //下拉选择事件
             $(".dropdown-menu").bind('click', function (e) {
                 var name = $(e.target).text()
@@ -197,8 +193,6 @@
                 //赋值
                 var search_key=$("#search-data").data('name');
                 var search_value=$("#search-data").val();
-                console.log(search_key)
-                console.log(search_value)
                 $("#dLabel").data('name',search_key);
                 $("#dLabel").data('value',search_value);
                 oTable.draw();
@@ -285,6 +279,14 @@
                 }
                 $("#search-form").submit()
             })
-        }); 
+        });
+
+        //删除按钮
+        $('td').on('click', '.delete', function (e) {
+            console.log(11)
+            var form = $('#delete_form')[0];
+            form.action = parseActionUrl(form.action, $(this).data('id'));
+            $('#delete_modal').modal('show');
+        });
     </script>
 @stop

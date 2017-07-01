@@ -28,7 +28,9 @@
                                 <img style="max-width:640px"
                                      src="{!! Voyager::image($dataTypeContent->{$row->field}) !!}">
                             @elseif($row->type == 'date')
-                            {{ \Carbon\Carbon::parse($dataTypeContent->{$row->field})->format('F jS, Y h:i A') }}
+                                {{ \Carbon\Carbon::parse($dataTypeContent->{$row->field})->format('F jS, Y h:i A') }}
+                            @elseif($row->field=='role_id')
+                                {{$dataTypeContent->role->display_name}}
                             @else
                                 <p>{{ $dataTypeContent->{$row->field} }}</p>
                             @endif
@@ -37,16 +39,6 @@
                             <hr style="margin:0;">
                         @endif
                     @endforeach
-
-                    <div class="panel-heading" style="border-bottom:0;">
-                        <h3 class="panel-title">User Role</h3>
-                    </div>
-
-                    <div class="panel-body" style="padding-top:0;">
-                        <p>{{$dataTypeContent->role->display_name}}</p>
-                    </div>
-
-
                 </div>
             </div>
         </div>
