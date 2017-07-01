@@ -64,9 +64,6 @@ class VoyagerProvidentController extends VoyagerBreadController
 
     public function edit(Request $request, $id)
     {
-        //验证数据
-        $this->validator($request->all())->validate();
-
         $slug = $this->getSlug($request);
 
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
@@ -86,38 +83,46 @@ class VoyagerProvidentController extends VoyagerBreadController
         $view = 'voyager::bread.edit-add';
 
         if (view()->exists("voyager::$slug.edit-add")) {
-            $view = "voyager::$slug.edit";
-        }
-
-        return view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable'));
-    }
-
-
-    public function create(Request $request)
-    {
-        $slug = $this->getSlug($request);
-
-        $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
-
-        // Check permission
-        Voyager::canOrFail('add_'.$dataType->name);
-
-        $dataTypeContent = (strlen($dataType->model_name) != 0)
-            ? new $dataType->model_name()
-            : false;
-
-        // Check if BREAD is Translatable
-        $isModelTranslatable = is_bread_translatable($dataTypeContent);
-
-        $view = 'voyager::bread.edit-add';
-
-        if (view()->exists("voyager::$slug.edit-add")) {
             $view = "voyager::$slug.edit-add";
         }
 
         return view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable'));
     }
 
+
+    // POST BR(E)AD
+    public function update(Request $request, $id)
+    {
+        //验证数据
+        $this->validator($request->all())->validate();
+
+        $slug = $this->getSlug($request);
+
+        $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
+
+        // Check permission
+        Voyager::canOrFail('edit_'.$dataType->name);
+
+        //Validate fields with ajax
+        $val = $this->validateBread($request->all(), $dataType->editRows);
+
+        if ($val->fails()) {
+            return response()->json(['errors' => $val->messages()]);
+        }
+
+        if (!$request->ajax()) {
+            $data = call_user_func([$dataType->model_name, 'findOrFail'], $id);
+
+            $this->insertUpdateData($request, $slug, $dataType->editRows, $data);
+
+            return redirect()
+                ->route("voyager.{$dataType->slug}.edit", ['id' => $id])
+                ->with([
+                    'message'    => "Successfully Updated {$dataType->display_name_singular}",
+                    'alert-type' => 'success',
+                ]);
+        }
+    }
 
     // POST BRE(A)D
     public function store(Request $request)
@@ -160,7 +165,7 @@ class VoyagerProvidentController extends VoyagerBreadController
     public function getProvidentsList(Request $request){
         $field_data=array_keys(ExcelController::PROVIDENT_HEAD);
 
-        $providents = Provident::select($field_data)->orderBy('id','DESC');
+        $providents = Provident::select(array_merge($field_data,['id']))->orderBy('id','DESC');
         $response_data=\Datatables::eloquent($providents);
         //添加姓名
         $response_data=$response_data->addColumn('username', function (){
@@ -178,6 +183,8 @@ class VoyagerProvidentController extends VoyagerBreadController
                     }
                 }
             });
+        //删除id
+        $response_data=$response_data->removeColumn('id');
         //生成实例
         $response_data=$response_data->make(true);
         return $response_data;

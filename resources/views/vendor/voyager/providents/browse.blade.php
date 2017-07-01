@@ -116,7 +116,7 @@
                         {{ method_field("DELETE") }}
                         {{ csrf_field() }}
                         <input type="submit" class="btn btn-danger pull-right delete-confirm"
-                               value="确认删除 {{ $dataType->display_name_singular }}">
+                               value="确认删除">
                     </form>
                     <button type="button" class="btn btn-default pull-right" data-dismiss="modal">取消</button>
                 </div>

@@ -2,7 +2,7 @@
 
 @section('page_header')
     <h1 class="page-title">
-        <i class="{{ $dataType->icon }}"></i> Viewing {{ ucfirst($dataType->display_name_singular) }}
+        <i class="{{ $dataType->icon }}"></i> 查看 {{ ucfirst($dataType->display_name_singular) }}
     </h1>
 @stop
 
