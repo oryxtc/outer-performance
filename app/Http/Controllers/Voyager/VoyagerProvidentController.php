@@ -179,8 +179,8 @@ class VoyagerProvidentController extends VoyagerBreadController
         //指定搜索栏模糊匹配
         $response_data=$response_data->filter(function ($query) use ($request,$field_data) {
                 foreach ($field_data as $key=>$value){
-                    if ($request->has($key)) {
-                        $query->where($key, 'like', "%{$request->get($key)}%");
+                    if ($request->has($value)) {
+                        $query->where($value, 'like', "%{$request->get($value)}%");
                     }
                 }
             });

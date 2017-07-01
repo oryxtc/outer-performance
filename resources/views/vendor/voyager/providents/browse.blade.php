@@ -12,14 +12,14 @@
         <button type="button" class="btn btn-success" data-toggle="modal" data-target="#myModal">
             <i class="voyager-double-down"></i> 导入社保和公积金
         </button>
-        <button type="button" class="btn btn-success" id="exportUsers">
+        <button type="button" class="btn btn-success" id="exportProvidents">
             <i class="voyager-double-up"></i> 导出社保和公积金
         </button>
-        <a href="{{ route('excel.exportUsers',['checkData'=>'*']) }}" class="btn btn-success">
+        <a href="{{ route('excel.exportProvidents',['checkData'=>'*']) }}" class="btn btn-success">
             <i class="voyager-plus"></i> 导出所有社保和公积金
         </a>
 
-        <form hidden method="post" action="/exportUsers" id="search-form" target="_blank">
+        <form hidden method="post" action="/exportProvidents" id="search-form" target="_blank">
 
         </form>
 
@@ -205,18 +205,7 @@
             })
 
             //导出员工信息列表
-            $('#exportUsers').click(function () {
-                var data = {}
-                var check_data_list = $(".ckeck-data input:checked")
-                //必须至少选择一个
-                if ($(check_data_list).length == 0) {
-                    $(".alert-danger").text('请至少选择一个字段进行导出!').show().delay(3000).hide(0)
-                    return
-                }
-                //选择的
-                $(check_data_list).each(function (key, value) {
-                    $('#search-form').append("<input type='text' name=checkData[" + key + "] value=" + $(value).val() + " />")
-                })
+            $('#exportProvidents').click(function () {
                 //搜索栏
                 if ($("#dLabel").data('value')) {
                     var search_key = $("#dLabel").data('name');

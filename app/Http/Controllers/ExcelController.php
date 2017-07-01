@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Method\UsersTemplate;
+use App\Provident;
 use App\Role;
 use App\User;
 use Illuminate\Http\Request;
@@ -292,6 +293,43 @@ class ExcelController extends Controller
     }
 
     /**
+     * 导出社保和公积金
+     * @param Request $request
+     * @return mixed
+     */
+    public function exportProvidents(Request $request)
+    {
+        $search_data = $request->get('searchData', null);
+        $head_list=static::PROVIDENT_HEAD;
+        $export=\Excel::create('社保和公积金表');
+        //查询数据
+        $providents_data = Provident::select(array_keys($head_list));
+        //如果有查询条件
+        if (!empty($search_data)) {
+            $providents_data = $providents_data
+                ->where(key($search_data), 'like', '%' . $search_data[key($search_data)] . '%');
+        }
+        //获取最终数据
+        $providents_data = $providents_data->get()->toArray();
+
+        //新增用户名称字段
+        foreach ($providents_data as $key=>&$provident){
+            $provident=array_merge(['username'=>$this->getUsername($provident['job_number'])],$provident);
+        }
+        $head_list_value=array_values(array_merge(['username'=>'姓名'],$head_list));
+        //导出数据
+        $export->sheet('社保和公积金表', function ($sheet) use ($head_list_value, $providents_data) {
+            $sheet->setAutoSize(true);
+            $sheet->setWidth('A', 10);
+            //填充头部
+            $sheet->prependRow($head_list_value);
+            //填充主体
+            $sheet->fromArray($providents_data, null, 'A2', true, false);
+        });
+        return $export->export('xlsx');
+    }
+
+    /**
      * 导入员工
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
@@ -360,5 +398,19 @@ class ExcelController extends Controller
             return Role::where('id',$role_id)->value('display_name');
         }
     }
+
+    /**
+     * 获取姓名
+     * @param $job_number
+     * @return string
+     */
+    protected function getUsername($job_number){
+        if(empty($job_number)){
+            return '';
+        }else{
+            return User::where('job_number',$job_number)->value('username');
+        }
+    }
+
 
 }
