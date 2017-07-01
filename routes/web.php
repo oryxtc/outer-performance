@@ -37,6 +37,9 @@ use Illuminate\Routing\Route;
     \Route::post('importUsers', 'ExcelController@importUsers')->name('importUsers');
     //导出用户
     \Route::any('exportUsers', 'ExcelController@exportUsers')->name('exportUsers');
+
+    //导出社保和公积金模板
+    \Route::get('exportProvidentsTemplate', 'ExcelController@exportProvidentsTemplate')->name('exportProvidentsTemplate');
 });
 
 

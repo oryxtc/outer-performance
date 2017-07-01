@@ -23,7 +23,7 @@
 
         </form>
 
-        <a href="{{ route('excel.exportUsersTemplate') }}" class="btn btn-success pull-right">
+        <a href="{{ route('excel.exportProvidentsTemplate') }}" class="btn btn-success pull-right">
             <i class="voyager-plus"></i> 导出模板
         </a>
         {{--导入员工模态框--}}

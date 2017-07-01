@@ -259,6 +259,32 @@ class ExcelController extends Controller
         return $this->apiJson(true, $errors_mes);
     }
 
+
+    /**
+     * 社保和公积金表模板
+     * @return mixed
+     */
+    public function exportProvidentsTemplate()
+    {
+        $head_list = static::PROVIDENT_HEAD;
+        $head_list_value = array_values($head_list);
+        $export=\Excel::create('社保和公积金表');
+        //导出数据
+        $export->sheet('员工信息表', function ($sheet) use ($head_list_value) {
+            $sheet->setAutoSize(true);
+            $sheet->setWidth('A', 15);
+            $sheet->setWidth('B', 15);
+            $sheet->setWidth('C', 15);
+            $sheet->setWidth('D', 15);
+            $sheet->setWidth('E', 20);
+            $sheet->setWidth('F', 20);
+            $sheet->setWidth('G', 10);
+            //填充头部
+            $sheet->prependRow($head_list_value);
+        });
+        return $export->export('xlsx');
+    }
+
     /**
      * 获取角色名称
      * @param $role_id
