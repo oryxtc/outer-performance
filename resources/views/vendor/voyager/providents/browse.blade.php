@@ -57,7 +57,7 @@
 @section('content')
     <div class="page-content container-fluid">
         {{--下来选择框--}}
-        <form method="post" id="search-form" class="form-inline" role="form">
+        <form method="post" id="search-form" class="form-inline" role="form" style="margin-top: 20px;margin-left: -15px">
             <div class="dropdown" style="margin-left: 4%">
                 <button id="dLabel" type="button" class="btn btn-info" data-toggle="dropdown" data-value=""
                         data-name=""
