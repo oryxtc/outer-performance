@@ -6,6 +6,7 @@ use App\Http\Method\UsersTemplate;
 use App\Role;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Validator;
 
 class ExcelController extends Controller
 {
@@ -127,7 +128,7 @@ class ExcelController extends Controller
     ];
 
     const PROVIDENT_HEAD=[
-        'email'=>'企业邮箱地址',
+        'job_number'=>'工号',
         'period_at'=>'所属期间',
         'social_security_personal'=>'社保个人部分',
         'social_security_company'=>'社保公司部分',
@@ -232,6 +233,11 @@ class ExcelController extends Controller
                 $errors_mes[] = "邮箱: " . $user[$head_list['email']] . " 已存在! <br/>";
                 continue;
             }
+            //判断工号不能重复
+            if (\DB::table('users')->where('job_number', $user[$head_list['job_number']])->count() > 0) {
+                $errors_mes[] = "工号: " . $user[$head_list['job_number']] . " 已存在! <br/>";
+                continue;
+            }
             foreach ($user as $key => $value) {
                 //特殊处理某些数据
                 if ($head_list_flip[$key] === 'password') {
@@ -283,6 +289,63 @@ class ExcelController extends Controller
             $sheet->prependRow($head_list_value);
         });
         return $export->export('xlsx');
+    }
+
+    /**
+     * 导入员工
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function importProvidents(Request $request)
+    {
+        //从导入的excel中获取数据
+        $filename = $request->file('file')->getPathname();
+        $providents_data = \Excel::load($filename, function ($reader) {
+            // reader methods
+        })->get()->toArray();
+        //准备数据
+        $head_list = static::PROVIDENT_HEAD;
+        $head_list_flip = array_flip($head_list);
+        $save_data = [];
+        $errors_mes = [];
+        //处理数据
+        foreach ($providents_data as $provident_key => $provident) {
+            //如果不存在工号 则跳过
+            if (array_key_exists($head_list['job_number'], $provident) === false || empty($provident[$head_list['job_number']])) {
+                continue;
+            }
+            //判断工号必须已存在
+            if (\DB::table('users')->where('job_number', $provident[$head_list['job_number']])->count() < 1) {
+                $errors_mes[] = "工号: " . $provident[$head_list['email']] . " 不存在! <br/>";
+                continue;
+            }
+            foreach ($provident as $key => $value) {
+                //特殊处理某些数据
+                if ($head_list_flip[$key] === 'period_at') {
+                    $validator=\Validator::make(['period_at'=>$value],[
+                        'period_at'=>'date'
+                    ]);
+                    $save_data[$provident_key][$head_list_flip[$key]] = $validator->fails() ? null :$value;
+                    //试用薪酬
+                } else {
+                    $save_data[$provident_key][$head_list_flip[$key]] = $value;
+                }
+
+            }
+        }
+        if (empty($save_data)) {
+            return $this->apiJson(false, '没有新增社保和公积金!');
+        }
+        //新增社保和公积金
+        $save_res = \DB::table('providents')
+            ->insert($save_data);
+        if ($save_res === false) {
+            return $this->apiJson(false, '新增失败!');
+        }
+        if (!empty($errors_mes)) {
+            return $this->apiJson(false, $errors_mes);
+        }
+        return $this->apiJson(true, $errors_mes);
     }
 
     /**

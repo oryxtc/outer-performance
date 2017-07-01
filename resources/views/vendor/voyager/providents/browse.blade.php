@@ -84,7 +84,7 @@
                             <thead>
                             <tr>
                                 <th>姓名</th>
-                                <th>邮箱</th>
+                                <th>工号</th>
                                 <th>所属期间</th>
                                 <th>社保个人部分</th>
                                 <th>社保公司部分</th>
@@ -151,7 +151,7 @@
                 },
                 columns: [
                     {data: 'username', name: 'username'},
-                    {data: 'email', name: 'email'},
+                    {data: 'job_number', name: 'job_number'},
                     {data: 'period_at', name: 'period_at'},
                     {data: 'social_security_personal', name: 'social_security_personal'},
                     {data: 'social_security_company', name: 'social_security_company'},
@@ -184,7 +184,7 @@
             //上传员工表
             $("#upload").click(function () {
                 $.ajax({
-                    url: '/importUsers',
+                    url: '/importProvidents',
                     type: 'POST',
                     cache: false,
                     data: new FormData($('#uploadForm')[0]),
@@ -194,11 +194,14 @@
                     if (res.status === true) {
                         $(".alert-success").show().delay(3000).hide(0)
                     } else {
-                        $(".alert-danger").html(res.message).delay(5000).show()
+                        $(".alert-danger").html(res.message).show().delay(5000).hide(0)
                     }
+                    setTimeout("window.location.reload()",2000)
                 }).fail(function (res) {
                     $(".alert-danger").text('导入失败!').show().delay(3000).hide(0)
+                    setTimeout("window.location.reload()",2000)
                 });
+
             })
 
             //导出员工信息列表

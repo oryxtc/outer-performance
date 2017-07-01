@@ -40,6 +40,8 @@ use Illuminate\Routing\Route;
 
     //导出社保和公积金模板
     \Route::get('exportProvidentsTemplate', 'ExcelController@exportProvidentsTemplate')->name('exportProvidentsTemplate');
+    //导入社保和公积金模板
+    \Route::post('importProvidents', 'ExcelController@importProvidents')->name('importProvidents');
 });
 
 

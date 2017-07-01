@@ -168,8 +168,9 @@ class VoyagerProvidentController extends VoyagerBreadController
         $providents = Provident::select(array_merge($field_data,['id']))->orderBy('id','DESC');
         $response_data=\Datatables::eloquent($providents);
         //添加姓名
-        $response_data=$response_data->addColumn('username', function (){
-            return '这是姓名';
+        $response_data=$response_data->addColumn('username', function (Provident $provident){
+            $user=$provident->getUser;
+            return empty($user)?"":$user->username;
         });
         //添加操作
         $response_data=$response_data->addColumn('action', function (Provident $provident){
