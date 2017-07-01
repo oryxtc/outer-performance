@@ -64,6 +64,9 @@ class VoyagerProvidentController extends VoyagerBreadController
 
     public function edit(Request $request, $id)
     {
+        //验证数据
+        $this->validator($request->all())->validate();
+
         $slug = $this->getSlug($request);
 
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
@@ -108,8 +111,8 @@ class VoyagerProvidentController extends VoyagerBreadController
 
         $view = 'voyager::bread.edit-add';
 
-        if (view()->exists("voyager::$slug.add")) {
-            $view = "voyager::$slug.add";
+        if (view()->exists("voyager::$slug.edit-add")) {
+            $view = "voyager::$slug.edit-add";
         }
 
         return view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable'));
@@ -148,40 +151,6 @@ class VoyagerProvidentController extends VoyagerBreadController
         }
     }
 
-    /**
-     * 重置密码
-     * @param Request $request
-     * @param $id
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function resetPass(Request $request,$id)
-    {
-        //验证数据
-        $validate=$this->validatorPass($request->all());
-
-        if($validate->fails()){
-            return $this->apiJson(false,$validate->errors()->first('password'));
-        }
-
-        $dataType = Voyager::model('DataType')->where('slug', '=', 'users')->first();
-
-        // Check permission
-        Voyager::canOrFail('edit_'.$dataType->name);
-
-        //密码加密
-        $password = bcrypt($request->get('password'));
-
-        //更新数据库
-        $update_result = \DB::table('users')
-            ->where('id', $id)
-            ->update(['password' => $password]);
-
-        if ($update_result === false) {
-            return $this->apiJson(false,'重置密码失败!');
-        }
-        return $this->apiJson(true,'重置密码成功!');
-    }
-
 
     /**
      * 获取社保和公积金列表
@@ -194,12 +163,12 @@ class VoyagerProvidentController extends VoyagerBreadController
         $providents = Provident::select($field_data)->orderBy('id','DESC');
         $response_data=\Datatables::eloquent($providents);
         //添加姓名
-        $response_data=$response_data->addColumn('username', function (User $user){
+        $response_data=$response_data->addColumn('username', function (){
             return '这是姓名';
         });
         //添加操作
-        $response_data=$response_data->addColumn('action', function (User $user){
-           return view('voyager::users.operate',['user'=>$user]);
+        $response_data=$response_data->addColumn('action', function (Provident $provident){
+           return view('voyager::providents.operate',['provident'=>$provident]);
         });
         //指定搜索栏模糊匹配
         $response_data=$response_data->filter(function ($query) use ($request,$field_data) {
@@ -210,7 +179,7 @@ class VoyagerProvidentController extends VoyagerBreadController
                 }
             });
         //生成实例
-        $response_data=$response_data->make();
+        $response_data=$response_data->make(true);
         return $response_data;
     }
 
@@ -223,21 +192,7 @@ class VoyagerProvidentController extends VoyagerBreadController
     protected function validator(array $data)
     {
         return \Validator::make($data, [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6',
-        ]);
-    }
-
-    /**
-     * 验证密码
-     * @param array $data
-     * @return mixed
-     */
-    protected function validatorPass(array $data)
-    {
-        return \Validator::make($data, [
-            'password' => 'required|string|min:6',
+            'email' => 'required|string|max:150|exists:users',
         ]);
     }
 }

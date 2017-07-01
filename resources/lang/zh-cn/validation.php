@@ -39,7 +39,7 @@ return [
     'dimensions'           => 'The :attribute has invalid image dimensions.',
     'distinct'             => 'The :attribute field has a duplicate value.',
     'email'                => '请填写正确的邮箱地址!',
-    'exists'               => 'The selected :attribute is invalid.',
+    'exists'               => '所填写的 :attribute 不存在!     ',
     'file'                 => 'The :attribute must be a file.',
     'filled'               => 'The :attribute field must have a value.',
     'image'                => 'The :attribute must be an image.',

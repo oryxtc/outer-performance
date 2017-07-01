@@ -91,7 +91,7 @@
                                 <th>公积金个人部分</th>
                                 <th>公积金公司部分</th>
                                 <th>状态</th>
-                                <th>操作</th>
+                                <th class='text-center' style='width: 230px'>操作</th>
                             </tr>
                             </thead>
                         </table>
