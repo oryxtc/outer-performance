@@ -10,13 +10,13 @@
         @endif
 
         <button type="button" class="btn btn-success" data-toggle="modal" data-target="#myModal">
-            <i class="voyager-double-down"></i> 导入员工
+            <i class="voyager-double-down"></i> 导入社保和公积金
         </button>
         <button type="button" class="btn btn-success" id="exportUsers">
-            <i class="voyager-double-up"></i> 导出员工
+            <i class="voyager-double-up"></i> 导出社保和公积金
         </button>
         <a href="{{ route('excel.exportUsers',['checkData'=>'*']) }}" class="btn btn-success">
-            <i class="voyager-plus"></i> 导出所有员工
+            <i class="voyager-plus"></i> 导出所有社保和公积金
         </a>
 
         <form hidden method="post" action="/exportUsers" id="search-form" target="_blank">
@@ -33,7 +33,7 @@
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                                     aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title" id="myModalLabel">导入员工</h4>
+                        <h4 class="modal-title" id="myModalLabel">导入社保和公积金</h4>
                     </div>
                     {{--提示框--}}
                     <div class="alert alert-success" role="alert" hidden>导入成功!</div>
@@ -52,35 +52,24 @@
             </div>
         </div>
     </h1>
-
-@stop
+    @stop
 
 @section('content')
     <div class="page-content container-fluid">
         {{--下来选择框--}}
         <form method="post" id="search-form" class="form-inline" role="form">
-            {{--多选控制--}}
-            <h3 class="page-title" style="height: 50px">
-                <i class="voyager-search"></i> 勾选显示字段
-                <div class="ckeck-data">
-                    @foreach($checkData as $key=>$value)
-                        <label>
-                            <input type="checkbox" name="checkData" value="{{$key}}" data-name="{{$value}}">
-
-                            {{$value}}&nbsp;&nbsp;
-                        </label>
-                    @endforeach
-                </div>
-            </h3>
             <div class="dropdown" style="margin-left: 4%">
-                <button id="dLabel" type="button" class="btn btn-info" data-toggle="dropdown" data-value="" data-name=""
+                <button id="dLabel" type="button" class="btn btn-info" data-toggle="dropdown" data-value=""
+                        data-name=""
                         aria-haspopup="true"
-                        aria-expanded="false" style="width: 116px">
+                        aria-expanded="false" style="width: 124px">
                     请选择字段
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="dLabel">
-
+                    @foreach($providentData as $key=>$value)
+                        <li class='btn-default' data-value="{{$key}}">{{$value}}</li>
+                    @endforeach
                 </ul>
                 <input type="text" id="search-data" class="form-control" data-name="">
                 <button type="submit" id="search-btn" class="btn btn-primary">搜索</button>
@@ -94,7 +83,15 @@
                         <table id="users-table" class="table table-bordered">
                             <thead>
                             <tr>
-
+                                <th>姓名</th>
+                                <th>邮箱</th>
+                                <th>所属期间</th>
+                                <th>社保个人部分</th>
+                                <th>社保公司部分</th>
+                                <th>公积金个人部分</th>
+                                <th>公积金公司部分</th>
+                                <th>状态</th>
+                                <th>操作</th>
                             </tr>
                             </thead>
                         </table>
@@ -135,31 +132,10 @@
         $(function () {
             function parseActionUrl(action, id) {
                 return action.match(/\/[0-9]+$/)
-                    ? action.replace(/([0-9]+$)/, id)
-                    : action + '/' + id;
+                        ? action.replace(/([0-9]+$)/, id)
+                        : action + '/' + id;
             };
 
-            //初始化表头
-            function initTableTh() {
-                $("input[name='checkData']:checked").each(function (key,value) {
-                    var check_name=$(value).data('name');
-                    $("#users-table thead tr").append("<th>"+check_name+"</th>");
-                })
-                //添加操作列
-                $("#users-table thead tr").append("<th class='text-center' style='width: 230px'>操作</th>");
-            }
-
-            
-
-            {{--//初始化勾选--}}
-            $("input[name='checkData'][value='role_id']").attr('checked', true);
-            $("input[name='checkData'][value='belong_company']").attr('checked', true);
-            $("input[name='checkData'][value='username']").attr('checked', true);
-            $("input[name='checkData'][value='sex']").attr('checked', true);
-            $("input[name='checkData'][value='email']").attr('checked', true);
-
-            //初始化th
-            initTableTh();
 
             //初始化datatables
             var oTable = $('#users-table').DataTable({
@@ -167,17 +143,23 @@
                 serverSide: true,
                 searching: false,
                 ajax: {
-                    url: '{!! route('getUsersList') !!}',
+                    url: '{!! route('getProvidentsList') !!}',
                     data: function (d) {
                         var name = $("#search-data").data('name');
                         d[name] = $("#search-data").val();
-                        //多选框
-                        var checkData = d.checkData = {}
-                        $($("input[name='checkData']")).each(function (key, value) {
-                            checkData[$(value).val()] = $(value).prop('checked')
-                        })
                     }
-                }
+                },
+                columns: [
+                    {data: 'username', name: 'username'},
+                    {data: 'email', name: 'email'},
+                    {data: 'period_at', name: 'period_at'},
+                    {data: 'social_security_personal', name: 'social_security_personal'},
+                    {data: 'social_security_company', name: 'social_security_company'},
+                    {data: 'provident_fund_personal', name: 'provident_fund_personal'},
+                    {data: 'provident_fund_company', name: 'provident_fund_company'},
+                    {data: 'status', name: 'status'},
+                    {data: 'action', name: 'action'}
+                ]
             });
 
             //下拉选择事件
@@ -191,52 +173,13 @@
             //点击搜索按钮
             $("#search-btn").click(function (e) {
                 //赋值
-                var search_key=$("#search-data").data('name');
-                var search_value=$("#search-data").val();
-                $("#dLabel").data('name',search_key);
-                $("#dLabel").data('value',search_value);
+                var search_key = $("#search-data").data('name');
+                var search_value = $("#search-data").val();
+                $("#dLabel").data('name', search_key);
+                $("#dLabel").data('value', search_value);
                 oTable.draw();
                 e.preventDefault();
             });
-
-            //点击多选框触发 列改变事件
-            $("input[name='checkData']").on('click', function (e) {
-                //先清空
-                $("#users-table thead tr th").remove()
-                //初始化th
-                initTableTh();
-                oTable.clear();
-                oTable.destroy();
-                oTable = $('#users-table').DataTable({
-                    processing: true,
-                    serverSide: true,
-                    searching: false,
-                    ajax: {
-                        url: '{!! route('getUsersList') !!}',
-                        data: function (d) {
-                            var name = $("#search-data").data('name');
-                            d[name] = $("#search-data").val();
-                            //多选框
-                            var checkData = d.checkData = {}
-                            $($("input[name='checkData']")).each(function (key, value) {
-                                checkData[$(value).val()] = $(value).prop('checked')
-                            })
-                        }
-                    }
-                });
-                oTable.draw();
-            })
-            //点击选择按钮更新下来列表
-            $("#dLabel").on('click', function (e) {
-                var check_data_list = $(".ckeck-data input:checked")
-                //清空节点
-                $(".dropdown-menu li").remove();
-                //选择的
-                $(check_data_list).each(function (key, value) {
-                    var html = "<li class='btn-default' data-value='" + $(value).val() + "'>" + $(value).data('name') + "</li>"
-                    $(".dropdown-menu").append(html)
-                })
-            })
 
             //上传员工表
             $("#upload").click(function () {

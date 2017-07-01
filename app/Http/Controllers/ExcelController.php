@@ -126,6 +126,17 @@ class ExcelController extends Controller
         'parents_address' => '父母住址',
     ];
 
+    const PROVIDENT_HEAD=[
+        'email'=>'企业邮箱地址',
+        'period_at'=>'所属期间',
+        'social_security_personal'=>'社保个人部分',
+        'social_security_company'=>'社保公司部分',
+        'provident_fund_personal'=>'公积金个人部分',
+        'provident_fund_company'=>'企业邮箱地址',
+        'provident_fund_company'=>'公积金公司部分',
+        'status'=>'状态',
+    ];
+
     /**
      * 导出员工表模板
      * @param UsersTemplate $export

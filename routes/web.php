@@ -27,7 +27,18 @@ use Illuminate\Routing\Route;
 \Route::group(['prefix' => 'admin','middleware'=>['web','errors.session']], function () {
     require base_path().'/routes/voyager.php';
     \Route::any('getUsersList','Voyager\VoyagerUserController@getUsersList')->name('getUsersList');
+    \Route::any('getProvidentsList','Voyager\VoyagerProvidentController@getProvidentsList')->name('getProvidentsList');
 });
+
+\Route::group(['as'=>'excel.'],function (){
+    //导出用户模板
+    \Route::get('exportUsersTemplate', 'ExcelController@exportUsersTemplate')->name('exportUsersTemplate');
+    //导入用户
+    \Route::post('importUsers', 'ExcelController@importUsers')->name('importUsers');
+    //导出用户
+    \Route::any('exportUsers', 'ExcelController@exportUsers')->name('exportUsers');
+});
+
 
 \Route::group(['as'=>'wechat.','prefix' => 'wechat'], function () {
     \Route::any('/', 'WechatController@serve');
@@ -39,11 +50,3 @@ use Illuminate\Routing\Route;
     \Route::any('/bind', 'WechatController@bind')->name('bind');
 });
 
-\Route::group(['as'=>'excel.'],function (){
-    //导出用户模板
-    \Route::get('exportUsersTemplate', 'ExcelController@exportUsersTemplate')->name('exportUsersTemplate');
-    //导入用户
-    \Route::post('importUsers', 'ExcelController@importUsers')->name('importUsers');
-    //导出用户
-    \Route::any('exportUsers', 'ExcelController@exportUsers')->name('exportUsers');
-});

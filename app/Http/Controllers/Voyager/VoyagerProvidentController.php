@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Voyager;
 
 use App\Http\Controllers\ExcelController;
+use App\Provident;
 use App\User;
 use Illuminate\Http\Request;
 use TCG\Voyager\Facades\Voyager;
@@ -13,7 +14,6 @@ class VoyagerProvidentController extends VoyagerBreadController
 
     public function index(Request $request)
     {
-        dd(22);
         // GET THE SLUG, ex. 'posts', 'pages', etc.
         $slug = $this->getSlug($request);
 
@@ -57,8 +57,8 @@ class VoyagerProvidentController extends VoyagerBreadController
             $view = "voyager::$slug.browse";
         }
         //多选框字段
-        $checkData=ExcelController::CHECK_DATA;
-        return view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable','checkData'));
+        $providentData=ExcelController::PROVIDENT_HEAD;
+        return view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable','providentData'));
     }
 
 
@@ -184,43 +184,31 @@ class VoyagerProvidentController extends VoyagerBreadController
 
 
     /**
-     * 获取用户列表
+     * 获取社保和公积金列表
      * @param Request $request
      * @return mixed
      */
-    public function getUsersList(Request $request){
-        $head_list = ExcelController::HEAD_LIST;
-        if(empty($request->get('checkData',[]))){
-            $check_data=ExcelController::CHECK_DATA;
-        }else{
-            $request_check_data=$request->get('checkData',[]);
-            foreach ($request_check_data as $key=>$value){
-                if ($value==='true'){
-                    $check_data[]=$key;
-                }
-            }
-        }
-        $users = User::select(array_merge($check_data,['id']))->orderBy('id','DESC');
-        $response_data=\Datatables::eloquent($users);
+    public function getProvidentsList(Request $request){
+        $field_data=array_keys(ExcelController::PROVIDENT_HEAD);
 
-        //过滤字段
-        $response_data=$response_data->editColumn('role_id', function(User $user) {
-            return empty($user->role_id)?'未设置角色':$user->getRole->display_name;
+        $providents = Provident::select($field_data)->orderBy('id','DESC');
+        $response_data=\Datatables::eloquent($providents);
+        //添加姓名
+        $response_data=$response_data->addColumn('username', function (User $user){
+            return '这是姓名';
         });
-        //添加编辑
+        //添加操作
         $response_data=$response_data->addColumn('action', function (User $user){
            return view('voyager::users.operate',['user'=>$user]);
         });
         //指定搜索栏模糊匹配
-        $response_data=$response_data->filter(function ($query) use ($request,$head_list) {
-                foreach ($head_list as $key=>$value){
+        $response_data=$response_data->filter(function ($query) use ($request,$field_data) {
+                foreach ($field_data as $key=>$value){
                     if ($request->has($key)) {
                         $query->where($key, 'like', "%{$request->get($key)}%");
                     }
                 }
             });
-        //删除id
-        $response_data=$response_data->removeColumn('id');
         //生成实例
         $response_data=$response_data->make();
         return $response_data;
