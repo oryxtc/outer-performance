@@ -98,7 +98,7 @@
         @include('voyager::alerts')
         {{--统计--}}
         <div>
-            <div class="pull-left" style="font-size: 20px;font-weight: bold">社保个人部分合计:
+            <div class="pull-left" style="font-size: 20px;font-weight: bold;margin-left: 56px">社保个人部分合计:
                 <span id="security_personal_total"></span>
             </div>
             <div class="pull-left" style="font-size: 20px;font-weight: bold;margin-left: 120px"> 社保公司部分合计:
