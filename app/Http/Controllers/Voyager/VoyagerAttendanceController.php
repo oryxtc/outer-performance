@@ -185,68 +185,51 @@ class VoyagerAttendanceController extends VoyagerBreadController
      * @param Request $request
      * @return mixed
      */
-    public function getProvidentsList(Request $request)
+    public function getAttendancesList(Request $request)
     {
-        $field_data = array_keys(ExcelController::PROVIDENT_HEAD);
+        $field_data = array_keys(ExcelController::ATTENDANCE_HEAD);
         //增加索引列
         \DB::statement(\DB::raw('set @rownum=0'));
         $field_data = array_merge($field_data, ['id']);
         $field_data = array_merge([\DB::raw('@rownum  := @rownum  + 1 AS rownum')], $field_data);
-        $providents = Provident::select($field_data);
-        $response_data = \Datatables::eloquent($providents);
-        //添加姓名
-        $response_data = $response_data->addColumn('username', function (Provident $provident) {
-            $user = $provident->getUser;
-            return empty($user) ? "" : $user->username;
-        });
+        $attendances = Attendance::select($field_data)->where('status','<>',0);
+        $response_data = \Datatables::eloquent($attendances);
         //添加操作
-        $response_data = $response_data->addColumn('action', function (Provident $provident) {
-            return view('voyager::providents.operate', ['provident' => $provident]);
+        $response_data = $response_data->addColumn('action', function (Attendance $attendance) {
+            return view('voyager::attendances.operate', ['attendance' => $attendance]);
         });
+
         //指定搜索栏模糊匹配
         $response_data = $response_data->filter(function ($query) use ($request, $field_data) {
             foreach ($field_data as $key => $value) {
                 if ($request->has($value)) {
-                    $query->where($value, 'like', "%{$request->get($value)}%");
+                    if($request->get($value)=='start_at'){
+                        $query->where('start_at', '>=', "{$request->get('start_at')}");
+                    }elseif ($request->get($value)=='end_at'){
+                        $query->where('end_at', '<=', "{$request->get('end_at')}");
+                    }else{
+                        $query->where($value, 'like', "%{$request->get($value)}%");
+                    }
                 }
             }
-            //如果有开始日期
-            $firstday = date('Y-m-01', strtotime($request->get('period_at_end')));
-            $lastday = date('Y-m-d', strtotime("$firstday +1 month -1 day"));
-
-            if ($request->has('period_at_start')) {
-                $query->where('period_at', '>=', "{$firstday}");
+        });
+        //格式化状态
+        $response_data = $response_data->editColumn('status', function (Attendance $attendance) {
+            if($attendance->status=='1'){
+                $status='未审核';
+            }elseif ($attendance->status=='11'){
+                $status='退审';
+            }elseif ($attendance->status=='21'){
+                $status='通过';
             }
-            //如果有结束日期
-            if ($request->has('period_at_end')) {
-                $query->where('period_at', '<=', "{$lastday}");
-            }
+            return $status;
         });
 
-
-        //格式化日期
-        $response_data = $response_data->editColumn('period_at', function (Provident $provident) {
-            return empty($provident->period_at) ? "" : date("Y-m", strtotime($provident->period_at));
-        });
         //删除id
         $response_data = $response_data->removeColumn('id');
         //生成实例
         $response_data = $response_data->make(true);
 //        dd(\DB::getQueryLog());
-        //统计
-        $statistics = Provident::select(\DB::raw("sum(`social_security_personal`) as security_personal_total, sum(`social_security_company`) as security_company_total, sum(`provident_fund_personal`) as fund_personal_total, sum(`provident_fund_company`) as fund_company_total"));
-        foreach ($field_data as $key => $value) {
-            if ($request->has($value)) {
-                $statistics = $statistics->where($value, 'like', "%{$request->get($value)}%");
-            }
-        }
-        $statistics = $statistics->first()->toArray();
-
-        $response_data_array = $response_data->getData();
-        $response_data_array->statistics = $statistics;
-        //重新赋值
-        $response_data->setData($response_data_array);
-
         return $response_data;
     }
 

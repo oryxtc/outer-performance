@@ -1,4 +1,4 @@
-@if (Voyager::can('delete_users'))
+@if (Voyager::can('delete_provindets'))
     <a href="javascript:;" title="Delete" class="btn btn-sm btn-danger pull-right delete" data-id="{{ $provident->id }}"
        id="delete-{{ $provident->id }}">
         <i class="voyager-trash"></i> <span class="hidden-xs hidden-sm">删除</span>

@@ -139,6 +139,18 @@ class ExcelController extends Controller
         'status'=>'状态',
     ];
 
+    const ATTENDANCE_HEAD=[
+        'created_at'=>'申请时间',
+        'username'=>'姓名',
+        'type'=>'类型',
+        'title'=>'标题',
+        'reson'=>'事由',
+        'start_at'=>'开始时间',
+        'end_at'=>'结束时间',
+        'continued_at'=>'申请时长',
+        'status'=>'状态',
+    ];
+
     /**
      * 导出员工表模板
      * @param UsersTemplate $export

@@ -120,13 +120,14 @@
                             <thead>
                             <tr>
                                 <th>序号</th>
+                                <th>申请时间</th>
                                 <th>姓名</th>
-                                <th>工号</th>
-                                <th>所属期间</th>
-                                <th>社保个人部分</th>
-                                <th>社保公司部分</th>
-                                <th>公积金个人部分</th>
-                                <th>公积金公司部分</th>
+                                <th>类型</th>
+                                <th>标题</th>
+                                <th>事由</th>
+                                <th>开始时间</th>
+                                <th>结束时间</th>
+                                <th>申请时长</th>
                                 <th>状态</th>
                                 <th class='text-center' style='width: 230px'>操作</th>
                             </tr>
@@ -187,35 +188,27 @@
                 serverSide: true,
                 searching: false,
                 ajax: {
-                    url: '{!! route('getProvidentsList') !!}',
+                    url: '{!! route('getAttendancesList') !!}',
                     data: function (d) {
                         var name = $("#search-data").data('name');
                         d[name] = $("#search-data").val();
-                        d['period_at_start'] = $("#period-at-start").val();
-                        d['period_at_end'] = $("#period-at-end").val();
+                        d['start_at'] = $("#start-at").val();
+                        d['end_at'] = $("#end-at").val();
                     }
                 },
                 columns: [
                     {data: 'rownum', name: 'rownum'},
+                    {data: 'created_at', name: 'created_at'},
                     {data: 'username', name: 'username'},
-                    {data: 'job_number', name: 'job_number'},
-                    {data: 'period_at', name: 'period_at'},
-                    {data: 'social_security_personal', name: 'social_security_personal'},
-                    {data: 'social_security_company', name: 'social_security_company'},
-                    {data: 'provident_fund_personal', name: 'provident_fund_personal'},
-                    {data: 'provident_fund_company', name: 'provident_fund_company'},
+                    {data: 'type', name: 'type'},
+                    {data: 'title', name: 'title'},
+                    {data: 'reson', name: 'reson'},
+                    {data: 'start_at', name: 'start_at'},
+                    {data: 'end_at', name: 'end_at'},
+                    {data: 'continued_at', name: 'continued_at'},
                     {data: 'status', name: 'status'},
                     {data: 'action', name: 'action'}
                 ],
-                "fnDrawCallback": function (settings, jqXHR) {
-                    var jqXHR = settings.jqXHR;
-                    var resJson = jqXHR.responseJSON;
-                    var statistics = resJson.statistics;
-                    $("#fund_personal_total").html(statistics.fund_personal_total)
-                    $("#fund_company_total").html(statistics.fund_company_total)
-                    $("#security_company_total").html(statistics.security_company_total)
-                    $("#security_personal_total").html(statistics.security_personal_total)
-                }
             });
 
             //下拉选择事件
