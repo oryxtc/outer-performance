@@ -116,7 +116,7 @@
                                         @include('voyager::multilingual.input-hidden-bread-edit-add')
                                         <input type="text" name="approver" hidden/>
 
-                                        <input type="text" id="approver_name" class="form-control" readonly="readonly" value="{{$row}}"/>
+                                        <input type="text" id="approver_name" class="form-control" readonly="readonly" @if(isset($dataTypeContent->id)) value="{{$approver_str}}" @endif/>
                                         <!-- Button trigger modal -->
                                         <button type="button" class="btn btn-primary btn-lg" id="approver-type">
                                             请选择审核人
@@ -131,7 +131,7 @@
                                         @include('voyager::multilingual.input-hidden-bread-edit-add')
                                         <input type="text" name="relevant" hidden/>
 
-                                        <input type="text" id="relevant_name" class="form-control" readonly="readonly"/>
+                                        <input type="text" id="relevant_name" class="form-control" readonly="readonly" @if(isset($dataTypeContent->id)) value="{{$relevant_str}}" @endif/>
 
                                         <!-- Button trigger modal -->
                                         <button type="button" class="btn btn-primary btn-lg" id="relevant-type">

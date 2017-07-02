@@ -92,13 +92,24 @@ class VoyagerAttendanceController extends VoyagerBreadController
         $approver_arr=explode(',',Attendance::where('id',$id)->value('approver'));
         $relevant_arr=explode(',',Attendance::where('id',$id)->value('relevant'));
 
-        $username_list=User::select(['job_number','username'])->whereIn('job_number',array_merge($approver_arr,$relevant_arr))->get()->toArray();
+        $username_list=User::select(['job_number','username'])->whereIn('job_number',array_merge($approver_arr,$relevant_arr))->pluck('username','job_number')->toArray();
         foreach ($approver_arr as $key=>$value){
-
+            if(!$value){
+                continue;
+            }
+            $approver_str[]=$username_list[$value];
         }
+        foreach ($relevant_arr as $key=>$value){
+            if(!$value){
+                continue;
+            }
+            $relevant_str[]=$username_list[$value];
+        }
+        $approver_str=implode(',',$approver_str);
+        $relevant_str=implode(',',$relevant_str);
 
-        dd($username_list);
-        return view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable'));
+
+        return view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable','relevant_str','approver_str'));
     }
 
 
