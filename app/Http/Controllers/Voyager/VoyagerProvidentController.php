@@ -6,6 +6,7 @@ use App\Http\Controllers\ExcelController;
 use App\Provident;
 use App\User;
 use Illuminate\Http\Request;
+use Symfony\Component\VarDumper\Dumper\DataDumperInterface;
 use TCG\Voyager\Facades\Voyager;
 use TCG\Voyager\Models\Role;
 
@@ -187,25 +188,43 @@ class VoyagerProvidentController extends VoyagerBreadController
                     $query->where($value, 'like', "%{$request->get($value)}%");
                 }
             }
+            //如果有开始日期
+            $firstday = date('Y-m-01', strtotime($request->get('period_at_end')));
+            $lastday = date('Y-m-d', strtotime("$firstday +1 month -1 day"));
+
+            if ($request->has('period_at_start')) {
+                $query->where('period_at', '>=', "{$firstday}");
+            }
+            //如果有结束日期
+            if ($request->has('period_at_end')) {
+                $query->where('period_at', '<=', "{$lastday}");
+            }
         });
+
+
         //格式化日期
         $response_data = $response_data->editColumn('period_at', function (Provident $provident) {
-            return empty($provident->period_at) ? "" : date("Y-m-d", strtotime($provident->period_at));
+            return empty($provident->period_at) ? "" : date("Y-m", strtotime($provident->period_at));
         });
         //删除id
         $response_data = $response_data->removeColumn('id');
         //生成实例
         $response_data = $response_data->make(true);
-
+//        dd(\DB::getQueryLog());
         //统计
-        $statistics=Provident::select(\DB::raw("sum(`social_security_personal`) as security_personal_total, sum(`social_security_company`) as security_company_total, sum(`provident_fund_personal`) as fund_personal_total, sum(`provident_fund_company`) as provident_fund_total"));
+        $statistics = Provident::select(\DB::raw("sum(`social_security_personal`) as security_personal_total, sum(`social_security_company`) as security_company_total, sum(`provident_fund_personal`) as fund_personal_total, sum(`provident_fund_company`) as fund_company_total"));
         foreach ($field_data as $key => $value) {
             if ($request->has($value)) {
-                $statistics=$statistics->where($value, 'like', "%{$request->get($value)}%");
+                $statistics = $statistics->where($value, 'like', "%{$request->get($value)}%");
             }
         }
-        $statistics=$statistics->first()->toArray();
-        $response_data->statistics=$statistics;
+        $statistics = $statistics->first()->toArray();
+
+        $response_data_array = $response_data->getData();
+        $response_data_array->statistics = $statistics;
+        //重新赋值
+        $response_data->setData($response_data_array);
+
         return $response_data;
     }
 

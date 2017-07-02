@@ -52,12 +52,12 @@
             </div>
         </div>
     </h1>
-    @stop
-
+@stop
 @section('content')
     <div class="page-content container-fluid">
         {{--下来选择框--}}
-        <form method="post" id="search-form" class="form-inline" role="form" style="margin-top: 20px;margin-left: -15px">
+        <form method="post" id="search-form" class="form-inline" role="form"
+              style="margin-top: 20px;margin-left: -15px">
             <div class="dropdown" style="margin-left: 4%">
                 <button id="dLabel" type="button" class="btn btn-info" data-toggle="dropdown" data-value=""
                         data-name=""
@@ -72,10 +72,46 @@
                     @endforeach
                 </ul>
                 <input type="text" id="search-data" class="form-control" data-name="">
+
+                <button  type="button" class="btn btn-info" data-value=""data-name=""  style="width: 110px;margin-left: 20px">
+                    开始月份
+                </button>
+                <div class='input-group date form_datetime' id='datetimepicker1'>
+                    <input type='text' id="period-at-start" class="form-control" readonly="readonly"/>
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar" ></span>
+                    </span>
+                </div>
+
+                <button  type="button" class="btn btn-info" data-value=""data-name=""  style="width: 110px;margin-left: 20px">
+                    结束月份
+                </button>
+                <div class='input-group date form_datetime' id='datetimepicker1'>
+                    <input type='text' id="period-at-end" class="form-control" readonly="readonly"/>
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar" ></span>
+                    </span>
+                </div>
                 <button type="submit" id="search-btn" class="btn btn-primary">搜索</button>
             </div>
         </form>
         @include('voyager::alerts')
+        {{--统计--}}
+        <div>
+            <div class="pull-left" style="font-size: 20px;font-weight: bold">社保个人部分合计:
+                <span id="security_personal_total"></span>
+            </div>
+            <div class="pull-left" style="font-size: 20px;font-weight: bold;margin-left: 120px"> 社保公司部分合计:
+                <span id="security_company_total"></span>
+            </div>
+
+            <div class="pull-left" style="font-size: 20px;font-weight: bold;margin-left: 120px">公积金个人部分合计 :
+                <span id="fund_personal_total"></span>
+            </div>
+            <div class="pull-left" style="font-size: 20px;font-weight: bold;margin-left: 120px">公积金公司部分合计:
+                <span id="fund_company_total"></span>
+            </div>
+        </div>
         <div class="row">
             <div class="col-md-12">
                 <div class="panel panel-bordered">
@@ -136,7 +172,14 @@
                         ? action.replace(/([0-9]+$)/, id)
                         : action + '/' + id;
             };
-
+            //初始化日期控件
+            $(".form_datetime").datetimepicker({
+                locale: moment.locale('zh-cn'),
+                viewMode: 'months',
+                format: "YYYY-MM",
+                ignoreReadonly:true,
+                showClear:true
+            });
 
             //初始化datatables
             var oTable = $('#users-table').DataTable({
@@ -148,6 +191,8 @@
                     data: function (d) {
                         var name = $("#search-data").data('name');
                         d[name] = $("#search-data").val();
+                        d['period_at_start'] = $("#period-at-start").val();
+                        d['period_at_end'] = $("#period-at-end").val();
                     }
                 },
                 columns: [
@@ -161,7 +206,16 @@
                     {data: 'provident_fund_company', name: 'provident_fund_company'},
                     {data: 'status', name: 'status'},
                     {data: 'action', name: 'action'}
-                ]
+                ],
+                "fnDrawCallback": function (settings, jqXHR) {
+                    var jqXHR = settings.jqXHR;
+                    var resJson = jqXHR.responseJSON;
+                    var statistics = resJson.statistics;
+                    $("#fund_personal_total").html(statistics.fund_personal_total)
+                    $("#fund_company_total").html(statistics.fund_company_total)
+                    $("#security_company_total").html(statistics.security_company_total)
+                    $("#security_personal_total").html(statistics.security_personal_total)
+                }
             });
 
             //下拉选择事件
@@ -179,6 +233,8 @@
                 var search_value = $("#search-data").val();
                 $("#dLabel").data('name', search_key);
                 $("#dLabel").data('value', search_value);
+                $("#period-at-start").data('value', $("#period-at-start").val());
+                $("#period-at-end").data('value', $("#period-at-end").val());
                 oTable.draw();
                 e.preventDefault();
             });
@@ -198,21 +254,27 @@
                     } else {
                         $(".alert-danger").html(res.message).show().delay(5000).hide(0)
                     }
-                    setTimeout("window.location.reload()",2000)
+                    setTimeout("window.location.reload()", 2000)
                 }).fail(function (res) {
                     $(".alert-danger").text('导入失败!').show().delay(3000).hide(0)
-                    setTimeout("window.location.reload()",2000)
+                    setTimeout("window.location.reload()", 2000)
                 });
 
             })
 
-            //导出员工信息列表
+            //导出社保和公积金列表
             $('#exportProvidents').click(function () {
                 //搜索栏
                 if ($("#dLabel").data('value')) {
                     var search_key = $("#dLabel").data('name');
                     var search_value = $("#dLabel").data('value');
                     $('#search-form').append("<input type='text' name=searchData[" + search_key + "] value=" + search_value + " >")
+                }
+                if($("#period-at-start").data('value')){
+                    $('#search-form').append("<input type='text' name='period_at_start' value=" + $("#period-at-start").data('value') + " >")
+                }
+                if($("#period-at-end").data('value')){
+                    $('#search-form').append("<input type='text' name='period_at_end' value=" + $("#period-at-end").data('value') + " >")
                 }
                 $("#search-form").submit()
             })

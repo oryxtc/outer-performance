@@ -311,6 +311,17 @@ class ExcelController extends Controller
             $providents_data = $providents_data
                 ->where(key($search_data), 'like', '%' . $search_data[key($search_data)] . '%');
         }
+        //如果有开始日期
+        if($request->has('period_at_start')){
+            $firstday = date('Y-m-01',strtotime($request->get('period_at_start')));
+            $providents_data = $providents_data->where('period_at', '>=', "{$firstday}");
+        }
+        //如果有结束日期
+        if($request->has('period_at_end')){
+            $firstday = date('Y-m-01',strtotime($request->get('period_at_end')));
+            $lastday = date('Y-m-d',strtotime("$firstday +1 month -1 day"));
+            $providents_data = $providents_data->where('period_at', '<=', "{$lastday}");
+        }
         //获取最终数据
         $providents_data = $providents_data->get()->toArray();
 
