@@ -28,9 +28,19 @@
                                 <img style="max-width:640px"
                                      src="{!! Voyager::image($dataTypeContent->{$row->field}) !!}">
                             @elseif($row->type == 'date')
-                                {{ \Carbon\Carbon::parse($dataTypeContent->{$row->field})->format('F jS, Y h:i A') }}
-                            @elseif($row->field=='role_id')
-                                {{$dataTypeContent->role->display_name}}
+                                {{ \Carbon\Carbon::parse($dataTypeContent->{$row->field})->format('Y-m-d H:i:s') }}
+                            @elseif($row->field=='approver')
+                                {{$approver_str}}
+                            @elseif($row->field=='relevant')
+                                {{$relevant_str}}
+                            @elseif($row->field=='status')
+                                @if($dataTypeContent->{$row->field}=='1')
+                                    未审核
+                                @elseif($dataTypeContent->{$row->field}=='11')
+                                    退审
+                                @elseif($dataTypeContent->{$row->field}=='21')
+                                    通过
+                                @endif
                             @else
                                 <p>{{ $dataTypeContent->{$row->field} }}</p>
                             @endif
