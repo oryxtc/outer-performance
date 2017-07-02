@@ -189,14 +189,14 @@ class VoyagerProvidentController extends VoyagerBreadController
                 }
             }
             //如果有开始日期
-            $firstday = date('Y-m-01', strtotime($request->get('period_at_end')));
-            $lastday = date('Y-m-d', strtotime("$firstday +1 month -1 day"));
-
             if ($request->has('period_at_start')) {
+                $firstday = date('Y-m-01', strtotime($request->get('period_at_start')));
                 $query->where('period_at', '>=', "{$firstday}");
             }
             //如果有结束日期
             if ($request->has('period_at_end')) {
+                $firstday = date('Y-m-01', strtotime($request->get('period_at_end')));
+                $lastday = date('Y-m-d', strtotime("$firstday +1 month -1 day"));
                 $query->where('period_at', '<=', "{$lastday}");
             }
         });

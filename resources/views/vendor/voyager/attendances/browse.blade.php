@@ -12,18 +12,18 @@
         <button type="button" class="btn btn-success" data-toggle="modal" data-target="#myModal">
             <i class="voyager-double-down"></i> 导入社保和公积金
         </button>
-        <button type="button" class="btn btn-success" id="exportProvidents">
-            <i class="voyager-double-up"></i> 导出社保和公积金
+        <button type="button" class="btn btn-success" id="exportAttendances">
+            <i class="voyager-double-up"></i> 导出考勤
         </button>
-        <a href="{{ route('excel.exportProvidents',['checkData'=>'*']) }}" class="btn btn-success">
-            <i class="voyager-plus"></i> 导出所有社保和公积金
+        <a href="{{ route('excel.exportAttendances',['checkData'=>'*']) }}" class="btn btn-success">
+            <i class="voyager-plus"></i> 导出所有考勤
         </a>
 
-        <form hidden method="post" action="/exportProvidents" id="search-form" target="_blank">
+        <form hidden method="post" action="/exportAttendances" id="search-form" target="_blank">
 
         </form>
 
-        <a href="{{ route('excel.exportProvidentsTemplate') }}" class="btn btn-success pull-right">
+        <a href="{{ route('excel.exportAttendancesTemplate') }}" class="btn btn-success pull-right">
             <i class="voyager-plus"></i> 导出模板
         </a>
         {{--导入员工模态框--}}
@@ -56,7 +56,7 @@
 @section('content')
     <div class="page-content container-fluid">
         {{--下来选择框--}}
-        <form method="post" id="search-form" class="form-inline" role="form"
+        <form method="post" id="" class="form-inline" role="form"
               style="margin-top: 20px;margin-left: -15px">
             <div class="dropdown" style="margin-left: 4%">
                 <button id="dLabel" type="button" class="btn btn-info" data-toggle="dropdown" data-value=""
@@ -67,51 +67,37 @@
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="dLabel">
-                    @foreach($providentData as $key=>$value)
+                    @foreach($attendanceData as $key=>$value)
                         <li class='btn-default' data-value="{{$key}}">{{$value}}</li>
                     @endforeach
                 </ul>
                 <input type="text" id="search-data" class="form-control" data-name="">
 
-                <button  type="button" class="btn btn-info" data-value=""data-name=""  style="width: 110px;margin-left: 20px">
-                    开始月份
+
+                <button  type="button" class="btn btn-info" data-value="" data-name=""  style="width: 110px;margin-left: 20px">
+                    开始时间
                 </button>
-                <div class='input-group date form_datetime' id='datetimepicker1'>
-                    <input type='text' id="period-at-start" class="form-control" readonly="readonly"/>
+                <div class='input-group date form_datetime' id=''>
+                    <input type='text' id="start-at" class="form-control" readonly="readonly"/>
                     <span class="input-group-addon">
                         <span class="glyphicon glyphicon-calendar" ></span>
                     </span>
                 </div>
 
                 <button  type="button" class="btn btn-info" data-value=""data-name=""  style="width: 110px;margin-left: 20px">
-                    结束月份
+                    结束时间
                 </button>
-                <div class='input-group date form_datetime' id='datetimepicker1'>
-                    <input type='text' id="period-at-end" class="form-control" readonly="readonly"/>
+                <div class='input-group date form_datetime' id=''>
+                    <input type='text' id="end-at" class="form-control" readonly="readonly"/>
                     <span class="input-group-addon">
                         <span class="glyphicon glyphicon-calendar" ></span>
                     </span>
                 </div>
+
                 <button type="submit" id="search-btn" class="btn btn-primary">搜索</button>
             </div>
         </form>
         @include('voyager::alerts')
-        {{--统计--}}
-        <div>
-            <div class="pull-left" style="font-size: 20px;font-weight: bold;margin-left: 56px">社保个人部分合计:
-                <span id="security_personal_total"></span>
-            </div>
-            <div class="pull-left" style="font-size: 20px;font-weight: bold;margin-left: 120px"> 社保公司部分合计:
-                <span id="security_company_total"></span>
-            </div>
-
-            <div class="pull-left" style="font-size: 20px;font-weight: bold;margin-left: 120px">公积金个人部分合计 :
-                <span id="fund_personal_total"></span>
-            </div>
-            <div class="pull-left" style="font-size: 20px;font-weight: bold;margin-left: 120px">公积金公司部分合计:
-                <span id="fund_company_total"></span>
-            </div>
-        </div>
         <div class="row">
             <div class="col-md-12">
                 <div class="panel panel-bordered">
@@ -177,7 +163,7 @@
             $(".form_datetime").datetimepicker({
                 locale: moment.locale('zh-cn'),
                 viewMode: 'months',
-                format: "YYYY-MM",
+                format: "YYYY-MM-DD HH:MM:SS",
                 ignoreReadonly:true,
                 showClear:true
             });
@@ -226,8 +212,8 @@
                 var search_value = $("#search-data").val();
                 $("#dLabel").data('name', search_key);
                 $("#dLabel").data('value', search_value);
-                $("#period-at-start").data('value', $("#period-at-start").val());
-                $("#period-at-end").data('value', $("#period-at-end").val());
+                $("#start-at").data('value', $("#start-at").val());
+                $("#end-at").data('value', $("#end-at").val());
                 oTable.draw();
                 e.preventDefault();
             });
@@ -255,19 +241,19 @@
 
             })
 
-            //导出社保和公积金列表
-            $('#exportProvidents').click(function () {
+            //导出考勤
+            $('#exportAttendances').click(function () {
                 //搜索栏
                 if ($("#dLabel").data('value')) {
                     var search_key = $("#dLabel").data('name');
                     var search_value = $("#dLabel").data('value');
                     $('#search-form').append("<input type='text' name=searchData[" + search_key + "] value=" + search_value + " >")
                 }
-                if($("#period-at-start").data('value')){
-                    $('#search-form').append("<input type='text' name='period_at_start' value=" + $("#period-at-start").data('value') + " >")
+                if($("#start-at").data('value')){
+                    $('#search-form').append("<input type='text' name='start_at' value=" + $("#start-at").data('value') + " >")
                 }
-                if($("#period-at-end").data('value')){
-                    $('#search-form').append("<input type='text' name='period_at_end' value=" + $("#period-at-end").data('value') + " >")
+                if($("#end-at").data('value')){
+                    $('#search-form').append("<input type='text' name='end_at' value=" + $("#end-atd").data('value') + " >")
                 }
                 $("#search-form").submit()
             })

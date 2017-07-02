@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Attendance;
 use App\Http\Method\UsersTemplate;
 use App\Provident;
 use App\Role;
@@ -410,6 +411,130 @@ class ExcelController extends Controller
         }
         return $this->apiJson(true, $errors_mes);
     }
+
+
+    /**
+     * 考勤模板
+     * @return mixed
+     */
+    public function exportAttendancesTemplate()
+    {
+        $head_list = [
+            'created_at'=>'申请时间',
+            'job_number'=>'工号',
+            'username'=>'姓名',
+            'type'=>'类型',
+            'title'=>'标题',
+            'reson'=>'事由',
+            'start_at'=>'开始时间',
+            'end_at'=>'结束时间',
+            'continued_at'=>'申请时长',
+            'status'=>'状态',
+        ];
+        $head_list_value = array_values($head_list);
+        $export=\Excel::create('考勤表');
+        //导出数据
+        $export->sheet('考勤表', function ($sheet) use ($head_list_value) {
+            $sheet->setAutoSize(true);
+            $sheet->setWidth('A', 20);
+            $sheet->setWidth('B', 15);
+            $sheet->setWidth('C', 15);
+            $sheet->setWidth('D', 15);
+            $sheet->setWidth('E', 20);
+            $sheet->setWidth('F', 20);
+            $sheet->setWidth('G', 20);
+            $sheet->setWidth('H', 20);
+            $sheet->setWidth('I', 10);
+            $sheet->setWidth('J', 10);
+            //填充头部
+            $sheet->prependRow($head_list_value);
+        });
+        return $export->export('xlsx');
+    }
+
+
+    /**
+     * 导出考勤表
+     * @param Request $request
+     * @return mixed
+     */
+    public function exportAttendances(Request $request)
+    {
+        $search_data = $request->get('searchData', null);
+        $head_list = [
+            'created_at'=>'申请时间',
+            'job_number'=>'工号',
+            'username'=>'姓名',
+            'type'=>'类型',
+            'title'=>'标题',
+            'reson'=>'事由',
+            'start_at'=>'开始时间',
+            'end_at'=>'结束时间',
+            'continued_at'=>'申请时长',
+            'status'=>'状态',
+        ];
+
+        $export=\Excel::create('考勤表');
+        //增加索引列
+        \DB::statement(\DB::raw('set @rownum=0'));
+        //查询数据
+        $attendances_data = Attendance::select(array_merge([\DB::raw('@rownum  := @rownum  + 1 AS rownum')],array_keys($head_list)))->where('status','<>',0);
+        //如果有查询条件
+        if (!empty($search_data)) {
+            if(key($search_data)=='status'){
+                if (preg_match("/(.*)[\x{9000}](.*)/u",$search_data[key($search_data)])){
+                    $status=11;
+                }elseif (preg_match("/(.*)[\x{901A}](.*)/u",$search_data[key($search_data)])){
+                    $status=21;
+                }else{
+                    $status=1;
+                }
+                $attendances_data = $attendances_data
+                    ->where('status',$status);
+            }else{
+                $attendances_data = $attendances_data
+                    ->where(key($search_data), 'like', '%' . $search_data[key($search_data)] . '%');
+            }
+        }
+
+        //如果有开始日期
+        if($request->has('start_at')){
+            $attendances_data = $attendances_data->where('start_at', '>=', "{$request->get('start_at')}");
+        }
+        //如果有结束日期
+        if($request->has('end_at')){
+            $attendances_data = $attendances_data->where('end_at', '<=', "{$request->get('end_at')}");
+        }
+        //获取最终数据
+        $attendances_data = $attendances_data->get()->toArray();
+        //新增用户名称字段
+        foreach ($attendances_data as $key=>&$attendance){
+            if($attendance['status']=='11'){
+                $attendance['status']='退审';
+            }elseif ($attendance['status']=='21'){
+                $attendance['status']='通过';
+            }elseif ($attendance['status']=='1'){
+                $attendance['status']='待审核';
+            }
+        }
+        $head_list_value=array_values(array_merge(['rownum'=>'序号'],$head_list));
+        //导出数据
+        $export->sheet('考勤表', function ($sheet) use ($head_list_value, $attendances_data) {
+            $sheet->setAutoSize(true);
+            $sheet->setWidth('A', 10);
+            //填充头部
+            $sheet->prependRow($head_list_value);
+            //填充主体
+            $sheet->fromArray($attendances_data, null, 'A2', true, false);
+        });
+        return $export->export('xlsx');
+    }
+
+
+
+
+
+
 
     /**
      * 获取角色名称

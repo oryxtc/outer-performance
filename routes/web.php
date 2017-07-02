@@ -48,6 +48,14 @@ use Illuminate\Routing\Route;
     \Route::post('importProvidents', 'ExcelController@importProvidents')->name('importProvidents');
     //导出社保和公积金模板
     \Route::any('exportProvidents', 'ExcelController@exportProvidents')->name('exportProvidents');
+
+
+    //导出考勤模板
+    \Route::get('exportAttendancesTemplate', 'ExcelController@exportAttendancesTemplate')->name('exportAttendancesTemplate');
+    //导入考勤
+    \Route::post('importProvidents', 'ExcelController@importProvidents')->name('importProvidents');
+    //导出考勤
+    \Route::any('exportAttendances', 'ExcelController@exportAttendances')->name('exportAttendances');
 });
 
 

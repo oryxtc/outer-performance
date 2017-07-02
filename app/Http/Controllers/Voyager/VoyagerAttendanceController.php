@@ -59,8 +59,14 @@ class VoyagerAttendanceController extends VoyagerBreadController
             $view = "voyager::$slug.browse";
         }
         //多选框字段
-        $providentData = ExcelController::PROVIDENT_HEAD;
-        return view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable', 'providentData'));
+        $attendanceData = [
+            'username'=>'姓名',
+            'type'=>'类型',
+            'title'=>'标题',
+            'reson'=>'事由',
+            'status'=>'状态',
+        ];
+        return view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable', 'attendanceData'));
     }
 
     public function show(Request $request, $id)
@@ -257,16 +263,26 @@ class VoyagerAttendanceController extends VoyagerBreadController
         $response_data = $response_data->filter(function ($query) use ($request, $field_data) {
             foreach ($field_data as $key => $value) {
                 if ($request->has($value)) {
-                    if($request->get($value)=='start_at'){
+                    if($value=='start_at'){
                         $query->where('start_at', '>=', "{$request->get('start_at')}");
-                    }elseif ($request->get($value)=='end_at'){
+                    }elseif ($value=='end_at') {
                         $query->where('end_at', '<=', "{$request->get('end_at')}");
+                    }elseif ($value=='status'){
+                        if (preg_match("/(.*)[\x{9000}](.*)/u",$request->get($value))){
+                            $status=11;
+                        }elseif (preg_match("/(.*)[\x{901A}](.*)/u",$request->get($value))){
+                            $status=21;
+                        }else{
+                            $status=1;
+                        }
+                        $query->where('status', $status);
                     }else{
                         $query->where($value, 'like', "%{$request->get($value)}%");
                     }
                 }
             }
         });
+
         //格式化状态
         $response_data = $response_data->editColumn('status', function (Attendance $attendance) {
             if($attendance->status=='1'){
@@ -278,7 +294,6 @@ class VoyagerAttendanceController extends VoyagerBreadController
             }
             return $status;
         });
-
         //删除id
         $response_data = $response_data->removeColumn('id');
         //生成实例
