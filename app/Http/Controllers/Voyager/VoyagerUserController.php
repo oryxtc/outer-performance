@@ -225,6 +225,21 @@ class VoyagerUserController extends VoyagerBreadController
         return $response_data;
     }
 
+
+    /**
+     * 获取用户名列表
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getUsersNameList(Request $request){
+        $users_list=User::select(['job_number','username','part_name']);
+        if($request->has('username')){
+            $users_list=$users_list->where('username','like',"%{$request->get('username')}%");
+        }
+        $users_list=$users_list->get()->toArray();
+        return $this->apiJson(true,'',$users_list);
+    }
+
     /**
      * Get a validator for an incoming registration request.
      *

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Voyager;
 
+use App\Attendance;
 use App\Http\Controllers\ExcelController;
 use App\Provident;
 use App\User;
@@ -87,6 +88,16 @@ class VoyagerAttendanceController extends VoyagerBreadController
             $view = "voyager::$slug.edit-add";
         }
 
+        //查询审核人
+        $approver_arr=explode(',',Attendance::where('id',$id)->value('approver'));
+        $relevant_arr=explode(',',Attendance::where('id',$id)->value('relevant'));
+
+        $username_list=User::select(['job_number','username'])->whereIn('job_number',array_merge($approver_arr,$relevant_arr))->get()->toArray();
+        foreach ($approver_arr as $key=>$value){
+
+        }
+
+        dd($username_list);
         return view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable'));
     }
 
@@ -237,7 +248,7 @@ class VoyagerAttendanceController extends VoyagerBreadController
     protected function validator(array $data)
     {
         return \Validator::make($data, [
-            'email' => 'required|string|max:150|exists:users',
+            'job_number' => 'required|string',
         ]);
     }
 }

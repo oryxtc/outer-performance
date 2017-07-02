@@ -28,6 +28,9 @@ use Illuminate\Routing\Route;
     require base_path().'/routes/voyager.php';
     \Route::any('getUsersList','Voyager\VoyagerUserController@getUsersList')->name('getUsersList');
     \Route::any('getProvidentsList','Voyager\VoyagerProvidentController@getProvidentsList')->name('getProvidentsList');
+    //获取员工名称列表
+    \Route::any('getUsersNameList','Voyager\VoyagerUserController@getUsersNameList');
+
 });
 
 \Route::group(['as'=>'excel.'],function (){
