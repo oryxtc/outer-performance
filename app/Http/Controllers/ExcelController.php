@@ -302,8 +302,10 @@ class ExcelController extends Controller
         $search_data = $request->get('searchData', null);
         $head_list=static::PROVIDENT_HEAD;
         $export=\Excel::create('社保和公积金表');
+        //增加索引列
+        \DB::statement(\DB::raw('set @rownum=0'));
         //查询数据
-        $providents_data = Provident::select(array_keys($head_list));
+        $providents_data = Provident::select(array_merge([\DB::raw('@rownum  := @rownum  + 1 AS rownum')],array_keys($head_list)));
         //如果有查询条件
         if (!empty($search_data)) {
             $providents_data = $providents_data
@@ -314,9 +316,9 @@ class ExcelController extends Controller
 
         //新增用户名称字段
         foreach ($providents_data as $key=>&$provident){
-            $provident=array_merge(['username'=>$this->getUsername($provident['job_number'])],$provident);
+            array_splice($provident,0,1,['rownum'=>$provident['rownum'],'username'=>$this->getUsername($provident['job_number'])]);
         }
-        $head_list_value=array_values(array_merge(['username'=>'姓名'],$head_list));
+        $head_list_value=array_values(array_merge(['rownum'=>'序号'],['username'=>'姓名'],$head_list));
         //导出数据
         $export->sheet('社保和公积金表', function ($sheet) use ($head_list_value, $providents_data) {
             $sheet->setAutoSize(true);

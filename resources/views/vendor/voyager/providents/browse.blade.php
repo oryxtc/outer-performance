@@ -83,6 +83,7 @@
                         <table id="users-table" class="table table-bordered">
                             <thead>
                             <tr>
+                                <th>序号</th>
                                 <th>姓名</th>
                                 <th>工号</th>
                                 <th>所属期间</th>
@@ -150,6 +151,7 @@
                     }
                 },
                 columns: [
+                    {data: 'rownum', name: 'rownum'},
                     {data: 'username', name: 'username'},
                     {data: 'job_number', name: 'job_number'},
                     {data: 'period_at', name: 'period_at'},

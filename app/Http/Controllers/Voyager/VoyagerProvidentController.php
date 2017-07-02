@@ -21,7 +21,7 @@ class VoyagerProvidentController extends VoyagerBreadController
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
 
         // Check permission
-        Voyager::canOrFail('browse_'.$dataType->name);
+        Voyager::canOrFail('browse_' . $dataType->name);
 
         $getter = $dataType->server_side ? 'paginate' : 'get';
 
@@ -57,8 +57,8 @@ class VoyagerProvidentController extends VoyagerBreadController
             $view = "voyager::$slug.browse";
         }
         //多选框字段
-        $providentData=ExcelController::PROVIDENT_HEAD;
-        return view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable','providentData'));
+        $providentData = ExcelController::PROVIDENT_HEAD;
+        return view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable', 'providentData'));
     }
 
 
@@ -69,7 +69,7 @@ class VoyagerProvidentController extends VoyagerBreadController
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
 
         // Check permission
-        Voyager::canOrFail('edit_'.$dataType->name);
+        Voyager::canOrFail('edit_' . $dataType->name);
 
         $relationships = $this->getRelationships($dataType);
 
@@ -101,7 +101,7 @@ class VoyagerProvidentController extends VoyagerBreadController
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
 
         // Check permission
-        Voyager::canOrFail('edit_'.$dataType->name);
+        Voyager::canOrFail('edit_' . $dataType->name);
 
         //Validate fields with ajax
         $val = $this->validateBread($request->all(), $dataType->editRows);
@@ -118,7 +118,7 @@ class VoyagerProvidentController extends VoyagerBreadController
             return redirect()
                 ->route("voyager.{$dataType->slug}.edit", ['id' => $id])
                 ->with([
-                    'message'    => "Successfully Updated {$dataType->display_name_singular}",
+                    'message' => "Successfully Updated {$dataType->display_name_singular}",
                     'alert-type' => 'success',
                 ]);
         }
@@ -135,7 +135,7 @@ class VoyagerProvidentController extends VoyagerBreadController
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
 
         // Check permission
-        Voyager::canOrFail('add_'.$dataType->name);
+        Voyager::canOrFail('add_' . $dataType->name);
 
         //Validate fields with ajax
         $val = $this->validateBread($request->all(), $dataType->addRows);
@@ -150,7 +150,7 @@ class VoyagerProvidentController extends VoyagerBreadController
             return redirect()
                 ->route("voyager.{$dataType->slug}.edit", ['id' => $data->id])
                 ->with([
-                    'message'    => "Successfully Added New {$dataType->display_name_singular}",
+                    'message' => "Successfully Added New {$dataType->display_name_singular}",
                     'alert-type' => 'success',
                 ]);
         }
@@ -162,39 +162,57 @@ class VoyagerProvidentController extends VoyagerBreadController
      * @param Request $request
      * @return mixed
      */
-    public function getProvidentsList(Request $request){
-        $field_data=array_keys(ExcelController::PROVIDENT_HEAD);
-
-        $providents = Provident::select(array_merge($field_data,['id']))->orderBy('id','DESC');
-        $response_data=\Datatables::eloquent($providents);
+    public function getProvidentsList(Request $request)
+    {
+        $field_data = array_keys(ExcelController::PROVIDENT_HEAD);
+        //增加索引列
+        \DB::statement(\DB::raw('set @rownum=0'));
+        $field_data = array_merge($field_data, ['id']);
+        $field_data = array_merge([\DB::raw('@rownum  := @rownum  + 1 AS rownum')], $field_data);
+        $providents = Provident::select($field_data);
+        $response_data = \Datatables::eloquent($providents);
         //添加姓名
-        $response_data=$response_data->addColumn('username', function (Provident $provident){
-            $user=$provident->getUser;
-            return empty($user)?"":$user->username;
+        $response_data = $response_data->addColumn('username', function (Provident $provident) {
+            $user = $provident->getUser;
+            return empty($user) ? "" : $user->username;
         });
         //添加操作
-        $response_data=$response_data->addColumn('action', function (Provident $provident){
-           return view('voyager::providents.operate',['provident'=>$provident]);
+        $response_data = $response_data->addColumn('action', function (Provident $provident) {
+            return view('voyager::providents.operate', ['provident' => $provident]);
         });
         //指定搜索栏模糊匹配
-        $response_data=$response_data->filter(function ($query) use ($request,$field_data) {
-                foreach ($field_data as $key=>$value){
-                    if ($request->has($value)) {
-                        $query->where($value, 'like', "%{$request->get($value)}%");
-                    }
+        $response_data = $response_data->filter(function ($query) use ($request, $field_data) {
+            foreach ($field_data as $key => $value) {
+                if ($request->has($value)) {
+                    $query->where($value, 'like', "%{$request->get($value)}%");
                 }
-            });
+            }
+        });
+        //格式化日期
+        $response_data = $response_data->editColumn('period_at', function (Provident $provident) {
+            return empty($provident->period_at) ? "" : date("Y-m-d", strtotime($provident->period_at));
+        });
         //删除id
-        $response_data=$response_data->removeColumn('id');
+        $response_data = $response_data->removeColumn('id');
         //生成实例
-        $response_data=$response_data->make(true);
+        $response_data = $response_data->make(true);
+
+        //统计
+        $statistics=Provident::select(\DB::raw("sum(`social_security_personal`) as security_personal_total, sum(`social_security_company`) as security_company_total, sum(`provident_fund_personal`) as fund_personal_total, sum(`provident_fund_company`) as provident_fund_total"));
+        foreach ($field_data as $key => $value) {
+            if ($request->has($value)) {
+                $statistics=$statistics->where($value, 'like', "%{$request->get($value)}%");
+            }
+        }
+        $statistics=$statistics->first()->toArray();
+        $response_data->statistics=$statistics;
         return $response_data;
     }
 
     /**
      * Get a validator for an incoming registration request.
      *
-     * @param  array  $data
+     * @param  array $data
      * @return \Illuminate\Contracts\Validation\Validator
      */
     protected function validator(array $data)
