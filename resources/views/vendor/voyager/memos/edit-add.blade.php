@@ -108,7 +108,6 @@
                                     </div>
                                 </div>
                             </div>
-
                             @foreach($dataTypeRows as $row)
                                 @if($row->field=='approver')
                                     <div class="form-group @if($row->type == 'hidden') hidden @endif">

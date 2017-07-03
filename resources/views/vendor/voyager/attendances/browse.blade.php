@@ -163,7 +163,7 @@
             $(".form_datetime").datetimepicker({
                 locale: moment.locale('zh-cn'),
                 viewMode: 'months',
-                format: "YYYY-MM-DD HH:MM:SS",
+                format: "YYYY-MM-DD HH:mm:SS",
                 ignoreReadonly:true,
                 showClear:true
             });

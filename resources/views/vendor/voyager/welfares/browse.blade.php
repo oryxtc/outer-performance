@@ -27,7 +27,7 @@
                                     @foreach($dataType->browseRows as $rows)
                                     <th>{{ $rows->display_name }}</th>
                                     @endforeach
-                                    <th class="actions">Actions</th>
+                                    <th class="actions">操作</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -100,17 +100,17 @@
                                     <td class="no-sort no-click" id="bread-actions">
                                         @if (Voyager::can('delete_'.$dataType->name))
                                             <a href="javascript:;" title="Delete" class="btn btn-sm btn-danger pull-right delete" data-id="{{ $data->id }}" id="delete-{{ $data->id }}">
-                                                <i class="voyager-trash"></i> <span class="hidden-xs hidden-sm">Delete</span>
+                                                <i class="voyager-trash"></i> <span class="hidden-xs hidden-sm">删除</span>
                                             </a>
                                         @endif
                                         @if (Voyager::can('edit_'.$dataType->name))
                                             <a href="{{ route('voyager.'.$dataType->slug.'.edit', $data->id) }}" title="Edit" class="btn btn-sm btn-primary pull-right edit">
-                                                <i class="voyager-edit"></i> <span class="hidden-xs hidden-sm">Edit</span>
+                                                <i class="voyager-edit"></i> <span class="hidden-xs hidden-sm">修改</span>
                                             </a>
                                         @endif
                                         @if (Voyager::can('read_'.$dataType->name))
                                             <a href="{{ route('voyager.'.$dataType->slug.'.show', $data->id) }}" title="View" class="btn btn-sm btn-warning pull-right">
-                                                <i class="voyager-eye"></i> <span class="hidden-xs hidden-sm">View</span>
+                                                <i class="voyager-eye"></i> <span class="hidden-xs hidden-sm">查看</span>
                                             </a>
                                         @endif
                                     </td>

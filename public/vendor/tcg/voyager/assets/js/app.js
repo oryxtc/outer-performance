@@ -102,10 +102,10 @@ $(document).ready(function(){
 
   $('.datepicker').datetimepicker({
     locale: moment.locale('zh-cn'),
-    viewMode: 'months',
-    format: "YYYY-MM-DD HH:MM:SS",
-    ignoreReadonly:true,
-    showClear:true
+    // viewMode: 'months',
+    // format: "YYYY-MM-DD HH:mm:SS",
+    // ignoreReadonly:true,
+    // showClear:true
   });
 
   // Right navbar toggle

@@ -82,7 +82,7 @@ class VoyagerWelfareController extends VoyagerBreadController
         $view = 'voyager::bread.edit-add';
 
         if (view()->exists("voyager::$slug.edit-add")) {
-            $view = "voyager::$slug.edit";
+            $view = "voyager::$slug.edit-add";
         }
 
         return view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable'));
@@ -107,7 +107,7 @@ class VoyagerWelfareController extends VoyagerBreadController
 
         $view = 'voyager::bread.edit-add';
 
-        if (view()->exists("voyager::$slug.add")) {
+        if (view()->exists("voyager::$slug.edit-add")) {
             $view = "voyager::$slug.add";
         }
 
@@ -139,11 +139,23 @@ class VoyagerWelfareController extends VoyagerBreadController
             $data = $this->insertUpdateData($request, $slug, $dataType->addRows, new $dataType->model_name());
 
             return redirect()
-                ->route("voyager.{$dataType->slug}.edit", ['id' => $data->id])
+                ->route("voyager.{$dataType->slug}.edit-add", ['id' => $data->id])
                 ->with([
                     'message'    => "Successfully Added New {$dataType->display_name_singular}",
                     'alert-type' => 'success',
                 ]);
         }
+    }
+
+    /**
+     * 验证管理级别
+     * @param array $data
+     * @return mixed
+     */
+    protected function validator(array $data)
+    {
+        return \Validator::make($data, [
+            'management_rank' => 'required|string',
+        ]);
     }
 }
