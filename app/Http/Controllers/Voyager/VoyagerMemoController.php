@@ -97,28 +97,7 @@ class VoyagerMemoController extends VoyagerBreadController
             $view = "voyager::$slug.read";
         }
 
-        //查询审核人
-        $approver_arr=explode(',',Attendance::where('id',$id)->value('approver'));
-        $relevant_arr=explode(',',Attendance::where('id',$id)->value('relevant'));
-
-        $username_list=User::select(['job_number','username'])->whereIn('job_number',array_merge($approver_arr,$relevant_arr))->pluck('username','job_number')->toArray();
-        foreach ($approver_arr as $key=>$value){
-            if(!$value){
-                continue;
-            }
-            $approver_str[]=$username_list[$value];
-        }
-        foreach ($relevant_arr as $key=>$value){
-            if(!$value){
-                continue;
-            }
-            $relevant_str[]=$username_list[$value];
-        }
-        $approver_str=implode(',',$approver_str);
-        $relevant_str=implode(',',$relevant_str);
-
-
-        return view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable','approver_str','relevant_str'));
+        return view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable'));
     }
 
 
@@ -146,28 +125,7 @@ class VoyagerMemoController extends VoyagerBreadController
             $view = "voyager::$slug.edit-add";
         }
 
-        //查询审核人
-        $approver_arr=explode(',',Attendance::where('id',$id)->value('approver'));
-        $relevant_arr=explode(',',Attendance::where('id',$id)->value('relevant'));
-
-        $username_list=User::select(['job_number','username'])->whereIn('job_number',array_merge($approver_arr,$relevant_arr))->pluck('username','job_number')->toArray();
-        foreach ($approver_arr as $key=>$value){
-            if(!$value){
-                continue;
-            }
-            $approver_str[]=$username_list[$value];
-        }
-        foreach ($relevant_arr as $key=>$value){
-            if(!$value){
-                continue;
-            }
-            $relevant_str[]=$username_list[$value];
-        }
-        $approver_str=implode(',',$approver_str);
-        $relevant_str=implode(',',$relevant_str);
-
-
-        return view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable','relevant_str','approver_str'));
+        return view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable'));
     }
 
 
@@ -190,7 +148,7 @@ class VoyagerMemoController extends VoyagerBreadController
         if ($val->fails()) {
             return response()->json(['errors' => $val->messages()]);
         }
-
+//        dd($request->all());
         if (!$request->ajax()) {
             $data = call_user_func([$dataType->model_name, 'findOrFail'], $id);
 

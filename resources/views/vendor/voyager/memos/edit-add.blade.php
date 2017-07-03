@@ -227,7 +227,6 @@
 
             //初始化用户名选择列表
             function initUsernameList() {
-                console.log(111)
                 $.post('/admin/getUsersNameList', function (data) {
                     $(data.data).each(function (key, value) {
                         var job_number = value.job_number;
