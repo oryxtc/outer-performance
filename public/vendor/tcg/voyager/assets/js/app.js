@@ -100,7 +100,13 @@ $(document).ready(function(){
     $this.closest('.panel').toggleClass('is-fullscreen');
   });
 
-  $('.datepicker').datetimepicker();
+  $('.datepicker').datetimepicker({
+    locale: moment.locale('zh-cn'),
+    viewMode: 'months',
+    format: "YYYY-MM-DD HH:MM:SS",
+    ignoreReadonly:true,
+    showClear:true
+  });
 
   // Right navbar toggle
   $('.navbar-right-expand-toggle').on('click', function(){

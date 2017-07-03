@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Voyager;
 
 use App\Attendance;
 use App\Http\Controllers\ExcelController;
+use App\Memo;
 use App\Provident;
 use App\User;
 use Illuminate\Http\Request;
@@ -241,59 +242,54 @@ class VoyagerMemoController extends VoyagerBreadController
 
 
     /**
-     * 获取社保和公积金列表
+     * 获取备忘录列表
      * @param Request $request
      * @return mixed
      */
-    public function getAttendancesList(Request $request)
+    public function getMemosList(Request $request)
     {
-        $field_data = array_keys(ExcelController::ATTENDANCE_HEAD);
+        $field_data = array_keys(ExcelController::MEMO_HEAD);
         //增加索引列
         \DB::statement(\DB::raw('set @rownum=0'));
         $field_data = array_merge($field_data, ['id']);
         $field_data = array_merge([\DB::raw('@rownum  := @rownum  + 1 AS rownum')], $field_data);
-        $attendances = Attendance::select($field_data)->where('status','<>',0);
-        $response_data = \Datatables::eloquent($attendances);
+        $memos = Memo::select($field_data);
+        $response_data = \Datatables::eloquent($memos);
+        //添加姓名
+        $response_data = $response_data->addColumn('username', function (Memo $memo) {
+            $user = $memo->getUser;
+            return empty($user) ? "" : $user->username;
+        });
         //添加操作
-        $response_data = $response_data->addColumn('action', function (Attendance $attendance) {
-            return view('voyager::attendances.operate', ['attendance' => $attendance]);
+        $response_data = $response_data->addColumn('action', function (Memo $memo) {
+            return view('voyager::memos.operate', ['memo' => $memo]);
         });
 
         //指定搜索栏模糊匹配
         $response_data = $response_data->filter(function ($query) use ($request, $field_data) {
             foreach ($field_data as $key => $value) {
                 if ($request->has($value)) {
-                    if($value=='start_at'){
-                        $query->where('start_at', '>=', "{$request->get('start_at')}");
-                    }elseif ($value=='end_at') {
-                        $query->where('end_at', '<=', "{$request->get('end_at')}");
-                    }elseif ($value=='status'){
-                        if (preg_match("/(.*)[\x{9000}](.*)/u",$request->get($value))){
-                            $status=11;
-                        }elseif (preg_match("/(.*)[\x{901A}](.*)/u",$request->get($value))){
-                            $status=21;
-                        }else{
-                            $status=1;
-                        }
-                        $query->where('status', $status);
-                    }else{
-                        $query->where($value, 'like', "%{$request->get($value)}%");
-                    }
+                    $query->where($value, 'like', "%{$request->get($value)}%");
                 }
+            }
+            //如果有开始日期
+            if ($request->has('period_at_start')) {
+                $firstday = date('Y-m-01', strtotime($request->get('period_at_start')));
+                $query->where('period_at', '>=', "{$firstday}");
+            }
+            //如果有结束日期
+            if ($request->has('period_at_end')) {
+                $firstday = date('Y-m-01', strtotime($request->get('period_at_end')));
+                $lastday = date('Y-m-d', strtotime("$firstday +1 month -1 day"));
+                $query->where('period_at', '<=', "{$lastday}");
             }
         });
 
-        //格式化状态
-        $response_data = $response_data->editColumn('status', function (Attendance $attendance) {
-            if($attendance->status=='1'){
-                $status='未审核';
-            }elseif ($attendance->status=='11'){
-                $status='退审';
-            }elseif ($attendance->status=='21'){
-                $status='通过';
-            }
-            return $status;
+        //格式化日期
+        $response_data = $response_data->editColumn('period_at', function ( Memo $memo) {
+            return empty($memo->period_at) ? "" : date("Y-m", strtotime($memo->period_at));
         });
+
         //删除id
         $response_data = $response_data->removeColumn('id');
         //生成实例

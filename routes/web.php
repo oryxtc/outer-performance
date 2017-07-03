@@ -32,6 +32,7 @@ use Illuminate\Routing\Route;
     \Route::any('getUsersList','Voyager\VoyagerUserController@getUsersList')->name('getUsersList');
     \Route::any('getProvidentsList','Voyager\VoyagerProvidentController@getProvidentsList')->name('getProvidentsList');
     \Route::any('getAttendancesList','Voyager\VoyagerAttendanceController@getAttendancesList')->name('getAttendancesList');
+    \Route::any('getMemosList','Voyager\VoyagerMemoController@getMemosList')->name('getMemosList');
 });
 
 \Route::group(['as'=>'excel.'],function (){
@@ -56,6 +57,13 @@ use Illuminate\Routing\Route;
     \Route::post('importAttendances', 'ExcelController@importAttendances')->name('importAttendances');
     //导出考勤
     \Route::any('exportAttendances', 'ExcelController@exportAttendances')->name('exportAttendances');
+
+    //导出备忘录模板
+    \Route::get('exportMemosTemplate', 'ExcelController@exportAttendancesTemplate')->name('exportMemosTemplate');
+    //导入备忘录
+    \Route::post('importMemos', 'ExcelController@importAttendances')->name('importMemos');
+    //导出备忘录
+    \Route::any('exportMemos', 'ExcelController@exportAttendances')->name('exportMemos');
 });
 
 

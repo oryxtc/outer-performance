@@ -152,6 +152,16 @@ class ExcelController extends Controller
         'status'=>'状态',
     ];
 
+    const MEMO_HEAD=[
+        'period_at'=>'所属期间',
+        'job_number'=>'工号',
+        'bonus'=>'奖金津贴',
+        'cash'=>'现金发放',
+        'charge'=>'事故扣款',
+        'extend'=>'扩展奖励',
+        'remark'=>'备注',
+    ];
+
     /**
      * 导出员工表模板
      * @param UsersTemplate $export

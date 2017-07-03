@@ -10,20 +10,20 @@
         @endif
 
         <button type="button" class="btn btn-success" data-toggle="modal" data-target="#myModal">
-            <i class="voyager-double-down"></i> 导入社保和公积金
+            <i class="voyager-double-down"></i> 导入备忘录
         </button>
-        <button type="button" class="btn btn-success" id="exportProvidents">
-            <i class="voyager-double-up"></i> 导出社保和公积金
+        <button type="button" class="btn btn-success" id="exportMemos">
+            <i class="voyager-double-up"></i> 导出备忘录
         </button>
-        <a href="{{ route('excel.exportProvidents',['checkData'=>'*']) }}" class="btn btn-success">
-            <i class="voyager-plus"></i> 导出所有社保和公积金
+        <a href="{{ route('excel.exportMemos',['checkData'=>'*']) }}" class="btn btn-success">
+            <i class="voyager-plus"></i> 导出所有备忘录
         </a>
 
-        <form hidden method="post" action="/exportProvidents" id="search-form" target="_blank">
+        <form hidden method="post" action="/exportMemos" id="search-form" target="_blank">
 
         </form>
 
-        <a href="{{ route('excel.exportProvidentsTemplate') }}" class="btn btn-success pull-right">
+        <a href="{{ route('excel.exportMemosTemplate') }}" class="btn btn-success pull-right">
             <i class="voyager-plus"></i> 导出模板
         </a>
         {{--导入员工模态框--}}
@@ -56,7 +56,7 @@
 @section('content')
     <div class="page-content container-fluid">
         {{--下来选择框--}}
-        <form method="post" id="search-form" class="form-inline" role="form"
+        <form method="post" id="" class="form-inline" role="form"
               style="margin-top: 20px;margin-left: -15px">
             <div class="dropdown" style="margin-left: 4%">
                 <button id="dLabel" type="button" class="btn btn-info" data-toggle="dropdown" data-value=""
@@ -67,51 +67,37 @@
                     <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu" aria-labelledby="dLabel">
-                    @foreach($providentData as $key=>$value)
+                    @foreach($attendanceData as $key=>$value)
                         <li class='btn-default' data-value="{{$key}}">{{$value}}</li>
                     @endforeach
                 </ul>
                 <input type="text" id="search-data" class="form-control" data-name="">
 
-                <button  type="button" class="btn btn-info" data-value=""data-name=""  style="width: 110px;margin-left: 20px">
-                    开始月份
+
+                <button  type="button" class="btn btn-info" data-value="" data-name=""  style="width: 110px;margin-left: 20px">
+                    开始时间
                 </button>
-                <div class='input-group date form_datetime' id='datetimepicker1'>
-                    <input type='text' id="period-at-start" class="form-control" readonly="readonly"/>
+                <div class='input-group date form_datetime' id=''>
+                    <input type='text' id="start-at" class="form-control" readonly="readonly"/>
                     <span class="input-group-addon">
                         <span class="glyphicon glyphicon-calendar" ></span>
                     </span>
                 </div>
 
                 <button  type="button" class="btn btn-info" data-value=""data-name=""  style="width: 110px;margin-left: 20px">
-                    结束月份
+                    结束时间
                 </button>
-                <div class='input-group date form_datetime' id='datetimepicker1'>
-                    <input type='text' id="period-at-end" class="form-control" readonly="readonly"/>
+                <div class='input-group date form_datetime' id=''>
+                    <input type='text' id="end-at" class="form-control" readonly="readonly"/>
                     <span class="input-group-addon">
                         <span class="glyphicon glyphicon-calendar" ></span>
                     </span>
                 </div>
+
                 <button type="submit" id="search-btn" class="btn btn-primary">搜索</button>
             </div>
         </form>
         @include('voyager::alerts')
-        {{--统计--}}
-        <div>
-            <div class="pull-left" style="font-size: 18px;font-weight: bold;margin-left: 35px">社保个人部分合计:
-                <span id="security_personal_total"></span>
-            </div>
-            <div class="pull-left" style="font-size: 18px;font-weight: bold;margin-left: 100px"> 社保公司部分合计:
-                <span id="security_company_total"></span>
-            </div>
-
-            <div class="pull-left" style="font-size: 18px;font-weight: bold;margin-left: 100px">公积金个人部分合计 :
-                <span id="fund_personal_total"></span>
-            </div>
-            <div class="pull-left" style="font-size: 18px;font-weight: bold;margin-left: 100px">公积金公司部分合计:
-                <span id="fund_company_total"></span>
-            </div>
-        </div>
         <div class="row">
             <div class="col-md-12">
                 <div class="panel panel-bordered">
@@ -120,14 +106,13 @@
                             <thead>
                             <tr>
                                 <th>序号</th>
-                                <th>姓名</th>
-                                <th>工号</th>
                                 <th>所属期间</th>
-                                <th>社保个人部分</th>
-                                <th>社保公司部分</th>
-                                <th>公积金个人部分</th>
-                                <th>公积金公司部分</th>
-                                <th>状态</th>
+                                <th>姓名</th>
+                                <th>奖金津贴</th>
+                                <th>现金发放</th>
+                                <th>事故扣款</th>
+                                <th>扩展奖励</th>
+                                <th>备注</th>
                                 <th class='text-center' style='width: 230px'>操作</th>
                             </tr>
                             </thead>
@@ -187,7 +172,7 @@
                 serverSide: true,
                 searching: false,
                 ajax: {
-                    url: '{!! route('getProvidentsList') !!}',
+                    url: '{!! route('getMemosList') !!}',
                     data: function (d) {
                         var name = $("#search-data").data('name');
                         d[name] = $("#search-data").val();
@@ -197,25 +182,15 @@
                 },
                 columns: [
                     {data: 'rownum', name: 'rownum'},
-                    {data: 'username', name: 'username'},
-                    {data: 'job_number', name: 'job_number'},
                     {data: 'period_at', name: 'period_at'},
-                    {data: 'social_security_personal', name: 'social_security_personal'},
-                    {data: 'social_security_company', name: 'social_security_company'},
-                    {data: 'provident_fund_personal', name: 'provident_fund_personal'},
-                    {data: 'provident_fund_company', name: 'provident_fund_company'},
-                    {data: 'status', name: 'status'},
+                    {data: 'username', name: 'username'},
+                    {data: 'bonus', name: 'bonus'},
+                    {data: 'cash', name: 'cash'},
+                    {data: 'charge', name: 'charge'},
+                    {data: 'extend', name: 'extend'},
+                    {data: 'remark', name: 'remark'},
                     {data: 'action', name: 'action'}
                 ],
-                "fnDrawCallback": function (settings, jqXHR) {
-                    var jqXHR = settings.jqXHR;
-                    var resJson = jqXHR.responseJSON;
-                    var statistics = resJson.statistics;
-                    $("#fund_personal_total").html(statistics.fund_personal_total)
-                    $("#fund_company_total").html(statistics.fund_company_total)
-                    $("#security_company_total").html(statistics.security_company_total)
-                    $("#security_personal_total").html(statistics.security_personal_total)
-                }
             });
 
             //下拉选择事件
@@ -239,10 +214,10 @@
                 e.preventDefault();
             });
 
-            //上传员工表
+            //上传备忘录;
             $("#upload").click(function () {
                 $.ajax({
-                    url: '/importProvidents',
+                    url: '/importMemos',
                     type: 'POST',
                     cache: false,
                     data: new FormData($('#uploadForm')[0]),
@@ -262,8 +237,8 @@
 
             })
 
-            //导出社保和公积金列表
-            $('#exportProvidents').click(function () {
+            //导出备忘录
+            $('#exportMemos').click(function () {
                 //搜索栏
                 if ($("#dLabel").data('value')) {
                     var search_key = $("#dLabel").data('name');
