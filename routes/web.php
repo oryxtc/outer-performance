@@ -53,7 +53,7 @@ use Illuminate\Routing\Route;
     //导出考勤模板
     \Route::get('exportAttendancesTemplate', 'ExcelController@exportAttendancesTemplate')->name('exportAttendancesTemplate');
     //导入考勤
-    \Route::post('importProvidents', 'ExcelController@importProvidents')->name('importProvidents');
+    \Route::post('importAttendances', 'ExcelController@importAttendances')->name('importAttendances');
     //导出考勤
     \Route::any('exportAttendances', 'ExcelController@exportAttendances')->name('exportAttendances');
 });

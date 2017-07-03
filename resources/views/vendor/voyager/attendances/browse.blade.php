@@ -10,7 +10,7 @@
         @endif
 
         <button type="button" class="btn btn-success" data-toggle="modal" data-target="#myModal">
-            <i class="voyager-double-down"></i> 导入社保和公积金
+            <i class="voyager-double-down"></i> 导入考勤
         </button>
         <button type="button" class="btn btn-success" id="exportAttendances">
             <i class="voyager-double-up"></i> 导出考勤
@@ -221,7 +221,7 @@
             //上传员工表
             $("#upload").click(function () {
                 $.ajax({
-                    url: '/importProvidents',
+                    url: '/importAttendances',
                     type: 'POST',
                     cache: false,
                     data: new FormData($('#uploadForm')[0]),

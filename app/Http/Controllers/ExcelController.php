@@ -380,7 +380,7 @@ class ExcelController extends Controller
             }
             //判断工号必须已存在
             if (\DB::table('users')->where('job_number', $provident[$head_list['job_number']])->count() < 1) {
-                $errors_mes[] = "工号: " . $provident[$head_list['email']] . " 不存在! <br/>";
+                $errors_mes[] = "工号: " . $provident[$head_list['job_number']] . " 不存在! <br/>";
                 continue;
             }
             foreach ($provident as $key => $value) {
@@ -444,8 +444,6 @@ class ExcelController extends Controller
             $sheet->setWidth('F', 20);
             $sheet->setWidth('G', 20);
             $sheet->setWidth('H', 20);
-            $sheet->setWidth('I', 10);
-            $sheet->setWidth('J', 10);
             //填充头部
             $sheet->prependRow($head_list_value);
         });
@@ -528,6 +526,95 @@ class ExcelController extends Controller
             $sheet->fromArray($attendances_data, null, 'A2', true, false);
         });
         return $export->export('xlsx');
+    }
+
+
+    /**
+     * 导入考勤
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function importAttendances(Request $request)
+    {
+        //从导入的excel中获取数据
+        $filename = $request->file('file')->getPathname();
+        $attendances_data = \Excel::load($filename, function ($reader) {
+            // reader methods
+        })->get()->toArray();
+        //准备数据
+        $head_list = [
+            'created_at'=>'申请时间',
+            'job_number'=>'工号',
+            'username'=>'姓名',
+            'type'=>'类型',
+            'title'=>'标题',
+            'reson'=>'事由',
+            'start_at'=>'开始时间',
+            'end_at'=>'结束时间',
+            'continued_at'=>'申请时长',
+            'status'=>'状态',
+        ];
+
+        $head_list_flip = array_flip($head_list);
+        $save_data = [];
+        $errors_mes = [];
+        //处理数据
+        foreach ($attendances_data as $attendance_key => $attendance) {
+            //如果不存在工号 则跳过
+            if (array_key_exists($head_list['job_number'], $attendance) === false || empty($attendance[$head_list['job_number']])) {
+                continue;
+            }
+            //判断工号必须已存在
+            if (\DB::table('users')->where('job_number', $attendance[$head_list['job_number']])->count() < 1) {
+                $errors_mes[] = "工号: " . $attendance[$head_list['job_number']] . " 不存在! <br/>";
+                continue;
+            }
+            foreach ($attendance as $key => $value) {
+                //特殊处理某些数据
+                if ($head_list_flip[$key] === 'start_at') {
+                    $validator=\Validator::make(['start_at'=>$value],[
+                        'start_at'=>'date'
+                    ]);
+                    $save_data[$attendance_key][$head_list_flip[$key]] = $validator->fails() ? null :$value;
+                    //试用薪酬
+                }elseif ($head_list_flip[$key] === 'end_at'){
+                    $validator=\Validator::make(['end_at'=>$value],[
+                        'end_at'=>'date'
+                    ]);
+                    $save_data[$attendance_key][$head_list_flip[$key]] = $validator->fails() ? null :$value;
+                }elseif ($head_list_flip[$key] === 'created_at'){
+                    $validator=\Validator::make(['created_at'=>$value],[
+                        'created_at'=>'date'
+                    ]);
+                    $save_data[$attendance_key][$head_list_flip[$key]] = $validator->fails() ? null :$value;
+                }elseif ($head_list_flip[$key] === 'status'){
+                    if (preg_match("/(.*)[\x{9000}](.*)/u",$value)){
+                        $status=11;
+                    }elseif (preg_match("/(.*)[\x{901A}](.*)/u",$value)){
+                        $status=21;
+                    }else{
+                        $status=1;
+                    }
+                    $save_data[$attendance_key][$head_list_flip[$key]] = $status;
+                }
+                else {
+                    $save_data[$attendance_key][$head_list_flip[$key]] = $value;
+                }
+            }
+        }
+        if (empty($save_data)) {
+            return $this->apiJson(false, '没有新增考勤!');
+        }
+        //新增社保和公积金
+        $save_res = \DB::table('attendances')
+            ->insert($save_data);
+        if ($save_res === false) {
+            return $this->apiJson(false, '新增失败!');
+        }
+        if (!empty($errors_mes)) {
+            return $this->apiJson(false, $errors_mes);
+        }
+        return $this->apiJson(true, $errors_mes);
     }
 
 
