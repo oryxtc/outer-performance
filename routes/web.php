@@ -34,6 +34,9 @@ use Illuminate\Routing\Route;
     \Route::any('getAttendancesList','Voyager\VoyagerAttendanceController@getAttendancesList')->name('getAttendancesList');
     \Route::any('getMemosList','Voyager\VoyagerMemoController@getMemosList')->name('getMemosList');
     \Route::any('getWagesList','Voyager\VoyagerWageController@getWagesList')->name('getWagesList');
+
+    //计算工资
+    \Route::any('calculateWages','Voyager\VoyagerWageController@calculateWages')->name('calculateWages');
 });
 
 \Route::group(['as'=>'excel.'],function (){
