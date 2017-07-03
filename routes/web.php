@@ -59,11 +59,11 @@ use Illuminate\Routing\Route;
     \Route::any('exportAttendances', 'ExcelController@exportAttendances')->name('exportAttendances');
 
     //导出备忘录模板
-    \Route::get('exportMemosTemplate', 'ExcelController@exportAttendancesTemplate')->name('exportMemosTemplate');
+    \Route::get('exportMemosTemplate', 'ExcelController@exportMemosTemplate')->name('exportMemosTemplate');
     //导入备忘录
-    \Route::post('importMemos', 'ExcelController@importAttendances')->name('importMemos');
+    \Route::post('importMemos', 'ExcelController@importMemos')->name('importMemos');
     //导出备忘录
-    \Route::any('exportMemos', 'ExcelController@exportAttendances')->name('exportMemos');
+    \Route::any('exportMemos', 'ExcelController@exportMemos')->name('exportMemos');
 });
 
 

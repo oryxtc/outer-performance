@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Attendance;
 use App\Http\Method\UsersTemplate;
+use App\Memo;
 use App\Provident;
 use App\Role;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Validator;
+use Symfony\Component\HttpKernel\DataCollector\TimeDataCollector;
 
 class ExcelController extends Controller
 {
@@ -350,13 +352,14 @@ class ExcelController extends Controller
 
         //新增用户名称字段
         foreach ($providents_data as $key=>&$provident){
+            $provident['period_at']=date('Y-m-d',strtotime($provident['period_at']));
             array_splice($provident,0,1,['rownum'=>$provident['rownum'],'username'=>$this->getUsername($provident['job_number'])]);
         }
         $head_list_value=array_values(array_merge(['rownum'=>'序号'],['username'=>'姓名'],$head_list));
         //导出数据
         $export->sheet('社保和公积金表', function ($sheet) use ($head_list_value, $providents_data) {
             $sheet->setAutoSize(true);
-            $sheet->setWidth('A', 10);
+            $sheet->setWidth('A', 15);
             //填充头部
             $sheet->prependRow($head_list_value);
             //填充主体
@@ -366,7 +369,7 @@ class ExcelController extends Controller
     }
 
     /**
-     * 导入员工
+     * 导入社保和公积金
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
@@ -406,6 +409,8 @@ class ExcelController extends Controller
                 }
 
             }
+            //添加创建时间
+            $save_data[$provident_key]['created_at'] = date('Y-m-d',time());
         }
         if (empty($save_data)) {
             return $this->apiJson(false, '没有新增社保和公积金!');
@@ -627,6 +632,139 @@ class ExcelController extends Controller
         return $this->apiJson(true, $errors_mes);
     }
 
+
+    /**
+     * 社保和公积金表模板
+     * @return mixed
+     */
+    public function exportMemosTemplate()
+    {
+        $head_list = static::MEMO_HEAD;
+        $head_list_value = array_values($head_list);
+        $export=\Excel::create('备忘录');
+        //导出数据
+        $export->sheet('备忘录', function ($sheet) use ($head_list_value) {
+            $sheet->setAutoSize(true);
+            $sheet->setWidth('A', 15);
+            $sheet->setWidth('B', 15);
+            $sheet->setWidth('C', 15);
+            $sheet->setWidth('D', 15);
+            $sheet->setWidth('E', 20);
+            $sheet->setWidth('F', 20);
+            $sheet->setWidth('G', 10);
+            //填充头部
+            $sheet->prependRow($head_list_value);
+        });
+        return $export->export('xlsx');
+    }
+
+    /**
+     * 导出备忘录
+     * @param Request $request
+     * @return mixed
+     */
+    public function exportMemos(Request $request)
+    {
+        $search_data = $request->get('searchData', null);
+        $head_list=static::MEMO_HEAD;
+        $export=\Excel::create('备忘录');
+        //增加索引列
+        \DB::statement(\DB::raw('set @rownum=0'));
+        //查询数据
+        $memos_data = Memo::select(array_merge([\DB::raw('@rownum  := @rownum  + 1 AS rownum')],array_keys($head_list)));
+        //如果有查询条件
+        if (!empty($search_data)) {
+            $memos_data = $memos_data
+                ->where(key($search_data), 'like', '%' . $search_data[key($search_data)] . '%');
+        }
+        //如果有开始日期
+        if($request->has('period_at_start')){
+            $firstday = date('Y-m-01',strtotime($request->get('period_at_start')));
+            $memos_data = $memos_data->where('period_at', '>=', "{$firstday}");
+        }
+        //如果有结束日期
+        if($request->has('period_at_end')){
+            $firstday = date('Y-m-01',strtotime($request->get('period_at_end')));
+            $lastday = date('Y-m-d',strtotime("$firstday +1 month -1 day"));
+            $memos_data = $memos_data->where('period_at', '<=', "{$lastday}");
+        }
+        //获取最终数据
+        $memos_data = $memos_data->get()->toArray();
+
+        //新增用户名称字段
+        foreach ($memos_data as $key=>&$memo){
+            $memo['period_at']=date('Y-m-d',strtotime($memo['period_at']));
+            array_splice($memo,0,1,['rownum'=>$memo['rownum'],'username'=>$this->getUsername($memo['job_number'])]);
+        }
+        $head_list_value=array_values(array_merge(['rownum'=>'序号'],['username'=>'姓名'],$head_list));
+        //导出数据
+        $export->sheet('社保和公积金表', function ($sheet) use ($head_list_value, $memos_data) {
+            $sheet->setAutoSize(true);
+            $sheet->setWidth('A', 15);
+            //填充头部
+            $sheet->prependRow($head_list_value);
+            //填充主体
+            $sheet->fromArray($memos_data, null, 'A2', true, false);
+        });
+        return $export->export('xlsx');
+    }
+
+    /**
+     * 导入考勤
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function importMemos(Request $request)
+    {
+        //从导入的excel中获取数据
+        $filename = $request->file('file')->getPathname();
+        $memos_data = \Excel::load($filename, function ($reader) {
+            // reader methods
+        })->get()->toArray();
+        //准备数据
+        $head_list = static::MEMO_HEAD;
+        $head_list_flip = array_flip($head_list);
+        $save_data = [];
+        $errors_mes = [];
+        //处理数据
+        foreach ($memos_data as $memo_key => $memo) {
+            //如果不存在工号 则跳过
+            if (array_key_exists($head_list['job_number'], $memo) === false || empty($memo[$head_list['job_number']])) {
+                continue;
+            }
+            //判断工号必须已存在
+            if (\DB::table('users')->where('job_number', $memo[$head_list['job_number']])->count() < 1) {
+                $errors_mes[] = "工号: " . $memo[$head_list['job_number']] . " 不存在! <br/>";
+                continue;
+            }
+            foreach ($memo as $key => $value) {
+                //特殊处理某些数据
+                if ($head_list_flip[$key] === 'period_at') {
+                    $validator=\Validator::make(['period_at'=>$value],[
+                        'period_at'=>'date'
+                    ]);
+                    $save_data[$memo_key][$head_list_flip[$key]] = $validator->fails() ? null :$value;
+                } else {
+                    $save_data[$memo_key][$head_list_flip[$key]] = $value;
+                }
+            }
+            //添加创建时间
+            $save_data[$memo_key]['created_at'] = date('Y-m-d',time());
+        }
+        if (empty($save_data)) {
+            return $this->apiJson(false, '没有新增备忘录!');
+        }
+        //新增社保和公积金
+        $save_res = \DB::table('memos')
+            ->insert($save_data);
+        if ($save_res === false) {
+            return $this->apiJson(false, '新增失败!');
+        }
+        if (!empty($errors_mes)) {
+            return $this->apiJson(false, $errors_mes);
+        }
+        return $this->apiJson(true, $errors_mes);
+    }
 
 
 

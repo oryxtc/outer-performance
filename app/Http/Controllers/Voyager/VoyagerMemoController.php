@@ -61,11 +61,8 @@ class VoyagerMemoController extends VoyagerBreadController
         }
         //多选框字段
         $attendanceData = [
-            'username'=>'姓名',
-            'type'=>'类型',
-            'title'=>'标题',
-            'reson'=>'事由',
-            'status'=>'状态',
+            'job_number'=>'工号',
+            'remark'=>'备注',
         ];
         return view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable', 'attendanceData'));
     }

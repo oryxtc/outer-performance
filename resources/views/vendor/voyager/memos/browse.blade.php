@@ -75,20 +75,20 @@
 
 
                 <button  type="button" class="btn btn-info" data-value="" data-name=""  style="width: 110px;margin-left: 20px">
-                    开始时间
+                    开始月份
                 </button>
                 <div class='input-group date form_datetime' id=''>
-                    <input type='text' id="start-at" class="form-control" readonly="readonly"/>
+                    <input type='text' id="period-at-start" class="form-control" readonly="readonly"/>
                     <span class="input-group-addon">
                         <span class="glyphicon glyphicon-calendar" ></span>
                     </span>
                 </div>
 
                 <button  type="button" class="btn btn-info" data-value=""data-name=""  style="width: 110px;margin-left: 20px">
-                    结束时间
+                    结束月份
                 </button>
                 <div class='input-group date form_datetime' id=''>
-                    <input type='text' id="end-at" class="form-control" readonly="readonly"/>
+                    <input type='text' id="period-at-end" class="form-control" readonly="readonly"/>
                     <span class="input-group-addon">
                         <span class="glyphicon glyphicon-calendar" ></span>
                     </span>
@@ -108,6 +108,7 @@
                                 <th>序号</th>
                                 <th>所属期间</th>
                                 <th>姓名</th>
+                                <th>工号</th>
                                 <th>奖金津贴</th>
                                 <th>现金发放</th>
                                 <th>事故扣款</th>
@@ -176,7 +177,7 @@
                     data: function (d) {
                         var name = $("#search-data").data('name');
                         d[name] = $("#search-data").val();
-                        d['period_at_start'] = $("#period-at-start").val();
+                        d['period_at_start'] = $("#period-at-start").data('value');
                         d['period_at_end'] = $("#period-at-end").val();
                     }
                 },
@@ -184,6 +185,7 @@
                     {data: 'rownum', name: 'rownum'},
                     {data: 'period_at', name: 'period_at'},
                     {data: 'username', name: 'username'},
+                    {data: 'job_number', name: 'job_number'},
                     {data: 'bonus', name: 'bonus'},
                     {data: 'cash', name: 'cash'},
                     {data: 'charge', name: 'charge'},
