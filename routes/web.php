@@ -33,6 +33,7 @@ use Illuminate\Routing\Route;
     \Route::any('getProvidentsList','Voyager\VoyagerProvidentController@getProvidentsList')->name('getProvidentsList');
     \Route::any('getAttendancesList','Voyager\VoyagerAttendanceController@getAttendancesList')->name('getAttendancesList');
     \Route::any('getMemosList','Voyager\VoyagerMemoController@getMemosList')->name('getMemosList');
+    \Route::any('getWagesList','Voyager\VoyagerWageController@getWagesList')->name('getWagesList');
 });
 
 \Route::group(['as'=>'excel.'],function (){
@@ -64,6 +65,9 @@ use Illuminate\Routing\Route;
     \Route::post('importMemos', 'ExcelController@importMemos')->name('importMemos');
     //导出备忘录
     \Route::any('exportMemos', 'ExcelController@exportMemos')->name('exportMemos');
+
+    //导出工资
+    \Route::any('exportWages', 'ExcelController@exportWages')->name('exportWages');
 });
 
 

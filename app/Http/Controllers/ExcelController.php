@@ -164,6 +164,32 @@ class ExcelController extends Controller
         'remark'=>'备注',
     ];
 
+    const WAGE_HEAD=[
+        'period_at'=>'所属期间',
+        'job_number'=>'工号',
+        'probation'=>'试用期天数',
+        'formal'=>'正式期天数',
+        'overtime'=>'加班天数',
+        'sick'=>'病假天数',
+        'pay_wages'=>'在岗工资',
+        'pay_sick'=>'加班工资',
+        'pay_subtotal'=>'工资小计',
+        'bonus'=>'奖金津贴',
+        'fixed'=>'固定福利',
+        'traffic_communication'=>'交通和通讯福利',
+        'charge'=>'事故扣款',
+        'pay_should'=>'应发工资',
+        'social_security_personal'=>'社保个人部分',
+        'provident_fund_personal'=>'公积金个人部分',
+        'pre_tax_subtotal'=>'税前应发小计',
+        'tax_personal'=>'代扣个税',
+        'pay_real'=>'实发工资',
+        'pay_bank'=>'银行发放',
+        'cash'=>'现金发放',
+        'remark'=>'备注',
+        'status'=>'状态',
+    ];
+
     /**
      * 导出员工表模板
      * @param UsersTemplate $export

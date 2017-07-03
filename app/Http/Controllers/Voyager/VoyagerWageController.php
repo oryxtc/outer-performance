@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\Voyager;
 
 use App\Http\Controllers\ExcelController;
-use App\Provident;
 use App\User;
+use App\Wage;
 use Illuminate\Http\Request;
-use Symfony\Component\VarDumper\Dumper\DataDumperInterface;
 use TCG\Voyager\Facades\Voyager;
 use TCG\Voyager\Models\Role;
 
@@ -22,7 +21,7 @@ class VoyagerWageController extends VoyagerBreadController
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
 
         // Check permission
-        Voyager::canOrFail('browse_' . $dataType->name);
+        Voyager::canOrFail('browse_'.$dataType->name);
 
         $getter = $dataType->server_side ? 'paginate' : 'get';
 
@@ -58,8 +57,8 @@ class VoyagerWageController extends VoyagerBreadController
             $view = "voyager::$slug.browse";
         }
         //多选框字段
-        $providentData = ExcelController::PROVIDENT_HEAD;
-        return view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable', 'providentData'));
+        $checkData=ExcelController::WAGE_HEAD;
+        return view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable','checkData'));
     }
 
 
@@ -70,13 +69,39 @@ class VoyagerWageController extends VoyagerBreadController
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
 
         // Check permission
-        Voyager::canOrFail('edit_' . $dataType->name);
+        Voyager::canOrFail('edit_'.$dataType->name);
 
         $relationships = $this->getRelationships($dataType);
 
         $dataTypeContent = (strlen($dataType->model_name) != 0)
             ? app($dataType->model_name)->with($relationships)->findOrFail($id)
             : DB::table($dataType->name)->where('id', $id)->first(); // If Model doest exist, get data from table name
+
+        // Check if BREAD is Translatable
+        $isModelTranslatable = is_bread_translatable($dataTypeContent);
+
+        $view = 'voyager::bread.edit-add';
+
+        if (view()->exists("voyager::$slug.edit-add")) {
+            $view = "voyager::$slug.edit";
+        }
+
+        return view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable'));
+    }
+
+
+    public function create(Request $request)
+    {
+        $slug = $this->getSlug($request);
+
+        $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
+
+        // Check permission
+        Voyager::canOrFail('add_'.$dataType->name);
+
+        $dataTypeContent = (strlen($dataType->model_name) != 0)
+            ? new $dataType->model_name()
+            : false;
 
         // Check if BREAD is Translatable
         $isModelTranslatable = is_bread_translatable($dataTypeContent);
@@ -91,40 +116,6 @@ class VoyagerWageController extends VoyagerBreadController
     }
 
 
-    // POST BR(E)AD
-    public function update(Request $request, $id)
-    {
-        //验证数据
-        $this->validator($request->all())->validate();
-
-        $slug = $this->getSlug($request);
-
-        $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
-
-        // Check permission
-        Voyager::canOrFail('edit_' . $dataType->name);
-
-        //Validate fields with ajax
-        $val = $this->validateBread($request->all(), $dataType->editRows);
-
-        if ($val->fails()) {
-            return response()->json(['errors' => $val->messages()]);
-        }
-
-        if (!$request->ajax()) {
-            $data = call_user_func([$dataType->model_name, 'findOrFail'], $id);
-
-            $this->insertUpdateData($request, $slug, $dataType->editRows, $data);
-
-            return redirect()
-                ->route("voyager.{$dataType->slug}.edit", ['id' => $id])
-                ->with([
-                    'message' => "Successfully Updated {$dataType->display_name_singular}",
-                    'alert-type' => 'success',
-                ]);
-        }
-    }
-
     // POST BRE(A)D
     public function store(Request $request)
     {
@@ -136,7 +127,7 @@ class VoyagerWageController extends VoyagerBreadController
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
 
         // Check permission
-        Voyager::canOrFail('add_' . $dataType->name);
+        Voyager::canOrFail('add_'.$dataType->name);
 
         //Validate fields with ajax
         $val = $this->validateBread($request->all(), $dataType->addRows);
@@ -151,144 +142,76 @@ class VoyagerWageController extends VoyagerBreadController
             return redirect()
                 ->route("voyager.{$dataType->slug}.edit", ['id' => $data->id])
                 ->with([
-                    'message' => "Successfully Added New {$dataType->display_name_singular}",
+                    'message'    => "Successfully Added New {$dataType->display_name_singular}",
                     'alert-type' => 'success',
                 ]);
         }
     }
 
-
     /**
-     * 获取社保和公积金列表
+     * 获取工资列表
      * @param Request $request
      * @return mixed
      */
-    public function getProvidentsList(Request $request)
-    {
-        $field_data = array_keys(ExcelController::PROVIDENT_HEAD);
-        //增加索引列
-        \DB::statement(\DB::raw('set @rownum=0'));
-        $field_data = array_merge($field_data, ['id']);
-        $field_data = array_merge([\DB::raw('@rownum  := @rownum  + 1 AS rownum')], $field_data);
-        $providents = Provident::select($field_data);
-        $response_data = \Datatables::eloquent($providents);
-        //添加姓名
-        $response_data = $response_data->addColumn('username', function (Provident $provident) {
-            $user = $provident->getUser;
-            return empty($user) ? "" : $user->username;
-        });
-        //添加操作
-        $response_data = $response_data->addColumn('action', function (Provident $provident) {
-            return view('voyager::providents.operate', ['provident' => $provident]);
-        });
-        //指定搜索栏模糊匹配
-        $response_data = $response_data->filter(function ($query) use ($request, $field_data) {
-            foreach ($field_data as $key => $value) {
-                if ($request->has($value)) {
-                    $query->where($value, 'like', "%{$request->get($value)}%");
+    public function getWagesList(Request $request){
+        $head_list = ExcelController::WAGE_HEAD;
+        if(empty($request->get('checkData',[]))){
+            $check_data=ExcelController::WAGE_HEAD;
+        }else{
+            $request_check_data=$request->get('checkData',[]);
+            foreach ($request_check_data as $key=>$value){
+                if ($value==='true'){
+                    $check_data[]=$key;
                 }
             }
-            //如果有开始日期
-            if ($request->has('period_at_start')) {
-                $firstday = date('Y-m-01', strtotime($request->get('period_at_start')));
-                $query->where('period_at', '>=', "{$firstday}");
-            }
-            //如果有结束日期
-            if ($request->has('period_at_end')) {
-                $firstday = date('Y-m-01', strtotime($request->get('period_at_end')));
-                $lastday = date('Y-m-d', strtotime("$firstday +1 month -1 day"));
-                $query->where('period_at', '<=', "{$lastday}");
-            }
+        }
+        $wage = Wage::select(array_merge($check_data,['id']))->orderBy('id','DESC');
+        $response_data=\Datatables::eloquent($wage);
+        //添加姓名
+        $response_data = $response_data->addColumn('username', function (Wage $wage) {
+            $user = $wage->getUser;
+            return empty($user) ? "" : $user->username;
         });
 
-
-        //格式化日期
-        $response_data = $response_data->editColumn('period_at', function (Provident $provident) {
-            return empty($provident->period_at) ? "" : date("Y-m", strtotime($provident->period_at));
+        //过滤字段
+        $response_data=$response_data->editColumn('status', function(Wage $wage) {
+            if($wage->status=='1'){
+                $status='已确认';
+            }else{
+                $status='待确认';
+            }
+            return $status;
+        });
+        //添加编辑
+        $response_data=$response_data->addColumn('action', function (Wage $wage){
+            return view('voyager::wages.operate',['wage'=>$wage]);
+        });
+        //指定搜索栏模糊匹配
+        $response_data=$response_data->filter(function ($query) use ($request,$head_list) {
+            foreach ($head_list as $key=>$value){
+                if ($request->has($key)) {
+                    $query->where($key, 'like', "%{$request->get($key)}%");
+                }
+            }
         });
         //删除id
-        $response_data = $response_data->removeColumn('id');
+        $response_data=$response_data->removeColumn('id');
         //生成实例
-        $response_data = $response_data->make(true);
-//        dd(\DB::getQueryLog());
-        //统计
-        $statistics = Provident::select(\DB::raw("sum(`social_security_personal`) as security_personal_total, sum(`social_security_company`) as security_company_total, sum(`provident_fund_personal`) as fund_personal_total, sum(`provident_fund_company`) as fund_company_total"));
-        foreach ($field_data as $key => $value) {
-            if ($request->has($value)) {
-                $statistics = $statistics->where($value, 'like', "%{$request->get($value)}%");
-            }
-        }
-        $statistics = $statistics->first()->toArray();
-
-        $response_data_array = $response_data->getData();
-        $response_data_array->statistics = $statistics;
-        //重新赋值
-        $response_data->setData($response_data_array);
-
+        $response_data=$response_data->make();
         return $response_data;
     }
 
     /**
      * Get a validator for an incoming registration request.
      *
-     * @param  array $data
+     * @param  array  $data
      * @return \Illuminate\Contracts\Validation\Validator
      */
     protected function validator(array $data)
     {
         return \Validator::make($data, [
-            'email' => 'required|string|max:150|exists:users',
+            'job_number' => 'required|string',
         ]);
     }
 
-
-    /**
-     * 计算个税
-     * @param $company_salary 工资-五险一金后
-     * @param int $base
-     * @return int
-     */
-    protected function person_tax($company_salary, $base = 3500)
-    {
-        //工资小于3500不扣税
-        if ($company_salary <= 3500)
-        {
-            return 0;
-        }
-        //应纳税所得
-        $value    = $company_salary - $base;
-        //税率
-        $tax_rate = 0.00;
-        //扣除数
-        $de_num   = 0;
-        if ( $value <= 1500 )
-        {
-            $tax_rate = 0.03;
-        }else if ( $value > 1500 && $value <= 4500 )
-        {
-            $tax_rate = 0.1;
-            $de_num   = 105;
-        }else if ( $value > 4500 && $value <= 9000 )
-        {
-            $tax_rate = 0.2;
-            $de_num   = 555;
-        }else if ( $value > 9000 && $value <= 35000 )
-        {
-            $tax_rate = 0.25;
-            $de_num   = 1005;
-        }else if ( $value > 35000 && $value <= 55000 )
-        {
-            $tax_rate = 0.3;
-            $de_num   = 2755;
-        }else if ( $value > 55000 && $value <= 80000 )
-        {
-            $tax_rate = 0.35;
-            $de_num   = 5505;
-        }else if ( $value > 80000 )
-        {
-            $tax_rate = 0.45;
-            $de_num   = 13505;
-        }
-        return ($value * $tax_rate - $de_num);
-    }
 }

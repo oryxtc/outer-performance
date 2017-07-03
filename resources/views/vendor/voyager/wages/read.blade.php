@@ -30,7 +30,9 @@
                             @elseif($row->type == 'date')
                                 {{ \Carbon\Carbon::parse($dataTypeContent->{$row->field})->format('F jS, Y h:i A') }}
                             @elseif($row->field=='role_id')
-                                {{$dataTypeContent->role->display_name}}
+                                @if($dataTypeContent->role)
+                                    {{$dataTypeContent->role->display_name}}
+                                @endif
                             @else
                                 <p>{{ $dataTypeContent->{$row->field} }}</p>
                             @endif

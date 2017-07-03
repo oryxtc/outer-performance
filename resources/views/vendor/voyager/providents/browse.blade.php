@@ -86,7 +86,7 @@
                 <button  type="button" class="btn btn-info" data-value=""data-name=""  style="width: 110px;margin-left: 20px">
                     结束月份
                 </button>
-                <div class='input-group date form_datetime' id='datetimepicker1'>
+                <div class='input-group date form_datetime' id='datetimepicker2'>
                     <input type='text' id="period-at-end" class="form-control" readonly="readonly"/>
                     <span class="input-group-addon">
                         <span class="glyphicon glyphicon-calendar" ></span>
