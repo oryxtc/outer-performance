@@ -240,4 +240,55 @@ class VoyagerWageController extends VoyagerBreadController
             'email' => 'required|string|max:150|exists:users',
         ]);
     }
+
+
+    /**
+     * 计算个税
+     * @param $company_salary 工资-五险一金后
+     * @param int $base
+     * @return int
+     */
+    protected function person_tax($company_salary, $base = 3500)
+    {
+        //工资小于3500不扣税
+        if ($company_salary <= 3500)
+        {
+            return 0;
+        }
+        //应纳税所得
+        $value    = $company_salary - $base;
+        //税率
+        $tax_rate = 0.00;
+        //扣除数
+        $de_num   = 0;
+        if ( $value <= 1500 )
+        {
+            $tax_rate = 0.03;
+        }else if ( $value > 1500 && $value <= 4500 )
+        {
+            $tax_rate = 0.1;
+            $de_num   = 105;
+        }else if ( $value > 4500 && $value <= 9000 )
+        {
+            $tax_rate = 0.2;
+            $de_num   = 555;
+        }else if ( $value > 9000 && $value <= 35000 )
+        {
+            $tax_rate = 0.25;
+            $de_num   = 1005;
+        }else if ( $value > 35000 && $value <= 55000 )
+        {
+            $tax_rate = 0.3;
+            $de_num   = 2755;
+        }else if ( $value > 55000 && $value <= 80000 )
+        {
+            $tax_rate = 0.35;
+            $de_num   = 5505;
+        }else if ( $value > 80000 )
+        {
+            $tax_rate = 0.45;
+            $de_num   = 13505;
+        }
+        return ($value * $tax_rate - $de_num);
+    }
 }
