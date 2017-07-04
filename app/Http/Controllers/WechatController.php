@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Attendance;
+use App\User;
 use App\WechatUser;
 use Illuminate\Http\Request;
 
@@ -56,6 +58,51 @@ class WechatController extends Controller
         return view('wechat.bind',['openid'=>$openid]);
     }
 
+
+    /**
+     * 获取用户名称列表
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getUsersList(){
+        $users_list=User::select(['job_number','username','part_name']);
+        $users_list=$users_list->get()->toArray();
+        $data=[];
+        foreach ($users_list as $key=>$item){
+            $data[$item['job_number']]=$item['username'].'---'.$item['part_name'];
+        }
+        return $this->apiJson(true,'',$data);
+    }
+
+    /**
+     * 获取用户基本信息
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getUserInfo(){
+        $user_info=\Auth::user()->toArray();
+        return $this->apiJson(true,'',$user_info);
+    }
+
+    public function applyAttendance(Request $request){
+        $user_info=\Auth::user()->toArray();
+        $save['job_number']=$user_info['job_number'];
+        $save['username']=$user_info['username'];
+        $save['type']=$request->get('type');
+        $save['title']=$request->get('title');
+        $save['reson']=$request->get('reson');
+        $save['start_at']=$user_info['start_at'];
+        $save['end_at']=$user_info['end_at'];
+        $save['continued_at']=$user_info['continued_at'];
+        $save['approver']=$user_info['approver'];
+        $save['relevant']=$user_info['relevant'];
+        $save['status']=0;
+        $save['retrial']='{}';
+        $save['created_at']=date('Y-m-d H:i:s',time());
+        $save_res=Attendance::insert($save);
+        if($save_res===false){
+            return $this->apiJson(false,'提交失败!');
+        }
+        return $this->apiJson(true,'提交成功!');
+    }
 
     /**
      * 创建菜单

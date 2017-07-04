@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\User;
 use Closure;
 use EasyWeChat\Foundation\Application;
 use Illuminate\Routing\Route;
@@ -36,7 +37,15 @@ class BindWechat
             $openid=session('wechat.oauth_user')->id;
             //绑定用户
             if(\Auth::attempt(['openid'=>$openid],true)===false){
-                \EasyWeChat::server()->setMessageHandler(function($message){
+                \EasyWeChat::server()->setMessageHandler(function ($message) use($openid){
+                    $content=$message->Content;
+                    if(preg_match('/^\x{7ed1}\x{5b9a}(.+):(.+)/u',$content,$matches)){
+                        $update_res=User::where('email',$matches[1])
+                            ->where('password',bcrypt($matches[2]))
+                            ->update(['openid'=>$openid]);
+
+                        return $matches[1].'----'.$matches[2];
+                    }
                     $content="请点击链接:\n".route('wechat.bind')."\n完成用户绑定!";
                     return $content;
                 });
