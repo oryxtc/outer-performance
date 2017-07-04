@@ -9,7 +9,7 @@
             </a>
         @endif
 
-        <button type="button" class="btn btn-success" id="exportUsers">
+        <button type="button" class="btn btn-success" id="exportWages">
             <i class="voyager-double-up"></i> 导出工资
         </button>
 
@@ -234,6 +234,7 @@
                 });
                 oTable.draw();
             })
+
             //点击选择按钮更新下来列表
             $("#dLabel").on('click', function (e) {
                 var check_data_list = $(".ckeck-data input:checked")

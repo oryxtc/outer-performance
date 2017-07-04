@@ -8,6 +8,7 @@ use App\Memo;
 use App\Provident;
 use App\Role;
 use App\User;
+use App\Wage;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Validator;
 use Symfony\Component\HttpKernel\DataCollector\TimeDataCollector;
@@ -803,6 +804,49 @@ class ExcelController extends Controller
             return $this->apiJson(false, $errors_mes);
         }
         return $this->apiJson(true, $errors_mes);
+    }
+
+
+    public function exportWages(Request $request, UsersTemplate $export)
+    {
+        $check_data = $request->get('checkData', null);
+        $search_data = $request->get('searchData', null);
+        $head_list = static::WAGE_HEAD;
+        if (empty($check_data)) {
+            return;
+        }
+        //如果是查询全部
+        $check_data = ($check_data === '*' || in_array('*', $check_data)) ? array_keys($head_list) : $check_data;
+        //查询数据
+        $wages_data = Wage::select($check_data);
+        //如果有查询条件
+        if (!empty($search_data)) {
+            $wages_data = $wages_data
+                ->where(key($search_data), 'like', '%' . $search_data[key($search_data)] . '%');
+        }
+        //获取最终数据
+        $wages_data = $wages_data->get()->toArray();
+        //角色STATUS
+        foreach ($wages_data as $key=>&$wage){
+            if($wage['status']=='1'){
+                $wage['status']='已确认';
+            }else{
+                $wage['status']='待确认';
+            }
+        }
+        foreach ($check_data as $key => $value) {
+            $head_list_value[] = $head_list[$value];
+        }
+        //导出数据
+        $export->sheet('员工信息表', function ($sheet) use ($head_list_value, $wages_data) {
+            $sheet->setAutoSize(true);
+            $sheet->setWidth('A', 10);
+            //填充头部
+            $sheet->prependRow($head_list_value);
+            //填充主体
+            $sheet->fromArray($wages_data, null, 'A2', true, false);
+        });
+        return $export->export('xlsx');
     }
 
 
