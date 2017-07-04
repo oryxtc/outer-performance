@@ -9,17 +9,6 @@
         @include('voyager::alerts')
         @include('voyager::dimmers')
         <div style="padding:15px;">
-            <?php $google_analytics_client_id = Voyager::setting("google_analytics_client_id"); ?>
-            @if (isset($google_analytics_client_id) && !empty($google_analytics_client_id))
-                {{-- Google Analytics Embed --}}
-                <div id="embed-api-auth-container"></div>
-            @else
-                <p style="border-radius:4px; padding:20px; background:#fff; margin:0; color:#999; text-align:center;">
-                    To view analytics you'll need to get a google analytics client id and add it to your settings for the key <code>google_analytics_client_id</code>. Get your key in your Google developer console:
-                    <a href="https://console.developers.google.com" target="_blank">https://console.developers.google.com</a>
-                </p>
-            @endif
-
             <div class="Dashboard Dashboard--full" id="analytics-dashboard">
                 <header class="Dashboard-header">
                     <ul class="FlexGrid">

@@ -16,6 +16,14 @@ use TCG\Voyager\Models\Role;
 class VoyagerWageController extends VoyagerBreadController
 {
 
+    public function confirmStatus(){
+        $update_res=Wage::update('status',1);
+        if($update_res===false){
+            $this->apiJson(false,'操作失败!');
+        }
+        $this->apiJson();
+    }
+
     public function index(Request $request)
     {
         // GET THE SLUG, ex. 'posts', 'pages', etc.
@@ -191,6 +199,17 @@ class VoyagerWageController extends VoyagerBreadController
                 if ($request->has($key)) {
                     $query->where($key, 'like', "%{$request->get($key)}%");
                 }
+            }
+            //如果有开始日期
+            if ($request->has('period_at_start')) {
+                $firstday = date('Y-m-01', strtotime($request->get('period_at_start')));
+                $query->where('period_at', '>=', "{$firstday}");
+            }
+            //如果有结束日期
+            if ($request->has('period_at_end')) {
+                $firstday = date('Y-m-01', strtotime($request->get('period_at_end')));
+                $lastday = date('Y-m-d', strtotime("$firstday +1 month -1 day"));
+                $query->where('period_at', '<=', "{$lastday}");
             }
         });
         //删除id

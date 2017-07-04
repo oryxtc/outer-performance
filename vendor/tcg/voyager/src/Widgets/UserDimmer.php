@@ -21,14 +21,14 @@ class UserDimmer extends AbstractWidget
     public function run()
     {
         $count = Voyager::model('User')->count();
-        $string = $count == 1 ? 'user' : 'users';
+        $string = $count == 1 ? '员工' : '员工';
 
         return view('voyager::dimmer', array_merge($this->config, [
             'icon'   => 'voyager-group',
             'title'  => "{$count} {$string}",
-            'text'   => "You have {$count} {$string} in your database. Click on button below to view all users.",
+            'text'   => "总共有 {$count} {$string} ,请点击按钮查看列表",
             'button' => [
-                'text' => 'View all users',
+                'text' => '查看所有员工',
                 'link' => route('voyager.users.index'),
             ],
             'image' => voyager_asset('images/widget-backgrounds/02.png'),

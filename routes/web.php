@@ -37,6 +37,8 @@ use Illuminate\Routing\Route;
 
     //计算工资
     \Route::any('calculateWages','Voyager\VoyagerWageController@calculateWages')->name('calculateWages');
+    //确认工资表
+    \Route::any('confirmStatus','Voyager\VoyagerWageController@confirmStatus')->name('confirmStatus');
 });
 
 \Route::group(['as'=>'excel.'],function (){

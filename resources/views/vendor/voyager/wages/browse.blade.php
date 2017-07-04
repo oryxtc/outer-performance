@@ -12,11 +12,11 @@
         <button type="button" class="btn btn-success" id="exportWages">
             <i class="voyager-double-up"></i> 导出工资
         </button>
-        <a href="{{ route('excel.exportWages',['checkData'=>'*']) }}" class="btn btn-success">
+        <a href="{{ route('excel.exportWages',['checkData'=>'*']) }}" class="btn btn-success" style="margin-right: 42%">
             <i class="voyager-plus"></i> 导出所有工资
         </a>
 
-        <button type="button" class="btn btn-success pull-right" data-toggle="modal" data-target="#calculate">
+        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#calculate" >
             <i class="voyager-double-up"></i> 计算月工资
         </button>
         {{--导入员工模态框--}}
@@ -36,6 +36,33 @@
                         <div class="modal-footer">
                             <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
                             <button id="calculateWages" type="button" class="btn btn-primary" >确认</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
+        <button type="button" class="btn btn-success" data-toggle="modal" data-target="#confirm">
+            <i class="voyager-double-up"></i> 确认所有工资单
+        </button>
+        {{--导入员工模态框--}}
+        <div class="modal fade" id="confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                    aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="myModalLabel">自动计算月工资</h4>
+                    </div>
+                    {{--提示框--}}
+                    <div class="alert alert-success" role="alert" hidden>计算成功!</div>
+                    <div class="alert alert-danger" role="alert" hidden></div>
+
+                    <form method="post" enctype="multipart/form-data" id="uploadForm">
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                            <button id="confirmStatus" type="button" class="btn btn-primary" >确认</button>
                         </div>
                     </form>
                 </div>
@@ -314,6 +341,28 @@
                     setTimeout("window.location.reload()", 2000)
                 }).fail(function (res) {
                     $(".alert-danger").text('导入失败!').show().delay(3000).hide(0)
+                    setTimeout("window.location.reload()", 2000)
+                });
+            })
+
+            //确认所有
+            $("#confirmStatus").click(function () {
+                $.ajax({
+                    url: '/admin/confirmStatus',
+                    type: 'POST',
+                    cache: false,
+                    data:{},
+                    processData: false,
+                    contentType: false
+                }).done(function (res) {
+                    if (res.status === true) {
+                        $(".alert-success").show().delay(3000).hide(0)
+                    } else {
+                        $(".alert-danger").html(res.message).show().delay(5000).hide(0)
+                    }
+                    setTimeout("window.location.reload()", 2000)
+                }).fail(function (res) {
+                    $(".alert-danger").text('操作失败!').show().delay(3000).hide(0)
                     setTimeout("window.location.reload()", 2000)
                 });
             })
