@@ -5,8 +5,10 @@ namespace App\Http\Controllers\Voyager;
 use App\Attendance;
 use App\Http\Controllers\ExcelController;
 use App\Memo;
+use App\Provident;
 use App\User;
 use App\Wage;
+use App\Welfare;
 use Illuminate\Http\Request;
 use TCG\Voyager\Facades\Voyager;
 use TCG\Voyager\Models\Role;
@@ -170,11 +172,11 @@ class VoyagerWageController extends VoyagerBreadController
         }
         $wage = Wage::select(array_merge($check_data, ['id']))->orderBy('id', 'DESC');
         $response_data = \Datatables::eloquent($wage);
-        //添加姓名
-        $response_data = $response_data->addColumn('username', function (Wage $wage) {
-            $user = $wage->getUser;
-            return empty($user) ? "" : $user->username;
-        });
+//        //添加姓名
+//        $response_data = $response_data->addColumn('username', function (Wage $wage) {
+//            $user = $wage->getUser;
+//            return empty($user) ? "" : $user->username;
+//        });
 
         //过滤字段
         $response_data = $response_data->editColumn('status', function (Wage $wage) {
@@ -210,38 +212,70 @@ class VoyagerWageController extends VoyagerBreadController
      */
     public function calculateWages()
     {
-        $save_data=[];
-        $limit_date=$this->getLimitDate();
+        $save_data = [];
+        $limit_date = $this->getLimitDate();
         //获取员工
         $users_list = User::where('status', '在职')
-            ->orWhereDate('leave_at', '>',$limit_date['min_limit_date'])
+            ->orWhereDate('leave_at', '>', $limit_date['min_limit_date'])
             ->get()
             ->toArray();
-        foreach ($users_list as $key=>$user){
+        foreach ($users_list as $key => $user) {
             //所属区间
-            $save_data[$key]['period_at']=date('Y-m',strtotime('-1 month '));
+            $save_data[$key]['period_at'] = date('Y-m-d H:i:s', strtotime('-1 month '));
             //工号
-            $save_data[$key]['job_number']=$user['job_number'];
+            $save_data[$key]['job_number'] = $user['job_number'];
+            //姓名
+            $save_data[$key]['username'] = $this->getUsername($user);
             //试用期天数
-            $save_data[$key]['probation']=$this->getProbation($user);
+            $save_data[$key]['probation'] = $this->getProbation($user);
             //正式期天数
-            $save_data[$key]['formal']=$this->getFormal($user);
+            $save_data[$key]['formal'] = $this->getFormal($user);
             //试用加班天数
-            $save_data[$key]['overtime_probation']=$this->getOvertimeProbation($user)['overtime_probation'];
+            $save_data[$key]['overtime_probation'] = $this->getOvertimeProbation($user)['overtime_probation'];
             //正式加班天数
-            $save_data[$key]['overtime_formal']=$this->getOvertimeProbation($user)['overtime_formal'];
+            $save_data[$key]['overtime_formal'] = $this->getOvertimeProbation($user)['overtime_formal'];
             //病假天数
-            $save_data[$key]['sick']=$this->getSick($user);
+            $save_data[$key]['sick'] = $this->getSick($user);
             //在岗工资
-            $save_data[$key]['pay_wages']=$this->getPayWages($user);
+            $save_data[$key]['pay_wages'] = $this->getPayWages($user);
             //加班工资
-            $save_data[$key]['pay_sick']=$this->getPaySick($user);
+            $save_data[$key]['pay_sick'] = $this->getPaySick($user);
             //工资小计
-            $save_data[$key]['pay_subtotal']=$save_data[$key]['pay_wages']-0+$save_data[$key]['pay_sick'];
+            $save_data[$key]['pay_subtotal'] = $save_data[$key]['pay_wages'] - 0 + $save_data[$key]['pay_sick'];
             //奖金津贴
-            $save_data[$key]['bonus']=$this->getBonus($user);
+            $save_data[$key]['bonus'] = $this->getBonus($user);
+            //月固定津贴
+            $save_data[$key]['fixed'] = $this->getFixed($user);
+            //交通个通讯福利
+            $save_data[$key]['traffic_communication'] = $this->getTrafficCommunication($user);
+            //事故扣款
+            $save_data[$key]['charge'] = $this->getCharge($user);
+            //应发工资
+            $save_data[$key]['pay_should'] = round($save_data[$key]['pay_subtotal'] - 0 + $save_data[$key]['bonus'] + $save_data[$key]['fixed'] + $save_data[$key]['traffic_communication'] - $save_data[$key]['charge'], 2);
+            //社保个人部分
+            $save_data[$key]['social_security_personal'] = round($this->getProvidentInfo($user)['social_security_personal'],2);
+            //公积金个人部分
+            $save_data[$key]['provident_fund_personal'] = round($this->getProvidentInfo($user)['provident_fund_personal'],2);
+            //税前应发小计
+            $save_data[$key]['pre_tax_subtotal'] = round($save_data[$key]['pay_should']-$save_data[$key]['social_security_personal']-$save_data[$key]['provident_fund_personal'],2);
+            //代扣个税
+            $save_data[$key]['tax_personal'] = $this->getTaxPersonal($user,$save_data[$key]['pre_tax_subtotal']);
+            //实发工资
+            $save_data[$key]['pay_real'] = round( $save_data[$key]['pre_tax_subtotal'] -$save_data[$key]['tax_personal'] ,2);
+            //现金发放
+            $save_data[$key]['cash'] = $this->getCash($user);
+            //银行发放
+            $save_data[$key]['pay_bank'] = round( $save_data[$key]['pay_real'] -$save_data[$key]['cash'] ,2);
+            //状态
+            $save_data[$key]['status'] = 0;
+            //创建失败
+            $save_data[$key]['created_at'] =date('Y-m-d H:i:s', time());
         }
-        dd($save_data,$users_list);
+        $add_save=Wage::insert($save_data);
+        if($add_save===false){
+            return $this->apiJson(false,'计算失败!');
+        }
+        return $this->apiJson();
     }
 
     /**
@@ -257,22 +291,211 @@ class VoyagerWageController extends VoyagerBreadController
         ]);
     }
 
-    public function getPaySick($user){
-        return 100;
+    /**
+     * 获取姓名
+     * @param $user
+     * @return mixed
+     */
+    public function getUsername($user){
+        $job_number = $user['job_number'];
+        $username=User::where('job_number',$job_number)
+            ->value('username');
+        return $username;
+    }
+
+    /**
+     * 获取现金发放
+     * @param $user
+     * @return float
+     */
+    public function getCash($user){
+        $job_number = $user['job_number'];
+        $limit_date = $this->getLimitDate();
+        $cash = Memo::where('job_number', $job_number)
+            ->whereDate('period_at', '<=', $limit_date['max_limit_date'])
+            ->whereDate('period_at', '>', $limit_date['min_limit_date'])
+            ->sum('cash');
+        return round($cash, 2);
+    }
+
+
+    /**
+     * 获取代扣个税
+     * @param $user
+     * @param $pre_tax_subtotal
+     * @return float|int
+     */
+    public function getTaxPersonal($user,$pre_tax_subtotal){
+        $base=3500;
+        //工资小于3500不扣税
+        if ($pre_tax_subtotal <= 3500)
+        {
+            return 0;
+        }
+        //应纳税所得
+        $value    = $pre_tax_subtotal - $base;
+        //税率
+        $tax_rate = 0.00;
+        //扣除数
+        $de_num   = 0;
+        if ( $value <= 1500 )
+        {
+            $tax_rate = 0.03;
+        }else if ( $value > 1500 && $value <= 4500 )
+        {
+            $tax_rate = 0.1;
+            $de_num   = 105;
+        }else if ( $value > 4500 && $value <= 9000 )
+        {
+            $tax_rate = 0.2;
+            $de_num   = 555;
+        }else if ( $value > 9000 && $value <= 35000 )
+        {
+            $tax_rate = 0.25;
+            $de_num   = 1005;
+        }else if ( $value > 35000 && $value <= 55000 )
+        {
+            $tax_rate = 0.3;
+            $de_num   = 2755;
+        }else if ( $value > 55000 && $value <= 80000 )
+        {
+            $tax_rate = 0.35;
+            $de_num   = 5505;
+        }else if ( $value > 80000 )
+        {
+            $tax_rate = 0.45;
+            $de_num   = 13505;
+        }
+        return round($value * $tax_rate - $de_num,2);
+    }
+
+    /**
+     * 获取社保和公积金
+     * @param $user
+     * @return mixed
+     */
+    public function getProvidentInfo($user)
+    {
+        $job_number = $user['job_number'];
+        $limit_date = $this->getLimitDate();
+        $info = Provident::where('job_number', $job_number)
+            ->whereDate('period_at', '<=', $limit_date['max_limit_date'])
+            ->whereDate('period_at', '>', $limit_date['min_limit_date'])
+            ->first();
+        if(empty($info)){
+            $info['social_security_personal']=0;
+            $info['social_security_company']=0;
+            $info['provident_fund_personal']=0;
+            $info['provident_fund_company']=0;
+            return $info;
+        };
+        $info=$info->toArray();
+        return $info;
+    }
+
+    /**
+     * 事故扣款
+     * @param $user
+     * @return float
+     */
+    public function getCharge($user)
+    {
+        $job_number = $user['job_number'];
+        $limit_date = $this->getLimitDate();
+        $charges = Memo::where('job_number', $job_number)
+            ->whereDate('period_at', '<=', $limit_date['max_limit_date'])
+            ->whereDate('period_at', '>', $limit_date['min_limit_date'])
+            ->sum('charge');
+        return round($charges, 2);
+    }
+
+    /**
+     * 获取交通通讯补贴
+     * @param $user
+     * @return float
+     */
+    public function getTrafficCommunication($user)
+    {
+        $driver = $user['driver'];
+        $probation = $this->getProbation($user);
+        $formal = $this->getFormal($user);
+
+        $management_rank = $user['management_rank'];
+        $info = Welfare::where('management_rank', $management_rank)
+            ->first();
+        if (empty($info)) {
+            return 0;
+        }
+        $info = $info->toArray();
+        if ($driver == '是') {
+            $TrafficCommunication = $info['traffic_driver'] - 0 + $info['communication'];
+            if ($probation - 0 + $formal < 25) {
+                $TrafficCommunication = $TrafficCommunication / 30 * ($probation + $formal);
+            }
+        } else {
+            $TrafficCommunication = $info['traffic_notdriver'] - 0 + $info['communication'];
+            if ($probation - 0 + $formal < 25) {
+                $TrafficCommunication = $TrafficCommunication / 30 * ($probation + $formal);
+            }
+        }
+        return round($TrafficCommunication, 2);
+    }
+
+    /**
+     * 获取加班工资
+     * @param $user
+     * @return float
+     */
+    public function getPaySick($user)
+    {
+        $overtime_probation = $this->getOvertimeProbation($user)['overtime_probation'];
+        $overtime_formal = $this->getOvertimeProbation($user)['overtime_formal'];
+
+        $pay_sick = $user['trial_pay'] / 30 * $overtime_probation + $user['formal_pay'] / 30 * $overtime_formal;
+        return $pay_sick;
+    }
+
+    /**
+     * 获取固定福利
+     * @param $user
+     * @return float
+     */
+    public function getFixed($user)
+    {
+        $probation = $this->getProbation($user);
+        $formal = $this->getFormal($user);
+
+        $management_rank = $user['management_rank'];
+        $fixed = Welfare::where('management_rank', $management_rank)
+            ->value('fixed');
+        if ($probation - 0 + $formal < 25) {
+            $fixed = $fixed / 30 * ($probation + $formal);
+        }
+        return round($fixed, 2);
     }
 
     /**
      * 奖金津贴
      * @param $user
+     * @return float
      */
-    public function getBonus($user){
-        $job_number=$user['job_number'];
-        $limit_date=$this->getLimitDate();
-        $bonus=Memo::where('job_number',$job_number)
-            ->whereDate('period_at','<=',$limit_date['max_limit_date'])
-            ->whereDate('period_at','>',$limit_date['min_limit_date'])
+    public function getBonus($user)
+    {
+        $job_number = $user['job_number'];
+        $management_rank = $user['management_rank'];
+        $limit_date = $this->getLimitDate();
+        $bonus = Memo::where('job_number', $job_number)
+            ->whereDate('period_at', '<=', $limit_date['max_limit_date'])
+            ->whereDate('period_at', '>', $limit_date['min_limit_date'])
             ->sum('bonus');
-        return $bonus;
+        $extend=Memo::where('job_number', $job_number)
+            ->whereDate('period_at', '<=', $limit_date['max_limit_date'])
+            ->whereDate('period_at', '>', $limit_date['min_limit_date'])
+            ->sum('extend');
+        //获取对应管理级别的扩展福利
+        $welfare_info = Welfare::where('management_rank', $management_rank)
+            ->first();
+        return round($bonus-0+$extend+$welfare_info['extended_first']+$welfare_info['extended_second'], 2);
     }
 
     /**
@@ -280,17 +503,18 @@ class VoyagerWageController extends VoyagerBreadController
      * @param $user
      * @return mixed
      */
-    public function getPayWages($user){
+    public function getPayWages($user)
+    {
         //试用期天数
-        $probation=$this->getProbation($user);
+        $probation = $this->getProbation($user);
         //正式期天数
-        $formal=$this->getFormal($user);
+        $formal = $this->getFormal($user);
         //病假天数
-        $sick=$this->getSick($user);
+        $sick = $this->getSick($user);
 
-        $pay_wages=$user['trial_pay']/30*$probation + $user['formal_pay']/30*$formal +1200/30*$sick;
+        $pay_wages = $user['trial_pay'] / 30 * $probation + $user['formal_pay'] / 30 * $formal + 1200 / 30 * $sick;
 
-        return round($pay_wages,2);
+        return round($pay_wages, 2);
     }
 
     /**
@@ -298,23 +522,24 @@ class VoyagerWageController extends VoyagerBreadController
      * @param $user
      * @return float
      */
-    public function getLeaveDay($user){
-        $job_number=$user['job_number'];
-        $limit_date=$this->getLimitDate();
-        $leave_day=0;
-        $attendances_list=Attendance::where('job_number',$job_number)
-            ->where('status',11)
-            ->where('type','<>','加班')
-            ->whereDate ('start_at','>',$limit_date['min_limit_date'])
-            ->whereDate ('start_at','<=',$limit_date['max_limit_date'])
+    public function getLeaveDay($user)
+    {
+        $job_number = $user['job_number'];
+        $limit_date = $this->getLimitDate();
+        $leave_day = 0;
+        $attendances_list = Attendance::where('job_number', $job_number)
+            ->where('status', 11)
+            ->where('type', '<>', '加班')
+            ->whereDate('start_at', '>', $limit_date['min_limit_date'])
+            ->whereDate('start_at', '<=', $limit_date['max_limit_date'])
             ->get()
             ->toArray();
-        foreach ($attendances_list as $item){
-            $hours_total=$this->dateToHours($item['continued_at']);
-            $leave_day=$leave_day+$hours_total;
+        foreach ($attendances_list as $item) {
+            $hours_total = $this->dateToHours($item['continued_at']);
+            $leave_day = $leave_day + $hours_total;
 
         }
-        return ceil($leave_day/9);
+        return ceil($leave_day / 9);
     }
 
 
@@ -323,23 +548,24 @@ class VoyagerWageController extends VoyagerBreadController
      * @param $user
      * @return float
      */
-    public function getSick($user){
-        $job_number=$user['job_number'];
-        $limit_date=$this->getLimitDate();
-        $sick=0;
-        $attendances_list=Attendance::where('job_number',$job_number)
-            ->where('status',11)
-            ->where('type','病假')
-            ->whereDate ('start_at','>',$limit_date['min_limit_date'])
-            ->whereDate ('start_at','<=',$limit_date['max_limit_date'])
+    public function getSick($user)
+    {
+        $job_number = $user['job_number'];
+        $limit_date = $this->getLimitDate();
+        $sick = 0;
+        $attendances_list = Attendance::where('job_number', $job_number)
+            ->where('status', 11)
+            ->where('type', '病假')
+            ->whereDate('start_at', '>', $limit_date['min_limit_date'])
+            ->whereDate('start_at', '<=', $limit_date['max_limit_date'])
             ->get()
             ->toArray();
-        foreach ($attendances_list as $item){
-            $hours_total=$this->dateToHours($item['continued_at']);
-            $sick=$sick+$hours_total;
+        foreach ($attendances_list as $item) {
+            $hours_total = $this->dateToHours($item['continued_at']);
+            $sick = $sick + $hours_total;
 
         }
-        return floor($sick/9);
+        return floor($sick / 9);
     }
 
     /**
@@ -350,7 +576,7 @@ class VoyagerWageController extends VoyagerBreadController
         $today_date = date('Y-m', time());
         $min_limit_date = date('Y-m-d', strtotime(date('Y-m-01', strtotime($today_date)) . ' -1 month -1 day'));
         $max_limit_date = date('Y-m-d', strtotime(date('Y-m-d', strtotime($min_limit_date)) . ' +1 month -1 day'));
-        return ['min_limit_date'=>$min_limit_date,'max_limit_date'=>$max_limit_date];
+        return ['min_limit_date' => $min_limit_date, 'max_limit_date' => $max_limit_date];
     }
 
 
@@ -359,49 +585,50 @@ class VoyagerWageController extends VoyagerBreadController
      * @param $user
      * @return float|int
      */
-    public function getProbation($user){
-        $job_number=$user['job_number'];
-        $limit_date=$this->getLimitDate();
+    public function getProbation($user)
+    {
+        $job_number = $user['job_number'];
+        $limit_date = $this->getLimitDate();
         //转正时间
-        $formal_at=empty($user['formal_at'])?'2000-01-01':$user['formal_at'];
+        $formal_at = empty($user['formal_at']) ? '2000-01-01' : $user['formal_at'];
         //入职时间
-        $entry_at=$user['entry_at'];
+        $entry_at = $user['entry_at'];
         //事假天数
-        $leave_day=0;
-        $attendances_list=Attendance::where('job_number',$job_number)
-            ->where('status',11)
-            ->where('type','<>','加班')
-            ->whereDate ('start_at','>',$limit_date['min_limit_date'])
-            ->whereDate ('start_at','<=',$limit_date['max_limit_date'])
-            ->whereDate ('start_at','<',$formal_at)
+        $leave_day = 0;
+        $attendances_list = Attendance::where('job_number', $job_number)
+            ->where('status', 11)
+            ->where('type', '<>', '加班')
+            ->whereDate('start_at', '>', $limit_date['min_limit_date'])
+            ->whereDate('start_at', '<=', $limit_date['max_limit_date'])
+            ->whereDate('start_at', '<', $formal_at)
             ->get()
             ->toArray();
-        foreach ($attendances_list as $item){
-            $hours_total=$this->dateToHours($item['continued_at']);
-            $leave_day=$leave_day+$hours_total;
+        foreach ($attendances_list as $item) {
+            $hours_total = $this->dateToHours($item['continued_at']);
+            $leave_day = $leave_day + $hours_total;
         }
-        $leave_day=ceil($leave_day/9);
+        $leave_day = ceil($leave_day / 9);
 
-        $limit_date=$this->getLimitDate();
-        if (strtotime($entry_at)<=strtotime($limit_date['min_limit_date'])){
-            if(strtotime($formal_at)<=strtotime($limit_date['min_limit_date'])){
-                return 0-$leave_day;
-            }elseif(strtotime($formal_at)>=strtotime($limit_date['max_limit_date'])){
-                return 30-$leave_day;
-            }else{
-                $probation_day=(strtotime($formal_at)-strtotime($limit_date['min_limit_date']));
-                $probation_day= ceil(abs($probation_day)/86400);
-                return $probation_day-$leave_day;
+        $limit_date = $this->getLimitDate();
+        if (strtotime($entry_at) <= strtotime($limit_date['min_limit_date'])) {
+            if (strtotime($formal_at) <= strtotime($limit_date['min_limit_date'])) {
+                return 0 - $leave_day;
+            } elseif (strtotime($formal_at) >= strtotime($limit_date['max_limit_date'])) {
+                return 30 - $leave_day;
+            } else {
+                $probation_day = (strtotime($formal_at) - strtotime($limit_date['min_limit_date']));
+                $probation_day = ceil(abs($probation_day) / 86400);
+                return $probation_day - $leave_day;
             }
-        }else{
-            if(strtotime($formal_at)<=strtotime($limit_date['max_limit_date'])){
-                $probation_day=(strtotime($formal_at)-strtotime($entry_at));
-                $probation_day= ceil(abs($probation_day)/86400);
-                return $probation_day-$leave_day;
-            }else{
-                $probation_day=(strtotime($limit_date['max_limit_date'])-strtotime($entry_at));
-                $probation_day= ceil(abs($probation_day)/86400);
-                return $probation_day-$leave_day;
+        } else {
+            if (strtotime($formal_at) <= strtotime($limit_date['max_limit_date'])) {
+                $probation_day = (strtotime($formal_at) - strtotime($entry_at));
+                $probation_day = ceil(abs($probation_day) / 86400);
+                return $probation_day - $leave_day;
+            } else {
+                $probation_day = (strtotime($limit_date['max_limit_date']) - strtotime($entry_at));
+                $probation_day = ceil(abs($probation_day) / 86400);
+                return $probation_day - $leave_day;
             }
         }
     }
@@ -411,44 +638,45 @@ class VoyagerWageController extends VoyagerBreadController
      * @param $user
      * @return float|int
      */
-    public function getFormal($user){
-        $job_number=$user['job_number'];
-        $leave_at=$user['leave_at'];
-        $entry_at=$user['entry_at'];
-        $limit_date=$this->getLimitDate();
-        $probation_day=$this->getProbation($user);
+    public function getFormal($user)
+    {
+        $job_number = $user['job_number'];
+        $leave_at = $user['leave_at'];
+        $entry_at = $user['entry_at'];
+        $limit_date = $this->getLimitDate();
+        $probation_day = $this->getProbation($user);
         //转正时间
-        $formal_at=empty($user['formal_at'])?'2000-01-01':$user['formal_at'];
+        $formal_at = empty($user['formal_at']) ? '2000-01-01' : $user['formal_at'];
 
         //事假天数
-        $leave_day=0;
-        $attendances_list=Attendance::where('job_number',$job_number)
-            ->where('status',11)
-            ->where('type','<>','加班')
-            ->whereDate ('start_at','>',$limit_date['min_limit_date'])
-            ->whereDate ('start_at','<=',$limit_date['max_limit_date'])
-            ->whereDate ('start_at','>=',$formal_at)
+        $leave_day = 0;
+        $attendances_list = Attendance::where('job_number', $job_number)
+            ->where('status', 11)
+            ->where('type', '<>', '加班')
+            ->whereDate('start_at', '>', $limit_date['min_limit_date'])
+            ->whereDate('start_at', '<=', $limit_date['max_limit_date'])
+            ->whereDate('start_at', '>=', $formal_at)
             ->get()
             ->toArray();
-        foreach ($attendances_list as $item){
-            $hours_total=$this->dateToHours($item['continued_at']);
-            $leave_day=$leave_day+$hours_total;
+        foreach ($attendances_list as $item) {
+            $hours_total = $this->dateToHours($item['continued_at']);
+            $leave_day = $leave_day + $hours_total;
         }
-        $leave_day=ceil($leave_day/9);
+        $leave_day = ceil($leave_day / 9);
 
 
-        if(empty($leave_at)){
-            return 30-$probation_day-$leave_day;
-        }elseif (strtotime($leave_at)<=strtotime($limit_date['max_limit_date']) &&  strtotime($entry_at)<=strtotime($limit_date['min_limit_date'])){
-            $formal_day=(strtotime($leave_at)-strtotime($limit_date['min_limit_date']));
-            $formal_day= ceil(abs($formal_day)/86400)-1;
-            return $formal_day-$probation_day-$leave_day;
-        }elseif(strtotime($leave_at)<=strtotime($limit_date['max_limit_date']) &&  strtotime($entry_at)>strtotime($limit_date['min_limit_date'])){
-            $formal_day=(strtotime($leave_at)-strtotime($entry_at));
-            $formal_day= ceil(abs($formal_day)/86400);
-            return $formal_day-$probation_day-$leave_day;
-        }else{
-            return 30-$probation_day-$leave_day;
+        if (empty($leave_at)) {
+            return 30 - $probation_day - $leave_day;
+        } elseif (strtotime($leave_at) <= strtotime($limit_date['max_limit_date']) && strtotime($entry_at) <= strtotime($limit_date['min_limit_date'])) {
+            $formal_day = (strtotime($leave_at) - strtotime($limit_date['min_limit_date']));
+            $formal_day = ceil(abs($formal_day) / 86400) - 1;
+            return $formal_day - $probation_day - $leave_day;
+        } elseif (strtotime($leave_at) <= strtotime($limit_date['max_limit_date']) && strtotime($entry_at) > strtotime($limit_date['min_limit_date'])) {
+            $formal_day = (strtotime($leave_at) - strtotime($entry_at));
+            $formal_day = ceil(abs($formal_day) / 86400);
+            return $formal_day - $probation_day - $leave_day;
+        } else {
+            return 30 - $probation_day - $leave_day;
         }
     }
 
@@ -458,30 +686,31 @@ class VoyagerWageController extends VoyagerBreadController
      * @param $user
      * @return array
      */
-    public function getOvertimeProbation($user){
-        $job_number=$user['job_number'];
-        $formal_at=$user['formal_at'];
-        $limit_date=$this->getLimitDate();
-        $overtime_probation=0;
-        $overtime_formal=0;
+    public function getOvertimeProbation($user)
+    {
+        $job_number = $user['job_number'];
+        $formal_at = $user['formal_at'];
+        $limit_date = $this->getLimitDate();
+        $overtime_probation = 0;
+        $overtime_formal = 0;
 
-        $attendances_list=Attendance::where('job_number',$job_number)
-            ->where('status',11)
-            ->where('type','加班')
-            ->whereDate ('start_at','>',$limit_date['min_limit_date'])
-            ->whereDate ('start_at','<=',$limit_date['max_limit_date'])
+        $attendances_list = Attendance::where('job_number', $job_number)
+            ->where('status', 11)
+            ->where('type', '加班')
+            ->whereDate('start_at', '>', $limit_date['min_limit_date'])
+            ->whereDate('start_at', '<=', $limit_date['max_limit_date'])
             ->get()
             ->toArray();
-        foreach ($attendances_list as $item){
-            if(strtotime($item['start_at']) <= strtotime($formal_at)){
-                $hours_total=$this->dateToHours($item['continued_at']);
-                $overtime_probation=$overtime_probation+$hours_total;
-            }elseif (strtotime($item['start_at']) > strtotime($formal_at)){
-                $hours_total=$this->dateToHours($item['continued_at']);
-                $overtime_formal=$overtime_formal+$hours_total;
+        foreach ($attendances_list as $item) {
+            if (strtotime($item['start_at']) <= strtotime($formal_at)) {
+                $hours_total = $this->dateToHours($item['continued_at']);
+                $overtime_probation = $overtime_probation + $hours_total;
+            } elseif (strtotime($item['start_at']) > strtotime($formal_at)) {
+                $hours_total = $this->dateToHours($item['continued_at']);
+                $overtime_formal = $overtime_formal + $hours_total;
             }
         }
-        return ['overtime_probation'=>floor($overtime_probation/9),'overtime_formal'=>floor($overtime_formal/9)];
+        return ['overtime_probation' => floor($overtime_probation / 9), 'overtime_formal' => floor($overtime_formal / 9)];
     }
 
     /**
@@ -489,10 +718,11 @@ class VoyagerWageController extends VoyagerBreadController
      * @param $date
      * @return int
      */
-    public function dateToHours($date){
-        $hours_total=0;
-        if(preg_match('/(\d+)\x{5929}(\d)\x{5c0f}\x{65f6}/u',$date,$matches )){
-            $hours_total=$matches[1]*9+$matches[2];
+    public function dateToHours($date)
+    {
+        $hours_total = 0;
+        if (preg_match('/(\d+)\x{5929}(\d)\x{5c0f}\x{65f6}/u', $date, $matches)) {
+            $hours_total = $matches[1] * 9 + $matches[2];
         }
         return $hours_total;
     }

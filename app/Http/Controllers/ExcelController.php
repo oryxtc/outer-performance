@@ -167,6 +167,7 @@ class ExcelController extends Controller
     const WAGE_HEAD=[
         'period_at'=>'所属期间',
         'job_number'=>'工号',
+        'username'=>'姓名',
         'probation'=>'试用期天数',
         'formal'=>'正式期天数',
         'overtime_formal'=>'试用加班天数',
