@@ -101,8 +101,8 @@ $(document).ready(function(){
   });
 
   $('.datepicker').datetimepicker({
-    locale: moment.locale('zh-cn'),
-    viewMode: 'months',
+    // locale: moment.locale('zh-cn'),
+    // viewMode: 'months',
     // format: "YYYY-MM-DD HH:mm:SS",
     // ignoreReadonly:true,
     // showClear:true
