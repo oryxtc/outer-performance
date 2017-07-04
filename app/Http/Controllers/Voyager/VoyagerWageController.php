@@ -87,7 +87,7 @@ class VoyagerWageController extends VoyagerBreadController
         $view = 'voyager::bread.edit-add';
 
         if (view()->exists("voyager::$slug.edit-add")) {
-            $view = "voyager::$slug.edit";
+            $view = "voyager::$slug.edit-add";
         }
 
         return view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable'));
@@ -172,12 +172,6 @@ class VoyagerWageController extends VoyagerBreadController
         }
         $wage = Wage::select(array_merge($check_data, ['id']))->orderBy('id', 'DESC');
         $response_data = \Datatables::eloquent($wage);
-//        //添加姓名
-//        $response_data = $response_data->addColumn('username', function (Wage $wage) {
-//            $user = $wage->getUser;
-//            return empty($user) ? "" : $user->username;
-//        });
-
         //过滤字段
         $response_data = $response_data->editColumn('status', function (Wage $wage) {
             if ($wage->status == '1') {

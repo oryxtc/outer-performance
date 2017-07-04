@@ -102,7 +102,7 @@ $(document).ready(function(){
 
   $('.datepicker').datetimepicker({
     locale: moment.locale('zh-cn'),
-    // viewMode: 'months',
+    viewMode: 'months',
     // format: "YYYY-MM-DD HH:mm:SS",
     // ignoreReadonly:true,
     // showClear:true
