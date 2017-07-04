@@ -198,6 +198,9 @@ class ExcelController extends Controller
     public function exportUsersTemplate(UsersTemplate $export)
     {
         $head_list = static::HEAD_LIST;
+        //删除角色
+        unset($head_list['role_id']);
+
         $head_list_value = array_values($head_list);
         //导出数据
         $export->sheet('员工信息表', function ($sheet) use ($head_list_value) {
@@ -280,6 +283,10 @@ class ExcelController extends Controller
             if (array_key_exists($head_list['email'], $user) === false || empty($user[$head_list['email']])) {
                 continue;
             }
+            //工号不存在则跳过
+            if (array_key_exists($head_list['job_number'], $user) === false || empty($user[$head_list['job_number']])) {
+                continue;
+            }
             //判断email不能重复
             if (\DB::table('users')->where('email', $user[$head_list['email']])->count() > 0) {
                 $errors_mes[] = "邮箱: " . $user[$head_list['email']] . " 已存在! <br/>";
@@ -297,10 +304,14 @@ class ExcelController extends Controller
                     //试用薪酬
                 } elseif ($head_list_flip[$key] === 'trial_pay') {
                     $save_data[$user_key][$head_list_flip[$key]] = empty($save_value) ? round($user[$head_list['formal_pay']], 2) : round($value, 2);
+                } elseif ($head_list_flip[$key] === 'status'){
+                    $save_data[$user_key][$head_list_flip[$key]] = empty($value) ? '在职' : $value;
                 } else {
                     $save_data[$user_key][$head_list_flip[$key]] = $value;
                 }
             }
+            //添加角色
+            $save_data[$user_key]['role_id'] = 2;
         }
         if (empty($save_data)) {
             return $this->apiJson(false, '没有新增员工!');
