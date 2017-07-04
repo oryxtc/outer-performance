@@ -39,16 +39,18 @@ class BindWechat
             if(\Auth::attempt(['openid'=>$openid],true)===false){
                 \EasyWeChat::server()->setMessageHandler(function ($message) use($openid){
                     $content=$message->Content;
-                    if(preg_match('/^\x{7ed1}\x{5b9a}(.+):(.+)/u',$content,$matches)){
-                        if(\Auth::attempt(['email'=>$matches[1],'password'=>$matches[2]],true)){
+                    if(preg_match('/^\x{7ed1}\x{5b9a}(.+)\x{5bc6}\x{7801}(.+)/u',$content,$matches)){
+                        if(\Auth::attempt(['email'=>trim($matches[1]),'password'=>trim($matches[2])],true)){
                             $update_res=User::where('id',\Auth::user()->id)
                                 ->update(['openid'=>$openid]);
-                            return 111;
+                            if($update_res===false){
+                                return '绑定失败';
+                            }
+                            return '绑定成功';
                         }
-
-                        return $matches[1].'----'.$matches[2].'---'.bcrypt($matches[2]).'---'.$openid;
+                        return '绑定失败! 密码错误!';
                     }
-                    $content="请点击链接:\n".route('wechat.bind')."\n完成用户绑定!";
+                    $content="请输入:  绑定 your@email.com 密码 yourpassword   即可完成绑定!";
                     return $content;
                 });
                 return \EasyWeChat::server()->serve();
