@@ -6,7 +6,7 @@
     <meta name="robots" content="none" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
     <meta name="description" content="admin login">
-    <title>Admin - {{ Voyager::setting("title") }}</title>
+    <title>绩效管理系统 {{ Voyager::setting("title") }}</title>
     <link rel="stylesheet" href="{{ voyager_asset('lib/css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ voyager_asset('css/animate.min.css') }}">
     <link rel="stylesheet" href="{{ voyager_asset('css/login.css') }}">
@@ -43,8 +43,8 @@
                         <img class="img-responsive pull-left logo hidden-xs animated fadeIn" src="{{ Voyager::image($admin_logo_img) }}" alt="Logo Icon">
                         @endif
                         <div class="copy animated fadeIn">
-                            <h1>{{ Voyager::setting('admin_title', 'Voyager') }}</h1>
-                            <p>{{ Voyager::setting('admin_description', 'Welcome to Voyager. The Missing Admin for Laravel') }}</p>
+                            <h1>{{ Voyager::setting('admin_title', '绩效管理系统') }}</h1>
+                            <p>{{ Voyager::setting('admin_description', '欢迎登录绩效管理系统') }}</p>
                         </div>
                     </div> <!-- .logo-title-container -->
                 </div>

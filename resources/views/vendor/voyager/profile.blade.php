@@ -1,5 +1,7 @@
 @extends('voyager::master')
 
+@section('page_title','绩效管理系统')
+
 @section('css')
     <link rel="stylesheet" type="text/css" href="{{ voyager_asset('css/ga-embed.css') }}">
     <style>
