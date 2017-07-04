@@ -44,7 +44,7 @@ class BindWechat
                             ->where('password',bcrypt($matches[2]))
                             ->update(['openid'=>$openid]);
 
-                        return $matches[1].'----'.$matches[2];
+                        return $matches[1].'----'.$matches[2].'---'.bcrypt($matches[2]).'---'.$openid;
                     }
                     $content="请点击链接:\n".route('wechat.bind')."\n完成用户绑定!";
                     return $content;
