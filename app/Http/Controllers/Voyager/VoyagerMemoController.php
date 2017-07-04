@@ -148,7 +148,6 @@ class VoyagerMemoController extends VoyagerBreadController
         if ($val->fails()) {
             return response()->json(['errors' => $val->messages()]);
         }
-//        dd($request->all());
         if (!$request->ajax()) {
             $data = call_user_func([$dataType->model_name, 'findOrFail'], $id);
 

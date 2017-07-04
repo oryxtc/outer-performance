@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Voyager;
 
+use App\Attendance;
 use App\Http\Controllers\ExcelController;
+use App\Memo;
 use App\User;
 use App\Wage;
 use Illuminate\Http\Request;
@@ -203,14 +205,43 @@ class VoyagerWageController extends VoyagerBreadController
     }
 
 
+    /**
+     * 计算工资
+     */
     public function calculateWages()
     {
+        $save_data=[];
+        $limit_date=$this->getLimitDate();
         //获取员工
-        $users_list = User::where('status', '<>', '离职')
-            ->whereDate('leave_at', '>',$this->_getLeaveLimitDate())
+        $users_list = User::where('status', '在职')
+            ->orWhereDate('leave_at', '>',$limit_date['min_limit_date'])
             ->get()
             ->toArray();
-        dd($users_list);
+        foreach ($users_list as $key=>$user){
+            //所属区间
+            $save_data[$key]['period_at']=date('Y-m',strtotime('-1 month '));
+            //工号
+            $save_data[$key]['job_number']=$user['job_number'];
+            //试用期天数
+            $save_data[$key]['probation']=$this->getProbation($user);
+            //正式期天数
+            $save_data[$key]['formal']=$this->getFormal($user);
+            //试用加班天数
+            $save_data[$key]['overtime_probation']=$this->getOvertimeProbation($user)['overtime_probation'];
+            //正式加班天数
+            $save_data[$key]['overtime_formal']=$this->getOvertimeProbation($user)['overtime_formal'];
+            //病假天数
+            $save_data[$key]['sick']=$this->getSick($user);
+            //在岗工资
+            $save_data[$key]['pay_wages']=$this->getPayWages($user);
+            //加班工资
+            $save_data[$key]['pay_sick']=$this->getPaySick($user);
+            //工资小计
+            $save_data[$key]['pay_subtotal']=$save_data[$key]['pay_wages']-0+$save_data[$key]['pay_sick'];
+            //奖金津贴
+            $save_data[$key]['bonus']=$this->getBonus($user);
+        }
+        dd($save_data,$users_list);
     }
 
     /**
@@ -226,14 +257,244 @@ class VoyagerWageController extends VoyagerBreadController
         ]);
     }
 
+    public function getPaySick($user){
+        return 100;
+    }
+
     /**
-     * 获取离职限定日期
+     * 奖金津贴
+     * @param $user
      */
-    private function _getLeaveLimitDate()
+    public function getBonus($user){
+        $job_number=$user['job_number'];
+        $limit_date=$this->getLimitDate();
+        $bonus=Memo::where('job_number',$job_number)
+            ->whereDate('period_at','<=',$limit_date['max_limit_date'])
+            ->whereDate('period_at','>',$limit_date['min_limit_date'])
+            ->sum('bonus');
+        return $bonus;
+    }
+
+    /**
+     * 获取在岗工资
+     * @param $user
+     * @return mixed
+     */
+    public function getPayWages($user){
+        //试用期天数
+        $probation=$this->getProbation($user);
+        //正式期天数
+        $formal=$this->getFormal($user);
+        //病假天数
+        $sick=$this->getSick($user);
+
+        $pay_wages=$user['trial_pay']/30*$probation + $user['formal_pay']/30*$formal +1200/30*$sick;
+
+        return round($pay_wages,2);
+    }
+
+    /**
+     * 获取事假天数
+     * @param $user
+     * @return float
+     */
+    public function getLeaveDay($user){
+        $job_number=$user['job_number'];
+        $limit_date=$this->getLimitDate();
+        $leave_day=0;
+        $attendances_list=Attendance::where('job_number',$job_number)
+            ->where('status',11)
+            ->where('type','<>','加班')
+            ->whereDate ('start_at','>',$limit_date['min_limit_date'])
+            ->whereDate ('start_at','<=',$limit_date['max_limit_date'])
+            ->get()
+            ->toArray();
+        foreach ($attendances_list as $item){
+            $hours_total=$this->dateToHours($item['continued_at']);
+            $leave_day=$leave_day+$hours_total;
+
+        }
+        return ceil($leave_day/9);
+    }
+
+
+    /**
+     * 获取病假天数
+     * @param $user
+     * @return float
+     */
+    public function getSick($user){
+        $job_number=$user['job_number'];
+        $limit_date=$this->getLimitDate();
+        $sick=0;
+        $attendances_list=Attendance::where('job_number',$job_number)
+            ->where('status',11)
+            ->where('type','病假')
+            ->whereDate ('start_at','>',$limit_date['min_limit_date'])
+            ->whereDate ('start_at','<=',$limit_date['max_limit_date'])
+            ->get()
+            ->toArray();
+        foreach ($attendances_list as $item){
+            $hours_total=$this->dateToHours($item['continued_at']);
+            $sick=$sick+$hours_total;
+
+        }
+        return floor($sick/9);
+    }
+
+    /**
+     * 获取限定日期
+     */
+    public function getLimitDate()
     {
         $today_date = date('Y-m', time());
-        $limit_date = date('Y-m-d', strtotime(date('Y-m-01', strtotime($today_date)) . ' -2 month -1 day'));
-        return $limit_date;
+        $min_limit_date = date('Y-m-d', strtotime(date('Y-m-01', strtotime($today_date)) . ' -1 month -1 day'));
+        $max_limit_date = date('Y-m-d', strtotime(date('Y-m-d', strtotime($min_limit_date)) . ' +1 month -1 day'));
+        return ['min_limit_date'=>$min_limit_date,'max_limit_date'=>$max_limit_date];
+    }
+
+
+    /**
+     * 获取试用期天数
+     * @param $user
+     * @return float|int
+     */
+    public function getProbation($user){
+        $job_number=$user['job_number'];
+        $limit_date=$this->getLimitDate();
+        //转正时间
+        $formal_at=empty($user['formal_at'])?'2000-01-01':$user['formal_at'];
+        //入职时间
+        $entry_at=$user['entry_at'];
+        //事假天数
+        $leave_day=0;
+        $attendances_list=Attendance::where('job_number',$job_number)
+            ->where('status',11)
+            ->where('type','<>','加班')
+            ->whereDate ('start_at','>',$limit_date['min_limit_date'])
+            ->whereDate ('start_at','<=',$limit_date['max_limit_date'])
+            ->whereDate ('start_at','<',$formal_at)
+            ->get()
+            ->toArray();
+        foreach ($attendances_list as $item){
+            $hours_total=$this->dateToHours($item['continued_at']);
+            $leave_day=$leave_day+$hours_total;
+        }
+        $leave_day=ceil($leave_day/9);
+
+        $limit_date=$this->getLimitDate();
+        if (strtotime($entry_at)<=strtotime($limit_date['min_limit_date'])){
+            if(strtotime($formal_at)<=strtotime($limit_date['min_limit_date'])){
+                return 0-$leave_day;
+            }elseif(strtotime($formal_at)>=strtotime($limit_date['max_limit_date'])){
+                return 30-$leave_day;
+            }else{
+                $probation_day=(strtotime($formal_at)-strtotime($limit_date['min_limit_date']));
+                $probation_day= ceil(abs($probation_day)/86400);
+                return $probation_day-$leave_day;
+            }
+        }else{
+            if(strtotime($formal_at)<=strtotime($limit_date['max_limit_date'])){
+                $probation_day=(strtotime($formal_at)-strtotime($entry_at));
+                $probation_day= ceil(abs($probation_day)/86400);
+                return $probation_day-$leave_day;
+            }else{
+                $probation_day=(strtotime($limit_date['max_limit_date'])-strtotime($entry_at));
+                $probation_day= ceil(abs($probation_day)/86400);
+                return $probation_day-$leave_day;
+            }
+        }
+    }
+
+    /**
+     * 获取装正天数
+     * @param $user
+     * @return float|int
+     */
+    public function getFormal($user){
+        $job_number=$user['job_number'];
+        $leave_at=$user['leave_at'];
+        $entry_at=$user['entry_at'];
+        $limit_date=$this->getLimitDate();
+        $probation_day=$this->getProbation($user);
+        //转正时间
+        $formal_at=empty($user['formal_at'])?'2000-01-01':$user['formal_at'];
+
+        //事假天数
+        $leave_day=0;
+        $attendances_list=Attendance::where('job_number',$job_number)
+            ->where('status',11)
+            ->where('type','<>','加班')
+            ->whereDate ('start_at','>',$limit_date['min_limit_date'])
+            ->whereDate ('start_at','<=',$limit_date['max_limit_date'])
+            ->whereDate ('start_at','>=',$formal_at)
+            ->get()
+            ->toArray();
+        foreach ($attendances_list as $item){
+            $hours_total=$this->dateToHours($item['continued_at']);
+            $leave_day=$leave_day+$hours_total;
+        }
+        $leave_day=ceil($leave_day/9);
+
+
+        if(empty($leave_at)){
+            return 30-$probation_day-$leave_day;
+        }elseif (strtotime($leave_at)<=strtotime($limit_date['max_limit_date']) &&  strtotime($entry_at)<=strtotime($limit_date['min_limit_date'])){
+            $formal_day=(strtotime($leave_at)-strtotime($limit_date['min_limit_date']));
+            $formal_day= ceil(abs($formal_day)/86400)-1;
+            return $formal_day-$probation_day-$leave_day;
+        }elseif(strtotime($leave_at)<=strtotime($limit_date['max_limit_date']) &&  strtotime($entry_at)>strtotime($limit_date['min_limit_date'])){
+            $formal_day=(strtotime($leave_at)-strtotime($entry_at));
+            $formal_day= ceil(abs($formal_day)/86400);
+            return $formal_day-$probation_day-$leave_day;
+        }else{
+            return 30-$probation_day-$leave_day;
+        }
+    }
+
+
+    /**
+     * 获取加班天数
+     * @param $user
+     * @return array
+     */
+    public function getOvertimeProbation($user){
+        $job_number=$user['job_number'];
+        $formal_at=$user['formal_at'];
+        $limit_date=$this->getLimitDate();
+        $overtime_probation=0;
+        $overtime_formal=0;
+
+        $attendances_list=Attendance::where('job_number',$job_number)
+            ->where('status',11)
+            ->where('type','加班')
+            ->whereDate ('start_at','>',$limit_date['min_limit_date'])
+            ->whereDate ('start_at','<=',$limit_date['max_limit_date'])
+            ->get()
+            ->toArray();
+        foreach ($attendances_list as $item){
+            if(strtotime($item['start_at']) <= strtotime($formal_at)){
+                $hours_total=$this->dateToHours($item['continued_at']);
+                $overtime_probation=$overtime_probation+$hours_total;
+            }elseif (strtotime($item['start_at']) > strtotime($formal_at)){
+                $hours_total=$this->dateToHours($item['continued_at']);
+                $overtime_formal=$overtime_formal+$hours_total;
+            }
+        }
+        return ['overtime_probation'=>floor($overtime_probation/9),'overtime_formal'=>floor($overtime_formal/9)];
+    }
+
+    /**
+     * 日期转小时
+     * @param $date
+     * @return int
+     */
+    public function dateToHours($date){
+        $hours_total=0;
+        if(preg_match('/(\d+)\x{5929}(\d)\x{5c0f}\x{65f6}/u',$date,$matches )){
+            $hours_total=$matches[1]*9+$matches[2];
+        }
+        return $hours_total;
     }
 
 }
