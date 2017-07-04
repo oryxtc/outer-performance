@@ -40,9 +40,11 @@ class BindWechat
                 \EasyWeChat::server()->setMessageHandler(function ($message) use($openid){
                     $content=$message->Content;
                     if(preg_match('/^\x{7ed1}\x{5b9a}(.+):(.+)/u',$content,$matches)){
-                        $update_res=User::where('email',$matches[1])
-                            ->where('password',bcrypt($matches[2]))
-                            ->update(['openid'=>$openid]);
+                        if(\Auth::attempt(['email'=>$matches[1],'password'=>$matches[2]],true)){
+                            $update_res=User::where('id',\Auth::user()->id)
+                                ->update(['openid'=>$openid]);
+                            return 111;
+                        }
 
                         return $matches[1].'----'.$matches[2].'---'.bcrypt($matches[2]).'---'.$openid;
                     }
