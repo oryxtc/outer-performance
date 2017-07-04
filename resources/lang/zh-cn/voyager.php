@@ -26,4 +26,11 @@ return [
     'Newslists' => '资讯管理',
     'News' => '资讯',
     'News Lists' => '资讯管理',
+    'Attendances' => '考勤管理',
+    'Providents' => '社保和公积金管理',
+    'Welfares' => '公司福利管理',
+    'Wages' => '工资管理',
+    'Categories' => '分类管理',
+    'Posts' => '资讯管理',
+    'Memos' => '备忘录管理',
 ];

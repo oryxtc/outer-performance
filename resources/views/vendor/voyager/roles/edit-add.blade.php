@@ -4,9 +4,11 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 @stop
 
+@section('page_title','角色')
+
 @section('page_header')
     <h1 class="page-title">
-        <i class="{{ $dataType->icon }}"></i> @if(isset($dataTypeContent->id)){{ 'Edit' }}@else{{ 'New' }}@endif {{ $dataType->display_name_singular }}
+        <i class="{{ $dataType->icon }}"></i> @if(isset($dataTypeContent->id)){{ '修改' }}@else{{ '新增' }}@endif {{ $dataType->display_name_singular }}
     </h1>
 @stop
 
@@ -19,7 +21,7 @@
                 <div class="panel panel-bordered">
 
                     <div class="panel-heading">
-                        <h3 class="panel-title">@if(isset($dataTypeContent->id)){{ 'Edit' }}@else{{ 'Add New' }}@endif {{ $dataType->display_name_singular }}</h3>
+                        <h3 class="panel-title">@if(isset($dataTypeContent->id)){{ '修改' }}@else{{ '新增' }}@endif {{ $dataType->display_name_singular }}</h3>
                     </div>
                     <!-- /.box-header -->
                     <!-- form start -->
@@ -56,21 +58,22 @@
                                 </div>
                             @endforeach
 
-                            <label for="permission">Permissions</label><br>
-                            <a href="#" class="permission-select-all">Select All</a> / <a href="#"  class="permission-deselect-all">Deselect All</a>
+                            <label for="permission">权限设置</label><br>
+                            <a href="#" class="permission-select-all">全部勾选</a> / <a href="#"  class="permission-deselect-all">取消全部勾选</a>
                             <ul class="permissions checkbox">
                                 <?php
                                     $role_permissions = (isset($dataTypeContent)) ? $dataTypeContent->permissions->pluck('key')->toArray() : [];
                                 ?>
-                                @foreach(TCG\Voyager\Models\Permission::all()->groupBy('table_name')->sortBy('table_name') as $table => $permission)
+                                @foreach(TCG\Voyager\Models\Permission::all()->where('table_name','<>','system')->groupBy('table_name')->sortBy('table_name') as $table => $permission)
                                     <li>
                                         <input type="checkbox" id="{{$table}}" class="permission-group">
-                                        <label for="{{$table}}"><strong>{{ucwords($table)}}</strong></label>
+                                        <label for="{{$table}}"><strong>{{trans('voyager.'.ucwords($table))}}</strong></label>
                                         <ul>
                                             @foreach($permission as $perm)
                                                 <li>
                                                     <input type="checkbox" id="permission-{{$perm->id}}" name="permissions[]" class="the-permission" value="{{$perm->id}}" @if(in_array($perm->key, $role_permissions)) checked @endif>
-                                                    <label for="permission-{{$perm->id}}">{{title_case(str_replace('_', ' ', $perm->key))}}</label>
+                                                    {{--<label for="permission-{{$perm->id}}">{{title_case(str_replace('_', ' ', $perm->key))}}</label>--}}
+                                                    <label for="permission-{{$perm->id}}">{{trans('voyager.'.ucwords(explode('_',$perm->key)[0])).' '.trans('voyager.'.ucwords(explode('_',$perm->key)[1]))}}</label>
                                                 </li>
                                             @endforeach
                                         </ul>
@@ -79,7 +82,7 @@
                             </ul>
                         </div><!-- panel-body -->
                         <div class="panel-footer">
-                            <button type="submit" class="btn btn-primary">Submit</button>
+                            <button type="submit" class="btn btn-primary">确认</button>
                         </div>
                     </form>
 
