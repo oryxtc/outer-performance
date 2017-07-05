@@ -13,7 +13,7 @@ class WechatController extends Controller
 
     public function __construct()
     {
-        $this->middleware('web');
+//        $this->middleware('web');
         $this->middleware('wechat.oauth');
         $this->middleware('wechat.bind')->except('serve');
     }
@@ -47,6 +47,7 @@ class WechatController extends Controller
                     return "请点击链接,查看更多功能! " . route('wechat.home');
                 }
             }
+            return  '请关于订阅号,并完成绑定!';
         });
         //返回服务
         return \EasyWeChat::server()->serve();
