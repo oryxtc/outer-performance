@@ -35,8 +35,11 @@ class BindWechat
     {
         //获取用户openid
         $openid = session('wechat.oauth_user')->id;
-        if (\Auth::attempt(['openid' => $openid], true)===false){
+        $user=User::where('openid',$openid)->first();
+        if (empty($user)){
             return '你尚未绑定!请在订阅号中完成绑定!';
+        }else{
+            \Auth::login($user, true);
         }
         return $next($request);
     }
