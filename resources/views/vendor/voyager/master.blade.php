@@ -6,9 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}"/>
     <!-- Fonts -->
-    <link href='https://fonts.googleapis.com/css?family=Roboto+Condensed:300,400|Lato:300,400,700,900' rel='stylesheet'
-          type='text/css'>
+    {{--<link href='https://fonts.googleapis.com/css?family=Roboto+Condensed:300,400|Lato:300,400,700,900' rel='stylesheet'--}}
+          {{--type='text/css'>--}}
 
+    <link rel="stylesheet" type="text/css" href="{{ voyager_asset('fonts/voyager/googleapis.css') }}">
     <!-- CSS Libs -->
     <link rel="stylesheet" type="text/css" href="{{ voyager_asset('lib/css/bootstrap.min.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ voyager_asset('lib/css/animate.min.css') }}">
@@ -26,15 +27,18 @@
     <link rel="stylesheet" type="text/css" href="{{ voyager_asset('css/style.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ voyager_asset('css/themes/flat-blue.css') }}">
 
-    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,300italic">
-
+    {{--<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,400,500,300italic">--}}
+    <link rel="stylesheet" type="text/css" href="{{ voyager_asset('fonts/voyager/googleapis-300.css') }}">
     <!-- Favicon -->
     <link rel="shortcut icon" href="{{ voyager_asset('images/logo-icon.png') }}" type="image/x-icon">
 
     <!-- CSS Fonts -->
     <link rel="stylesheet" href="{{ voyager_asset('fonts/voyager/styles.css') }}">
     <script type="text/javascript" src="{{ voyager_asset('lib/js/jquery.min.js') }}"></script>
-    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.0/themes/smoothness/jquery-ui.css">
+
+    {{--<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.0/themes/smoothness/jquery-ui.css">--}}
+    <link rel="stylesheet" href="{{ voyager_asset('css/jquery-ui.css') }}" type="image/x-icon">
+
     <link rel="stylesheet" href="{{asset('vendor/tcg/voyager/assets/css/fonts-googleapis.css')}}">
     <script type="text/javascript" src="{{ asset('vendor/tcg/voyager/assets/js/jquery-ui.min.js') }}"></script>
 
