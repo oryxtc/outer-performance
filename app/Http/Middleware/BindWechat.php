@@ -52,7 +52,7 @@ class BindWechat
                     }
                     return "请输入:  绑定 your@email.com 密码 yourpassword   即可完成绑定!";;
                 }else{
-                    return '请点击链接,查看更多功能! <a href=" '+ route('wechat.home')+' ">个人主页</a> ';
+                    return "请点击链接,查看更多功能! " . route('wechat.home');
                 }
             });
             //返回服务
