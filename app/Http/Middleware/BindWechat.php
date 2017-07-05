@@ -33,11 +33,14 @@ class BindWechat
      */
     public function handle($request, Closure $next)
     {
+        //获取用户openid
+        $openid = session('wechat.oauth_user')->id;
+        if (\Auth::attempt(['openid' => $openid], true)){
+            return $next($request);
+        }
         if (session('wechat.oauth_user')) {
-            \EasyWeChat::server()->setMessageHandler(function ($message) {
-                //获取用户openid
-                $openid = session('wechat.oauth_user')->id;
-                if (User::where('openid',$openid)->count() > 1) {
+            \EasyWeChat::server()->setMessageHandler(function ($message) use($openid) {
+                if (\Auth::attempt(['openid' => $openid], true) === false) {
                     //如果匹配到 绑定XXX 密码XXX则完成绑定
                     if (preg_match('/^\x{7ed1}\x{5b9a}(.+)\x{5bc6}\x{7801}(.+)/u', $message->Content, $matches)) {
                         if (\Auth::attempt(['email' => trim($matches[1]), 'password' => trim($matches[2])], true)) {
