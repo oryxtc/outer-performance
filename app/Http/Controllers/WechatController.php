@@ -3,19 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Attendance;
+use App\Http\Controllers\Voyager\Traits\BreadRelationshipParser;
 use App\User;
 use App\WechatUser;
 use Illuminate\Http\Request;
+use TCG\Voyager\Facades\Voyager;
 
 class WechatController extends Controller
 {
+    use BreadRelationshipParser;
     public $user;
 
     public function __construct()
     {
-//        $this->middleware('web');
-        $this->middleware('wechat.oauth');
-        $this->middleware('wechat.bind')->except('serve');
+        $this->middleware('web');
+//        $this->middleware('wechat.oauth');
+//        $this->middleware('wechat.bind')->except('serve');
     }
 
     /**
@@ -59,7 +62,27 @@ class WechatController extends Controller
      */
     public function home()
     {
-        return view('wechat.home');
+        $id =auth()->id();
+        $slug ='users';
+
+        $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
+
+        $relationships = $this->getRelationships($dataType);
+
+        $dataTypeContent = (strlen($dataType->model_name) != 0)
+            ? app($dataType->model_name)->with($relationships)->findOrFail($id)
+            : DB::table($dataType->name)->where('id', $id)->first(); // If Model doest exist, get data from table name
+
+        // Check if BREAD is Translatable
+        $isModelTranslatable = is_bread_translatable($dataTypeContent);
+
+        return view('wechat.home',compact('dataType', 'dataTypeContent', 'isModelTranslatable'));
+    }
+
+    public function profile(){
+        $user=auth()->user()->toArray();
+        $data['user']=$user;
+        return view('',$data);
     }
 
 

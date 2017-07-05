@@ -87,6 +87,8 @@ use Illuminate\Routing\Route;
 
     \Route::any('/home', 'WechatController@home')->name('home');
 
+    \Route::any('/profile', 'WechatController@profile')->name('profile');
+
 
 });
 
