@@ -55,7 +55,7 @@ class BindWechat
                 });
                 return \EasyWeChat::server()->serve();
             }else{
-                return "请点击链接,查看更多功能! ".route('wechat.home');
+                return "请点击链接,查看更多功能! ";
             }
         }
         return $next($request);
