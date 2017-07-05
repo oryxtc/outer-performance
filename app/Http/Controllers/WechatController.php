@@ -32,7 +32,9 @@ class WechatController extends Controller
         $openid = session('wechat.oauth_user')->id;
         \EasyWeChat::server()->setMessageHandler(function ($message) use ($openid) {
             if (session('wechat.oauth_user')) {
-                if (!\Auth::check()) {
+                if ($user=User::where('openid',$openid)->first()) {
+                    return "请点击链接,查看更多功能! " . route('wechat.home');
+                } else {
                     //如果匹配到 绑定XXX 密码XXX则完成绑定
                     if (preg_match('/^\x{7ed1}\x{5b9a}(.+)\x{5bc6}\x{7801}(.+)/u', $message->Content, $matches)) {
                         if (\Auth::attempt(['email' => trim($matches[1]), 'password' => trim($matches[2])], true)) {
@@ -46,8 +48,6 @@ class WechatController extends Controller
                         return '绑定失败! 密码错误!';
                     }
                     return "请输入:  绑定 your@email.com 密码 yourpassword   即可完成绑定!";;
-                } else {
-                    return "请点击链接,查看更多功能! " . route('wechat.home');
                 }
             }
             return  '请关于订阅号,并完成绑定!';
