@@ -63,9 +63,6 @@ class VoyagerUserController extends VoyagerBreadController
 
     public function edit(Request $request, $id)
     {
-        //验证数据
-        $this->validatorEdit($request->all())->validate();
-
         $slug = $this->getSlug($request);
 
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
@@ -94,6 +91,9 @@ class VoyagerUserController extends VoyagerBreadController
     // POST BR(E)AD
     public function update(Request $request, $id)
     {
+        //验证数据
+        $this->validatorEdit($request->all())->validate();
+        
         $slug = $this->getSlug($request);
 
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
