@@ -1,4 +1,4 @@
-@extends('voyager::master')
+    @extends('voyager::master')
 
 @section('page_header')
     <h1 class="page-title" style="width: 96%;height: 50px">
@@ -155,7 +155,7 @@
             $("input[name='checkData'][value='role_id']").attr('checked', true);
             $("input[name='checkData'][value='belong_company']").attr('checked', true);
             $("input[name='checkData'][value='username']").attr('checked', true);
-            $("input[name='checkData'][value='sex']").attr('checked', true);
+            $("input[name='checkData'][value='job_number']").attr('checked', true);
             $("input[name='checkData'][value='email']").attr('checked', true);
 
             //初始化th

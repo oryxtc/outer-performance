@@ -249,6 +249,8 @@ class VoyagerWageController extends VoyagerBreadController
             $save_data[$key]['overtime_formal'] = $this->getOvertimeProbation($user)['overtime_formal'];
             //病假天数
             $save_data[$key]['sick'] = $this->getSick($user);
+            //产假天数
+            $save_data[$key]['maternity'] = $this->getMaternity($user);
             //在岗工资
             $save_data[$key]['pay_wages'] = $this->getPayWages($user);
             //加班工资
@@ -524,8 +526,10 @@ class VoyagerWageController extends VoyagerBreadController
         $formal = $this->getFormal($user);
         //病假天数
         $sick = $this->getSick($user);
+        //产假天数
+        $maternity=$this->getMaternity($user);
 
-        $pay_wages = $user['trial_pay'] / 30 * $probation + $user['formal_pay'] / 30 * $formal + 1200 / 30 * $sick;
+        $pay_wages = $user['trial_pay'] / 30 * $probation + $user['formal_pay'] / 30 * $formal + 1200 / 30 * $sick + 1800/30*$maternity;
 
         return round($pay_wages, 2);
     }
@@ -569,6 +573,30 @@ class VoyagerWageController extends VoyagerBreadController
         $attendances_list = Attendance::where('job_number', $job_number)
             ->where('status', 11)
             ->where('type', '病假')
+            ->whereDate('start_at', '>', $limit_date['min_limit_date'])
+            ->whereDate('start_at', '<=', $limit_date['max_limit_date'])
+            ->get()
+            ->toArray();
+        foreach ($attendances_list as $item) {
+            $hours_total = $this->dateToHours($item['continued_at']);
+            $sick = $sick + $hours_total;
+
+        }
+        return floor($sick / 9);
+    }
+
+    /**
+     * 获取产假天数
+     * @param $user
+     * @return float
+     */
+    public function getMaternity($user){
+        $job_number = $user['job_number'];
+        $limit_date = $this->getLimitDate();
+        $sick = 0;
+        $attendances_list = Attendance::where('job_number', $job_number)
+            ->where('status', 11)
+            ->where('type', '产假')
             ->whereDate('start_at', '>', $limit_date['min_limit_date'])
             ->whereDate('start_at', '<=', $limit_date['max_limit_date'])
             ->get()

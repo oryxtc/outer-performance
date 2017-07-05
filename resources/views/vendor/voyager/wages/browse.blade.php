@@ -53,10 +53,10 @@
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                                     aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title" id="myModalLabel">自动计算月工资</h4>
+                        <h4 class="modal-title" id="myModalLabel">确认所有工资单</h4>
                     </div>
                     {{--提示框--}}
-                    <div class="alert alert-success" role="alert" hidden>计算成功!</div>
+                    <div class="alert alert-success" role="alert" hidden>确认成功!</div>
                     <div class="alert alert-danger" role="alert" hidden></div>
 
                     <form method="post" enctype="multipart/form-data" id="uploadForm">
