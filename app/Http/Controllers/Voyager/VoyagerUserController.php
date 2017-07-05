@@ -93,7 +93,7 @@ class VoyagerUserController extends VoyagerBreadController
     {
         //验证数据
         $this->validatorEdit($request->all())->validate();
-        
+
         $slug = $this->getSlug($request);
 
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
@@ -285,7 +285,7 @@ class VoyagerUserController extends VoyagerBreadController
         return \Validator::make($data, [
             'name' => 'required|string|max:255',
             'email' => 'required|string|max:150|unique:users',
-            'job_number' => 'required|string|max:255|unique:job_number',
+            'job_number' => 'required|string|max:255|unique:users',
             'password' => 'required|string|min:6',
         ]);
     }
@@ -300,7 +300,7 @@ class VoyagerUserController extends VoyagerBreadController
     {
         return \Validator::make($data, [
             'email' => 'required|string|max:150|unique:users',
-            'job_number' => 'required|string|max:255|unique:job_number',
+            'job_number' => 'required|string|max:255|unique:users',
         ]);
     }
 
