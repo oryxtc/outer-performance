@@ -63,6 +63,9 @@ class VoyagerUserController extends VoyagerBreadController
 
     public function edit(Request $request, $id)
     {
+        //验证数据
+        $this->validatorEdit($request->all())->validate();
+
         $slug = $this->getSlug($request);
 
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
@@ -86,6 +89,37 @@ class VoyagerUserController extends VoyagerBreadController
         }
 
         return view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable'));
+    }
+
+    // POST BR(E)AD
+    public function update(Request $request, $id)
+    {
+        $slug = $this->getSlug($request);
+
+        $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
+
+        // Check permission
+        Voyager::canOrFail('edit_'.$dataType->name);
+
+        //Validate fields with ajax
+        $val = $this->validateBread($request->all(), $dataType->editRows);
+
+        if ($val->fails()) {
+            return response()->json(['errors' => $val->messages()]);
+        }
+
+        if (!$request->ajax()) {
+            $data = call_user_func([$dataType->model_name, 'findOrFail'], $id);
+
+            $this->insertUpdateData($request, $slug, $dataType->editRows, $data);
+
+            return redirect()
+                ->route("voyager.{$dataType->slug}.edit", ['id' => $id])
+                ->with([
+                    'message'    => "Successfully Updated {$dataType->display_name_singular}",
+                    'alert-type' => 'success',
+                ]);
+        }
     }
 
 
@@ -255,6 +289,21 @@ class VoyagerUserController extends VoyagerBreadController
             'password' => 'required|string|min:6',
         ]);
     }
+
+    /**
+     * Get a validator for an incoming registration request.
+     *
+     * @param  array  $data
+     * @return \Illuminate\Contracts\Validation\Validator
+     */
+    protected function validatorEdit(array $data)
+    {
+        return \Validator::make($data, [
+            'email' => 'required|string|max:150|unique:users',
+            'job_number' => 'required|string|max:255|unique:job_number',
+        ]);
+    }
+
 
     /**
      * 验证密码
