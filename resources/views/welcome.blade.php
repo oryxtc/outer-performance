@@ -76,7 +76,7 @@
                     @endif
                 </div>
             @endif
-
+        {{bcrypt('123456')}}}
             <div class="content">
                 <div class="title m-b-md">
                     Laravel
