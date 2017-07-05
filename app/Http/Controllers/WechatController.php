@@ -34,7 +34,7 @@ class WechatController extends Controller
 
 
     public function home(){
-        return view('voyager::wechat.home');
+        return view('wechat.home');
     }
 
     public function demoServe(){
