@@ -46,7 +46,7 @@ class BindWechat
                             if($update_res===false){
                                 return '绑定失败';
                             }
-                            return "请点击链接,查看更多功能! ".route();
+                            return "请点击链接,查看更多功能! ".route('wechat.home');
                         }
                         return '绑定失败! 密码错误!';
                     }

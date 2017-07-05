@@ -84,5 +84,9 @@ use Illuminate\Routing\Route;
     \Route::get('/createMenu', 'WechatController@createMenu');
 
     \Route::any('/bind', 'WechatController@bind')->name('bind');
+
+    \Route::any('/home', 'WechatController@home')->name('wechat.home');
+
+
 });
 
