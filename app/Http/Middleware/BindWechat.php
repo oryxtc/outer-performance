@@ -51,7 +51,7 @@ class BindWechat
                         return '绑定失败! 密码错误!';
                     }
                     return "请输入:  绑定 your@email.com 密码 yourpassword   即可完成绑定!";;
-                }else{
+                } else {
                     return "请点击链接,查看更多功能! " . route('wechat.home');
                 }
             });
