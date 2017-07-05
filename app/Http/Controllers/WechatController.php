@@ -17,8 +17,8 @@ class WechatController extends Controller
     public function __construct()
     {
         $this->middleware('web');
-        $this->middleware('wechat.oauth');
-        $this->middleware('wechat.bind')->except('serve');
+//        $this->middleware('wechat.oauth');
+//        $this->middleware('wechat.bind')->except('serve');
     }
 
     /**
@@ -101,14 +101,44 @@ class WechatController extends Controller
         return $this->apiJson(true, '', $data);
     }
 
-    /**
-     * 获取用户基本信息
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function getUserInfo()
-    {
-        $user_info = \Auth::user()->toArray();
-        return $this->apiJson(true, '', $user_info);
+
+    public function getAttendanceInfo(Request $request){
+        $status=[
+            '0'=>'待审核',
+            '11'=>'退审',
+            '21'=>'通过',
+        ];
+        $request_data=$request->all();
+        $id=$request_data['id'];
+        $info=Attendance::where('id',$id)
+            ->first()
+            ->toArray();
+        //查询审核人
+        $approver_arr=explode(',',$info['approver']);
+        $relevant_arr=explode(',',$info['relevant']);
+        $username_list=User::select(['job_number','username'])->whereIn('job_number',array_merge($approver_arr,$relevant_arr))->pluck('username','job_number')->toArray();
+        foreach ($approver_arr as $key=>$value){
+            if(!$value){
+                continue;
+            }
+            $approver_str[]=$username_list[$value];
+        }
+        foreach ($relevant_arr as $key=>$value){
+            if(!$value){
+                continue;
+            }
+            $relevant_str[]=$username_list[$value];
+        }
+
+        $retrial=json_decode($info['retrial']);
+        $retrial_str=[];
+        foreach ($retrial as $key=>$value){
+            $retrial_str[$username_list[$key]]=$status[$value];
+        }
+        $data['info']=$info;
+        $data['approver']=$approver_str;
+        $data['relevant']=$relevant_str;
+        return $this->apiJson(true,'',$data);
     }
 
     public function applyAttendance(Request $request)
