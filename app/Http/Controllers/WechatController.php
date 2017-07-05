@@ -16,7 +16,7 @@ class WechatController extends Controller
 
     public function __construct()
     {
-//        $this->middleware('web');
+        $this->middleware('web');
         $this->middleware('wechat.oauth');
         $this->middleware('wechat.bind')->except('serve');
     }
@@ -32,7 +32,7 @@ class WechatController extends Controller
         $openid = session('wechat.oauth_user')->id;
         \EasyWeChat::server()->setMessageHandler(function ($message) use ($openid) {
             if (session('wechat.oauth_user')) {
-                if (\Auth::attempt(['openid' => $openid], true) === false) {
+                if (!\Auth::check()) {
                     //如果匹配到 绑定XXX 密码XXX则完成绑定
                     if (preg_match('/^\x{7ed1}\x{5b9a}(.+)\x{5bc6}\x{7801}(.+)/u', $message->Content, $matches)) {
                         if (\Auth::attempt(['email' => trim($matches[1]), 'password' => trim($matches[2])], true)) {
