@@ -32,6 +32,11 @@ class WechatController extends Controller
         return \EasyWeChat::server()->serve();
     }
 
+
+    public function home(){
+        return view('voyager::wechat.home');
+    }
+
     public function demoServe(){
         $message=new WechatUser();
         //获取用户openid
@@ -57,6 +62,8 @@ class WechatController extends Controller
         $openid = session('wechat.oauth_user')->id;
         return view('wechat.bind',['openid'=>$openid]);
     }
+
+
 
 
     /**
