@@ -191,7 +191,7 @@ class VoyagerWageController extends VoyagerBreadController
         });
         //过滤字段
         $response_data = $response_data->editColumn('period_at', function (Wage $wage) {
-            return date('Y-m-d',strtotime($wage->period_at));
+            return date('Y-m',strtotime($wage->period_at));
         });
         //添加编辑
         $response_data = $response_data->addColumn('action', function (Wage $wage) {
