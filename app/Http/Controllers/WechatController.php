@@ -273,7 +273,7 @@ class WechatController extends VoyagerBreadController
         $save['continued_at'] = $user_info['continued_at'];
         $save['approver'] = $user_info['approver'];
         $save['relevant'] = $user_info['relevant'];
-        $save['status'] = 0;
+        $save['status'] =  $request->get('status');
         $save['created_at'] = date('Y-m-d H:i:s', time());
 
         //重写转审
