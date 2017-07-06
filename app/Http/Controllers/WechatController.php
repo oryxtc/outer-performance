@@ -146,21 +146,32 @@ class WechatController extends Controller
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
     public function  getAttendanceList(){
-        $attendance_list=Attendance::get()->toArray();
+        $status=[
+            '1'=>'待审核',
+            '11'=>'退审',
+            '21'=>'通过',
+        ];
+
+        $attendance_list=Attendance::orderBy('id','DESC')->get()->toArray();
         $job_number=auth()->user()->job_number;
         $response_data=[];
         foreach ($attendance_list as $key=>$item){
             if($job_number==$item['job_number']){
                 $item['can_review']=false;
+                $item['status']=$status[$item['status']];
                 $response_data[]=$item;
             }elseif (in_array($job_number,explode(',',$item['approver']))){
                 $item['can_review']=true;
+                $item['status']=$status[$item['status']];
                 $response_data[]=$item;
             }elseif (in_array($job_number,explode(',',$item['relevant']))){
                 $item['can_review']=false;
+                $item['status']=$status[$item['status']];
                 $response_data[]=$item;
             }
         }
+
+        $response_data=array_slice($response_data,0,20);
         return view('wechat.attendanceList',['data'=>$response_data]);
     }
 

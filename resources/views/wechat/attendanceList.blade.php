@@ -19,12 +19,14 @@
                     <!-- form start -->
                     <div class="list-group">
                         @foreach($data as $key=>$item)
-                        <a href="{{route('wechat.attendanceInfo',['id'=>$item['id']])}}" class="list-group-item ">
-                            {{$item['title']}}
-                        </a>
+                            <a href="{{route('wechat.attendanceInfo',['id'=>$item['id']])}}"
+                               class="list-group-item ">
+                                {{$item['title']}}
+                                <span style="margin-right: 10px" class="pull-right">状态:{{$item['status']}}</span>
+                            </a>
+
                         @endforeach
                     </div>
-
                 </div>
             </div>
         </div>
