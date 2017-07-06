@@ -24,7 +24,15 @@
                         </div>
 
                         <div class="panel-body" style="padding-top:0;">
-                            @if($row->type == "image")
+                            @if($row->field=='status')
+                                @if($dataTypeContent->status=='0')
+                                    <p>待确认</p>
+                                @else
+                                    <p>已确认</p>
+                                @endif
+                            @elseif($row->field=='period_at')
+                                <p>{{date('Y-m',strtotime($dataTypeContent->period_at))}}</p>
+                            @elseif($row->type == "image")
                                 <img style="max-width:640px"
                                      src="{!! Voyager::image($dataTypeContent->{$row->field}) !!}">
                             @elseif($row->type == 'date')

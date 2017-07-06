@@ -12,7 +12,7 @@
         <button type="button" class="btn btn-success" id="exportWages">
             <i class="voyager-double-up"></i> 导出工资
         </button>
-        <a href="{{ route('excel.exportWages',['checkData'=>'*']) }}" class="btn btn-success" style="margin-right: 42%">
+        <a href="{{ route('excel.exportWages',['checkData'=>'*']) }}" class="btn btn-success" style="margin-right: 35%">
             <i class="voyager-plus"></i> 导出所有工资
         </a>
 
