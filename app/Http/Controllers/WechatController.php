@@ -135,8 +135,10 @@ class WechatController extends VoyagerBreadController
             '11' => '退审',
             '21' => '通过',
         ];
+
         $request_data = $request->all();
         $id = $request_data['id'];
+        $job_number = auth()->user()->job_number;
         $info = Attendance::where('id', $id)
             ->first()
             ->toArray();
@@ -160,11 +162,25 @@ class WechatController extends VoyagerBreadController
         $retrial = json_decode($info['retrial']);
         $retrial_str = [];
         foreach ($retrial as $key => $value) {
-            $retrial_str[$username_list[$key]] = $status[$value];
+            $retrial_str[]=[
+                'name'=>$username_list[$key],
+                'status'=>$status[$value],
+            ];
+//            $retrial_str[$username_list[$key]] = $status[$value];
         }
         $data['info'] = $info;
         $data['approver'] = $approver_str;
         $data['relevant'] = $relevant_str;
+        $data['retrial'] = $retrial_str;
+        //判断能否审核
+        if ($job_number == $info['job_number']) {
+            $data['info']['can_review'] = false;
+        } elseif (in_array($job_number, explode(',', $info['approver']))) {
+            $data['info']['can_review'] = true;
+        } elseif (in_array($job_number, explode(',', $info['relevant']))) {
+            $data['info']['can_review'] = false;
+        }
+//        dd($data);
         return $this->apiJson(true, '', $data);
     }
 
