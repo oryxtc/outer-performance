@@ -656,6 +656,9 @@ class ExcelController extends Controller
                     $save_data[$attendance_key][$head_list_flip[$key]] = $value;
                 }
             }
+
+            $save_data[$attendance_key]['retrial'] = '{}';
+
         }
         if (empty($save_data)) {
             return $this->apiJson(false, '没有新增考勤!');

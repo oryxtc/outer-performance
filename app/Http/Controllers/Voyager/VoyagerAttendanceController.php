@@ -151,7 +151,6 @@ class VoyagerAttendanceController extends VoyagerBreadController
         //查询审核人
         $approver_arr=explode(',',Attendance::where('id',$id)->value('approver'));
         $relevant_arr=explode(',',Attendance::where('id',$id)->value('relevant'));
-
         $username_list=User::select(['job_number','username'])->whereIn('job_number',array_merge($approver_arr,$relevant_arr))->pluck('username','job_number')->toArray();
         foreach ($approver_arr as $key=>$value){
             if(!$value){
@@ -165,8 +164,9 @@ class VoyagerAttendanceController extends VoyagerBreadController
             }
             $relevant_str[]=$username_list[$value];
         }
-        $approver_str=implode(',',$approver_str);
-        $relevant_str=implode(',',$relevant_str);
+
+        $approver_str=empty($approver_str)?"":implode(',',$approver_str);
+        $relevant_str=empty($relevant_str)?"":implode(',',$relevant_str);
 
 
         return view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable','relevant_str','approver_str'));
@@ -197,6 +197,23 @@ class VoyagerAttendanceController extends VoyagerBreadController
             $data = call_user_func([$dataType->model_name, 'findOrFail'], $id);
 
             $this->insertUpdateData($request, $slug, $dataType->editRows, $data);
+
+            //更新转审
+            $status=$data->status;
+            $approver=$data->approver;
+            $approver_arr=explode(',',$approver);
+
+            //如果有
+            if(empty($approver)){
+                $retrial='{}';
+            }else{
+                foreach ($approver_arr as $value){
+                    $retrial_arr[$value]=$status;
+                }
+                $retrial=json_encode($retrial_arr);
+            }
+
+            Attendance::where('id',$data->id)->update(['retrial'=>$retrial]);
 
             return redirect()
                 ->route("voyager.{$dataType->slug}.edit", ['id' => $id])
@@ -229,7 +246,22 @@ class VoyagerAttendanceController extends VoyagerBreadController
 
         if (!$request->ajax()) {
             $data = $this->insertUpdateData($request, $slug, $dataType->addRows, new $dataType->model_name());
+            //更新转审
+            $status=$data->status;
+            $approver=$data->approver;
+            $approver_arr=explode(',',$approver);
 
+            //如果有
+            if(empty($approver)){
+                $retrial='{}';
+            }else{
+                foreach ($approver_arr as $value){
+                    $retrial_arr[$value]=$status;
+                }
+                $retrial=json_encode($retrial_arr);
+            }
+
+            Attendance::where('id',$data->id)->update(['retrial'=>$retrial]);
             return redirect()
                 ->route("voyager.{$dataType->slug}.edit", ['id' => $data->id])
                 ->with([

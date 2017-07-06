@@ -314,11 +314,13 @@
 
                     var approver_first_name = $("#approver-first").data('name');
                     var approver_second_name = $("#approver-second").data('name');
-
-
-                    var approver_value = approver_first_value + "," + approver_second_value;
-                    var approver_name = approver_first_name + "," + approver_second_name;
-
+                    if(approver_second_name){
+                        var approver_value = approver_first_value + "," + approver_second_value;
+                        var approver_name = approver_first_name + "," + approver_second_name;
+                    }else {
+                        var approver_value = approver_first_value ;
+                        var approver_name = approver_first_name ;
+                    }
                     $("input[name='approver']").val(approver_value)
                     $("#approver_name").val(approver_name)
                 } else {
@@ -328,9 +330,13 @@
                     var relevant_first_name = $("#approver-first").data('name');
                     var relevant_second_name = $("#approver-second").data('name');
 
-
-                    var relevant_value = relevant_first_value + "," + relevant_second_value;
-                    var relevant_name = relevant_first_name + "," + relevant_second_name;
+                    if(relevant_second_name){
+                        var relevant_value = relevant_first_value + "," + relevant_second_value;
+                        var relevant_name = relevant_first_name + "," + relevant_second_name;
+                    }else {
+                        var relevant_value = relevant_first_value ;
+                        var relevant_name = relevant_first_name ;
+                    }
 
                     $("input[name='relevant']").val(relevant_value)
                     $("#relevant_name").val(relevant_name)

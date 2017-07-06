@@ -102,9 +102,14 @@ class WechatController extends Controller
     }
 
 
+    /**
+     * 获取考勤详情
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getAttendanceInfo(Request $request){
         $status=[
-            '0'=>'待审核',
+            '1'=>'待审核',
             '11'=>'退审',
             '21'=>'通过',
         ];
