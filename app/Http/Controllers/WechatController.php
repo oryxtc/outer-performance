@@ -3,16 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Attendance;
-use App\Http\Controllers\Voyager\Traits\BreadRelationshipParser;
+use App\Http\Controllers\Voyager\VoyagerBreadController;
 use App\User;
 use App\Wage;
-use App\WechatUser;
 use Illuminate\Http\Request;
 use TCG\Voyager\Facades\Voyager;
 
-class WechatController extends Controller
+class WechatController extends VoyagerBreadController
 {
-    use BreadRelationshipParser;
     public $user;
 
     public function __construct()
@@ -33,7 +31,7 @@ class WechatController extends Controller
         $openid = session('wechat.oauth_user')->id;
         \EasyWeChat::server()->setMessageHandler(function ($message) use ($openid) {
             if (session('wechat.oauth_user')) {
-                if ($user=User::where('openid',$openid)->first()) {
+                if ($user = User::where('openid', $openid)->first()) {
                     return "请点击链接,查看更多功能! " . route('wechat.home');
                 } else {
                     //如果匹配到 绑定XXX 密码XXX则完成绑定
@@ -51,7 +49,7 @@ class WechatController extends Controller
                     return "请输入:  绑定 your@email.com 密码 yourpassword   即可完成绑定!";;
                 }
             }
-            return  '请关于订阅号,并完成绑定!';
+            return '请关于订阅号,并完成绑定!';
         });
         //返回服务
         return \EasyWeChat::server()->serve();
@@ -63,8 +61,8 @@ class WechatController extends Controller
      */
     public function home()
     {
-        $id =auth()->id();
-        $slug ='users';
+        $id = auth()->id();
+        $slug = 'users';
 
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
 
@@ -77,7 +75,35 @@ class WechatController extends Controller
         // Check if BREAD is Translatable
         $isModelTranslatable = is_bread_translatable($dataTypeContent);
 
-        return view('wechat.home',compact('dataType', 'dataTypeContent', 'isModelTranslatable'));
+        return view('wechat.home', compact('dataType', 'dataTypeContent', 'isModelTranslatable'));
+    }
+
+
+    // POST BR(E)AD
+    public function updateUserInfo(Request $request)
+    {
+        $id = auth()->id();
+
+        $slug = 'users';
+
+        $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
+
+        $data = call_user_func([$dataType->model_name, 'findOrFail'], $id);
+
+        $this->insertUpdateData($request, $slug, $dataType->editRows, $data);
+
+        $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
+
+        $relationships = $this->getRelationships($dataType);
+
+        $dataTypeContent = (strlen($dataType->model_name) != 0)
+            ? app($dataType->model_name)->with($relationships)->findOrFail($id)
+            : DB::table($dataType->name)->where('id', $id)->first(); // If Model doest exist, get data from table name
+
+        // Check if BREAD is Translatable
+        $isModelTranslatable = is_bread_translatable($dataTypeContent);
+
+        return view('wechat.home', compact('dataType', 'dataTypeContent', 'isModelTranslatable'));
     }
 
 
@@ -102,43 +128,44 @@ class WechatController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getAttendanceInfo(Request $request){
-        $status=[
-            '1'=>'待审核',
-            '11'=>'退审',
-            '21'=>'通过',
+    public function getAttendanceInfo(Request $request)
+    {
+        $status = [
+            '1' => '待审核',
+            '11' => '退审',
+            '21' => '通过',
         ];
-        $request_data=$request->all();
-        $id=$request_data['id'];
-        $info=Attendance::where('id',$id)
+        $request_data = $request->all();
+        $id = $request_data['id'];
+        $info = Attendance::where('id', $id)
             ->first()
             ->toArray();
         //查询审核人
-        $approver_arr=explode(',',$info['approver']);
-        $relevant_arr=explode(',',$info['relevant']);
-        $username_list=User::select(['job_number','username'])->whereIn('job_number',array_merge($approver_arr,$relevant_arr))->pluck('username','job_number')->toArray();
-        foreach ($approver_arr as $key=>$value){
-            if(!$value){
+        $approver_arr = explode(',', $info['approver']);
+        $relevant_arr = explode(',', $info['relevant']);
+        $username_list = User::select(['job_number', 'username'])->whereIn('job_number', array_merge($approver_arr, $relevant_arr))->pluck('username', 'job_number')->toArray();
+        foreach ($approver_arr as $key => $value) {
+            if (!$value) {
                 continue;
             }
-            $approver_str[]=$username_list[$value];
+            $approver_str[] = $username_list[$value];
         }
-        foreach ($relevant_arr as $key=>$value){
-            if(!$value){
+        foreach ($relevant_arr as $key => $value) {
+            if (!$value) {
                 continue;
             }
-            $relevant_str[]=$username_list[$value];
+            $relevant_str[] = $username_list[$value];
         }
 
-        $retrial=json_decode($info['retrial']);
-        $retrial_str=[];
-        foreach ($retrial as $key=>$value){
-            $retrial_str[$username_list[$key]]=$status[$value];
+        $retrial = json_decode($info['retrial']);
+        $retrial_str = [];
+        foreach ($retrial as $key => $value) {
+            $retrial_str[$username_list[$key]] = $status[$value];
         }
-        $data['info']=$info;
-        $data['approver']=$approver_str;
-        $data['relevant']=$relevant_str;
-        return $this->apiJson(true,'',$data);
+        $data['info'] = $info;
+        $data['approver'] = $approver_str;
+        $data['relevant'] = $relevant_str;
+        return $this->apiJson(true, '', $data);
     }
 
 
@@ -146,45 +173,47 @@ class WechatController extends Controller
      * 获取考勤列表
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function  getAttendanceList(){
-        $status=[
-            '1'=>'待审核',
-            '11'=>'退审',
-            '21'=>'通过',
+    public function getAttendanceList()
+    {
+        $status = [
+            '1' => '待审核',
+            '11' => '退审',
+            '21' => '通过',
         ];
 
-        $attendance_list=Attendance::orderBy('id','DESC')->get()->toArray();
-        $job_number=auth()->user()->job_number;
-        $response_data=[];
-        foreach ($attendance_list as $key=>$item){
-            if($job_number==$item['job_number']){
-                $item['can_review']=false;
-                $item['status']=$status[$item['status']];
-                $response_data[]=$item;
-            }elseif (in_array($job_number,explode(',',$item['approver']))){
-                $item['can_review']=true;
-                $item['status']=$status[$item['status']];
-                $response_data[]=$item;
-            }elseif (in_array($job_number,explode(',',$item['relevant']))){
-                $item['can_review']=false;
-                $item['status']=$status[$item['status']];
-                $response_data[]=$item;
+        $attendance_list = Attendance::orderBy('id', 'DESC')->get()->toArray();
+        $job_number = auth()->user()->job_number;
+        $response_data = [];
+        foreach ($attendance_list as $key => $item) {
+            if ($job_number == $item['job_number']) {
+                $item['can_review'] = false;
+                $item['status'] = $status[$item['status']];
+                $response_data[] = $item;
+            } elseif (in_array($job_number, explode(',', $item['approver']))) {
+                $item['can_review'] = true;
+                $item['status'] = $status[$item['status']];
+                $response_data[] = $item;
+            } elseif (in_array($job_number, explode(',', $item['relevant']))) {
+                $item['can_review'] = false;
+                $item['status'] = $status[$item['status']];
+                $response_data[] = $item;
             }
         }
 
-        $response_data=array_slice($response_data,0,20);
-        return view('wechat.attendanceList',['data'=>$response_data]);
+        $response_data = array_slice($response_data, 0, 20);
+        return view('wechat.attendanceList', ['data' => $response_data]);
     }
 
     /**
      * 获取工资列表
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function getWageList(){
-        $job_number=auth()->user()->job_number;
-        $response_data=Wage::where('job_number',$job_number)->where('status',1)->orderBy('id','DESC')->get()->toArray();
-        $response_data=array_slice($response_data,0,20);
-        return view('wechat.wageList',['data'=>$response_data]);
+    public function getWageList()
+    {
+        $job_number = auth()->user()->job_number;
+        $response_data = Wage::where('job_number', $job_number)->where('status', 1)->orderBy('id', 'DESC')->get()->toArray();
+        $response_data = array_slice($response_data, 0, 20);
+        return view('wechat.wageList', ['data' => $response_data]);
     }
 
 
@@ -194,21 +223,22 @@ class WechatController extends Controller
      * @param $id
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function wageInfo(Request $request,$id){
-        $job_number=auth()->user()->job_number;
-        $slug ='wages';
+    public function wageInfo(Request $request, $id)
+    {
+        $job_number = auth()->user()->job_number;
+        $slug = 'wages';
 
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
 
 
-        $dataTypeContent = \ DB::table($dataType->name)->where('job_number',$job_number)->where('id', $id)->first(); // If Model doest exist, get data from table name
+        $dataTypeContent = \ DB::table($dataType->name)->where('job_number', $job_number)->where('id', $id)->first(); // If Model doest exist, get data from table name
 
         // Check if BREAD is Translatable
         $isModelTranslatable = is_bread_translatable($dataTypeContent);
-        if(empty($dataTypeContent)){
+        if (empty($dataTypeContent)) {
             return;
         }
-        return view('wechat.wageInfo',compact('dataType', 'dataTypeContent', 'isModelTranslatable'));
+        return view('wechat.wageInfo', compact('dataType', 'dataTypeContent', 'isModelTranslatable'));
     }
 
 
@@ -218,9 +248,10 @@ class WechatController extends Controller
      * @param $id
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
      */
-    public function attendanceInfo(Request $request,$id){
-        $response_data=[];
-        return view('wechat.attendanceInfo',['data'=>$response_data]);
+    public function attendanceInfo(Request $request, $id)
+    {
+        $response_data = [];
+        return view('wechat.attendanceInfo', ['data' => $response_data]);
     }
 
 
@@ -246,18 +277,17 @@ class WechatController extends Controller
         $save['created_at'] = date('Y-m-d H:i:s', time());
 
         //重写转审
-        $status=1;
-        $approver=$user_info['approver'];
-        $approver_arr=explode(',',$approver);
-        if(empty($approver)){
-            $save['retrial']='{}';
-        }else{
-            foreach ($approver_arr as $value){
-                $retrial_arr[$value]=$status;
+        $status = 1;
+        $approver = $user_info['approver'];
+        $approver_arr = explode(',', $approver);
+        if (empty($approver)) {
+            $save['retrial'] = '{}';
+        } else {
+            foreach ($approver_arr as $value) {
+                $retrial_arr[$value] = $status;
             }
-            $save['retrial']=json_encode($retrial_arr);
+            $save['retrial'] = json_encode($retrial_arr);
         }
-
         $save_res = Attendance::insert($save);
         if ($save_res === false) {
             return $this->apiJson(false, '提交失败!');

@@ -100,8 +100,7 @@ use Illuminate\Routing\Route;
 
     \Route::any('/wageInfo/{id}', 'WechatController@wageInfo')->name('wageInfo');
 
-
-
+    \Route::any('/updateUserInfo', 'WechatController@updateUserInfo')->name('updateUserInfo');
 
 });
 

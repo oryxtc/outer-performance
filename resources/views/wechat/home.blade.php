@@ -19,7 +19,7 @@
                     <!-- form start -->
                     <form role="form"
                           class="form-edit-add"
-                          action="     "
+                          action="{{ route('wechat.updateUserInfo')}}"
                           method="POST" enctype="multipart/form-data">
                         <!-- PUT Method if we are editing -->
                     @if(isset($dataTypeContent->id))
