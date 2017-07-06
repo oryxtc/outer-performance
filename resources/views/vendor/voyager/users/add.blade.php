@@ -22,7 +22,8 @@
                     </div>
                     <!-- /.box-header -->
                     <!-- form start -->
-                    <form class="form-edit-add" role="form"
+                    <form role="form"
+                          class="form-edit-add"
                           action="@if(isset($dataTypeContent->id)){{ route('voyager.'.$dataType->slug.'.update', $dataTypeContent->id) }}@else{{ route('voyager.'.$dataType->slug.'.store') }}@endif"
                           method="POST" enctype="multipart/form-data">
                         <!-- PUT Method if we are editing -->
@@ -34,84 +35,56 @@
                         {{ csrf_field() }}
 
                         <div class="panel-body">
-                            <div class="form-group">
-                                <label for="name">姓名</label>
-                                <input type="text" class="form-control" name="name"
-                                       placeholder="Name" id="name"
-                                       value="@if(isset($dataTypeContent->name)){{ old('name', $dataTypeContent->name) }}@else{{old('name')}}@endif">
-                                @if ($errors->has('name'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('name') }}</strong>
-                                    </span>
-                                @endif
-                            </div>
 
-                            <div class="form-group">
-                                <label for="name">邮箱</label>
-                                <input type="text" class="form-control" name="email"
-                                       placeholder="Email" id="email"
-                                       value="@if(isset($dataTypeContent->email)){{ old('email', $dataTypeContent->email) }}@else{{old('email')}}@endif">
-                                @if ($errors->has('email'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('email') }}</strong>
-                                    </span>
-                                @endif
-                            </div>
+                            @if (count($errors) > 0)
+                                <div class="alert alert-danger">
+                                    <ul>
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
 
-                            <div class="form-group">
-                                <label for="password">密码</label>
-                                @if(isset($dataTypeContent->password))
-                                    <br>
-                                    <small>填空则保持不变</small>
-                                @endif
-                                <input type="password" class="form-control" name="password"
-                                       placeholder="Password" id="password"
-                                       value="">
-                                @if ($errors->has('password'))
-                                    <span class="help-block">
-                                        <strong>{{ $errors->first('password') }}</strong>
-                                    </span>
-                                @endif
-                            </div>
+                        <!-- If we are editing -->
+                            @if(isset($dataTypeContent->id))
+                                <?php $dataTypeRows = $dataType->editRows; ?>
+                            @else
+                                <?php $dataTypeRows = $dataType->addRows; ?>
+                            @endif
 
-                            <div class="form-group">
-                                <label for="role">用户角色</label>
-                                <select name="role_id" id="role" class="form-control">
-                                    <?php $roles = TCG\Voyager\Models\Role::all(); ?>
-                                    @foreach($roles as $role)
-                                        <option value="{{$role->id}}"
-                                                @if(isset($dataTypeContent) && $dataTypeContent->role_id == $role->id) selected @endif>{{$role->display_name}}</option>
+                            @foreach($dataTypeRows as $row)
+                                @if($row->field=='role_id')
+                                    <label for="name">{{ $row->display_name }}</label>
+                                    @include('voyager::multilingual.input-hidden-bread-edit-add')
+                                    {{--{!! app('voyager')->formField($row, $dataType, $dataTypeContent) !!}--}}
+                                    <select name="role_id" id="role" class="form-control">
+                                        <?php $roles = TCG\Voyager\Models\Role::orderBy('id','DESC')->get(); ?>
+                                        @foreach($roles as $role)
+                                            <option value="{{$role->id}}"
+                                                    @if(isset($dataTypeContent) && $dataTypeContent->role_id == $role->id) selected @endif>{{$role->display_name}}</option>
+                                        @endforeach
+                                    </select>
+                                    @foreach (app('voyager')->afterFormFields($row, $dataType, $dataTypeContent) as $after)
+                                        {!! $after->handle($row, $dataType, $dataTypeContent) !!}
                                     @endforeach
-                                </select>
-                            </div>
+                                @else
+                                    <div class="form-group @if($row->type == 'hidden') hidden @endif">
+                                        <label for="name">{{ $row->display_name }}</label>
+                                        @include('voyager::multilingual.input-hidden-bread-edit-add')
+                                        {!! app('voyager')->formField($row, $dataType, $dataTypeContent) !!}
 
-                            <div class="form-group">
-                                <label for="sex">性别</label>
-                                <select name="sex" id="sex" class="form-control">
-                                    <?php $sex = (object)[0=>"女性",1=>"男性"]; ?>
-                                    @foreach($sex as $key=>$value)
-                                        <option value="{{$key}}"
-                                                @if(isset($dataTypeContent) && $dataTypeContent->sex == $key) selected @endif>{{$value}}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="password">头像</label>
-                                @if(isset($dataTypeContent->avatar))
-                                    <img src="{{ Voyager::image( $dataTypeContent->avatar ) }}"
-                                         style="width:200px; height:auto; clear:both; display:block; padding:2px; border:1px solid #ddd; margin-bottom:10px;">
+                                        @foreach (app('voyager')->afterFormFields($row, $dataType, $dataTypeContent) as $after)
+                                            {!! $after->handle($row, $dataType, $dataTypeContent) !!}
+                                        @endforeach
+                                    </div>
                                 @endif
-                                <input type="file" name="avatar">
-                            </div>
-
-
-
+                            @endforeach
 
                         </div><!-- panel-body -->
 
                         <div class="panel-footer">
-                            <button type="submit" class="btn btn-primary">确认</button>
+                            <button type="submit" class="btn btn-primary save">保存</button>
                         </div>
                     </form>
 

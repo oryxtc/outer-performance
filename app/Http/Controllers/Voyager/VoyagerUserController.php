@@ -286,7 +286,7 @@ class VoyagerUserController extends VoyagerBreadController
     protected function validator(array $data)
     {
         return \Validator::make($data, [
-            'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255',
             'email' => 'required|string|max:150|unique:users',
             'job_number' => 'required|string|max:255|unique:users',
             'password' => 'required|string|min:6',
