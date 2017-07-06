@@ -188,20 +188,26 @@ class WechatController extends Controller
     }
 
 
+    /**
+     * 获取工资详情
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function wageInfo(Request $request,$id){
+        $job_number=auth()->user()->job_number;
         $slug ='wages';
 
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
 
-        $relationships = $this->getRelationships($dataType);
 
-        $dataTypeContent = (strlen($dataType->model_name) != 0)
-            ? app($dataType->model_name)->with($relationships)->findOrFail($id)
-            : DB::table($dataType->name)->where('id', $id)->first(); // If Model doest exist, get data from table name
+        $dataTypeContent = \ DB::table($dataType->name)->where('job_number',$job_number)->where('id', $id)->first(); // If Model doest exist, get data from table name
 
         // Check if BREAD is Translatable
         $isModelTranslatable = is_bread_translatable($dataTypeContent);
-
+        if(empty($dataTypeContent)){
+            return;
+        }
         return view('wechat.wageInfo',compact('dataType', 'dataTypeContent', 'isModelTranslatable'));
     }
 
