@@ -89,7 +89,13 @@ use Illuminate\Routing\Route;
 
     \Route::any('/profile', 'WechatController@profile')->name('profile');
 
+
+    \Route::any('/attendanceInfo/{id}', 'WechatController@attendanceInfo')->name('attendanceInfo');
+
     \Route::any('/getAttendanceInfo', 'WechatController@getAttendanceInfo')->name('getAttendanceInfo');
+
+    \Route::any('/getAttendanceList', 'WechatController@getAttendanceList')->name('getAttendanceList');
+
 
 
 

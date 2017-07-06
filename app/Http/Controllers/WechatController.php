@@ -79,12 +79,6 @@ class WechatController extends Controller
         return view('wechat.home',compact('dataType', 'dataTypeContent', 'isModelTranslatable'));
     }
 
-    public function profile(){
-        $user=auth()->user()->toArray();
-        $data['user']=$user;
-        return view('',$data);
-    }
-
 
     /**
      * 获取用户名称列表
@@ -146,6 +140,48 @@ class WechatController extends Controller
         return $this->apiJson(true,'',$data);
     }
 
+
+    /**
+     * 获取考勤列表
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function  getAttendanceList(){
+        $attendance_list=Attendance::get()->toArray();
+        $job_number=auth()->user()->job_number;
+        $response_data=[];
+        foreach ($attendance_list as $key=>$item){
+            if($job_number==$item['job_number']){
+                $item['can_review']=false;
+                $response_data[]=$item;
+            }elseif (in_array($job_number,explode(',',$item['approver']))){
+                $item['can_review']=true;
+                $response_data[]=$item;
+            }elseif (in_array($job_number,explode(',',$item['relevant']))){
+                $item['can_review']=false;
+                $response_data[]=$item;
+            }
+        }
+        return view('wechat.attendanceList',['data'=>$response_data]);
+    }
+
+
+    /**
+     * 考勤详情
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function attendanceInfo(Request $request,$id){
+        $response_data=[];
+        return view('wechat.attendanceInfo',['data'=>$response_data]);
+    }
+
+
+    /**
+     * 提交考勤
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function applyAttendance(Request $request)
     {
         $user_info = \Auth::user()->toArray();
@@ -160,8 +196,21 @@ class WechatController extends Controller
         $save['approver'] = $user_info['approver'];
         $save['relevant'] = $user_info['relevant'];
         $save['status'] = 0;
-        $save['retrial'] = '{}';
         $save['created_at'] = date('Y-m-d H:i:s', time());
+
+        //重写转审
+        $status=1;
+        $approver=$user_info['approver'];
+        $approver_arr=explode(',',$approver);
+        if(empty($approver)){
+            $save['retrial']='{}';
+        }else{
+            foreach ($approver_arr as $value){
+                $retrial_arr[$value]=$status;
+            }
+            $save['retrial']=json_encode($retrial_arr);
+        }
+
         $save_res = Attendance::insert($save);
         if ($save_res === false) {
             return $this->apiJson(false, '提交失败!');
