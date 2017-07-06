@@ -187,9 +187,22 @@ class WechatController extends Controller
         return view('wechat.wageList',['data'=>$response_data]);
     }
 
+
     public function wageInfo(Request $request,$id){
-        $response_data=[];
-        return view('wechat.wageInfo',['data'=>$response_data]);
+        $slug ='wages';
+
+        $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
+
+        $relationships = $this->getRelationships($dataType);
+
+        $dataTypeContent = (strlen($dataType->model_name) != 0)
+            ? app($dataType->model_name)->with($relationships)->findOrFail($id)
+            : DB::table($dataType->name)->where('id', $id)->first(); // If Model doest exist, get data from table name
+
+        // Check if BREAD is Translatable
+        $isModelTranslatable = is_bread_translatable($dataTypeContent);
+
+        return view('wechat.wageInfo',compact('dataType', 'dataTypeContent', 'isModelTranslatable'));
     }
 
 

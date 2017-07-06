@@ -18,7 +18,8 @@
     <link rel="stylesheet" type="text/css" href="{{ voyager_asset('lib/css/perfect-scrollbar.min.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ voyager_asset('css/bootstrap-toggle.min.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ voyager_asset('js/icheck/icheck.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ voyager_asset('js/datetimepicker/bootstrap-datetimepicker.min.css') }}">
+    <link rel="stylesheet" type="text/css"
+          href="{{ voyager_asset('js/datetimepicker/bootstrap-datetimepicker.min.css') }}">
     <!-- CSS App -->
     <link rel="stylesheet" type="text/css" href="{{ voyager_asset('css/style.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ voyager_asset('css/themes/flat-blue.css') }}">
@@ -36,24 +37,26 @@
     <link rel="stylesheet" href="{{asset('vendor/tcg/voyager/assets/css/fonts-googleapis.css')}}">
     <script type="text/javascript" src="{{ asset('vendor/tcg/voyager/assets/js/jquery-ui.min.js') }}"></script>
 
-    @yield('css')
+@yield('css')
 
-    <!-- Voyager CSS -->
+<!-- Voyager CSS -->
     <link rel="stylesheet" href="{{ voyager_asset('css/voyager.css') }}">
 
     <!-- Few Dynamic Styles -->
     <style type="text/css">
-        .flat-blue .side-menu .navbar-header, .widget .btn-primary, .widget .btn-primary:focus, .widget .btn-primary:hover, .widget .btn-primary:active, .widget .btn-primary.active, .widget .btn-primary:active:focus{
-            background:{{ config('voyager.primary_color','#22A7F0') }};
-            border-color:{{ config('voyager.primary_color','#22A7F0') }};
+        .flat-blue .side-menu .navbar-header, .widget .btn-primary, .widget .btn-primary:focus, .widget .btn-primary:hover, .widget .btn-primary:active, .widget .btn-primary.active, .widget .btn-primary:active:focus {
+            background: {{ config('voyager.primary_color','#22A7F0') }};
+            border-color: {{ config('voyager.primary_color','#22A7F0') }};
         }
-        .breadcrumb a{
-            color:{{ config('voyager.primary_color','#22A7F0') }};
+
+        .breadcrumb a {
+            color: {{ config('voyager.primary_color','#22A7F0') }};
         }
     </style>
 
-    @if(!empty(config('voyager.additional_css')))<!-- Additional CSS -->
-    @foreach(config('voyager.additional_css') as $css)<link rel="stylesheet" type="text/css" href="{{ asset($css) }}">@endforeach
+@if(!empty(config('voyager.additional_css')))<!-- Additional CSS -->
+    @foreach(config('voyager.additional_css') as $css)
+        <link rel="stylesheet" type="text/css" href="{{ asset($css) }}">@endforeach
     @endif
 
     @yield('head')
@@ -61,12 +64,18 @@
 
 <body class="flat-blue">
 
-<nav class="navbar navbar-default navbar-fixed-top container container-fluid">
+<nav class="navbar navbar-default navbar-fixed-top container container-fluid ">
     <div class="container">
         <ul class="nav nav-pills">
-            <li role="presentation" class="active"><a href="{{route('wechat.home')}}">个人信息</a></li>
-            <li role="presentation"><a href="{{route('wechat.getAttendanceList')}}">考勤列表</a></li>
-            <li role="presentation"><a href="{{route('wechat.getWageList')}}">工资列表</a></li>
+            <li role="presentation" class="nav-item nav-link" dta-toggle="pill">
+                <a href="{{route('wechat.home')}}">个人信息</a>
+            </li>
+            <li role="presentation" class="nav-item nav-link" dta-toggle="pill">
+                <a href="{{route('wechat.getAttendanceList')}}">考勤列表</a>
+            </li>
+            <li role="presentation" class="nav-item nav-link" dta-toggle="pill">
+                <a href="{{route('wechat.getWageList')}}">工资列表</a>
+            </li>
         </ul>
     </div>
 </nav>
@@ -74,7 +83,7 @@
 <div class="app-container">
     <div class="fadetoblack visible-xs"></div>
     <div class="row content-container">
-    <!-- Main Content -->
+        <!-- Main Content -->
         <div class="container-fluid">
             <div class="side-body padding-top">
                 @yield('page_header')
@@ -104,10 +113,12 @@
 <script type="text/javascript" src="{{ voyager_asset('js/app.js') }}"></script>
 <script type="text/javascript" src="{{ voyager_asset('js/helpers.js') }}"></script>
 @if(!empty(config('voyager.additional_js')))<!-- Additional Javascript -->
-@foreach(config('voyager.additional_js') as $js)<script type="text/javascript" src="{{ asset($js) }}"></script>@endforeach
+@foreach(config('voyager.additional_js') as $js)
+    <script type="text/javascript" src="{{ asset($js) }}"></script>@endforeach
 @endif
 
 
 @yield('javascript')
+
 </body>
 </html>
