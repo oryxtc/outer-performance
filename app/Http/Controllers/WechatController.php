@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Attendance;
 use App\Http\Controllers\Voyager\Traits\BreadRelationshipParser;
 use App\User;
+use App\Wage;
 use App\WechatUser;
 use Illuminate\Http\Request;
 use TCG\Voyager\Facades\Voyager;
@@ -173,6 +174,22 @@ class WechatController extends Controller
 
         $response_data=array_slice($response_data,0,20);
         return view('wechat.attendanceList',['data'=>$response_data]);
+    }
+
+    /**
+     * 获取工资列表
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function getWageList(){
+        $job_number=auth()->user()->job_number;
+        $response_data=Wage::where('job_number',$job_number)->where('status',1)->orderBy('id','DESC')->get()->toArray();
+        $response_data=array_slice($response_data,0,20);
+        return view('wechat.wageList',['data'=>$response_data]);
+    }
+
+    public function wageInfo(Request $request,$id){
+        $response_data=[];
+        return view('wechat.wageInfo',['data'=>$response_data]);
     }
 
 

@@ -96,6 +96,10 @@ use Illuminate\Routing\Route;
 
     \Route::any('/getAttendanceList', 'WechatController@getAttendanceList')->name('getAttendanceList');
 
+    \Route::any('/getWageList', 'WechatController@getWageList')->name('getWageList');
+
+    \Route::any('/wageInfo/{id}', 'WechatController@wageInfo')->name('wageInfo');
+
 
 
 

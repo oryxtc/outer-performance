@@ -13,16 +13,15 @@
                 <div class="panel panel-bordered">
 
                     <div class="panel-heading">
-                        <h3 class="panel-title">考勤列表</h3>
+                        <h3 class="panel-title">工资列表</h3>
                     </div>
                     <!-- /.box-header -->
                     <!-- form start -->
                     <div class="list-group">
                         @foreach($data as $key=>$item)
-                            <a href="{{route('wechat.attendanceInfo',['id'=>$item['id']])}}"
+                            <a href="{{route('wechat.wageInfo',['id'=>$item['id']])}}"
                                class="list-group-item ">
-                                {{$item['title']}}
-                                <span style="margin-right: 10px" class="pull-right">状态:{{$item['status']}}</span>
+                                工资发放月份: {{date('Y-m',strtotime($item['period_at']))}}
                             </a>
                         @endforeach
                     </div>

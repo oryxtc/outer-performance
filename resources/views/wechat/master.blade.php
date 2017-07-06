@@ -66,7 +66,7 @@
         <ul class="nav nav-pills">
             <li role="presentation" class="active"><a href="{{route('wechat.home')}}">个人信息</a></li>
             <li role="presentation"><a href="{{route('wechat.getAttendanceList')}}">考勤列表</a></li>
-            <li role="presentation"><a href="#">Messages</a></li>
+            <li role="presentation"><a href="{{route('wechat.getWageList')}}">工资列表</a></li>
         </ul>
     </div>
 </nav>
