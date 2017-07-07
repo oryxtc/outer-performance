@@ -41,10 +41,10 @@ class ExcelController extends Controller
         'tutor_name' => '导师名称',
         'hrbp' => 'HRBP',
         'area' => '区域',
-        'professional_rank' => '专业职级',
+        'professional_rank' => '管理级别',
         'professional_title' => '专业称谓',
         'professional_so' => '专业子等',
-        'management_rank' => '管理级别',
+        'management_rank' => '专业职级',
         'management_title' => '管理称谓',
         'graduate_school' => '毕业学校',
         'graduate_at' => '毕业时间',
@@ -133,6 +133,7 @@ class ExcelController extends Controller
 
     const PROVIDENT_HEAD=[
         'job_number'=>'工号',
+        'username'=>'姓名',
         'period_at'=>'所属期间',
         'social_security_personal'=>'社保个人部分',
         'social_security_company'=>'社保公司部分',
@@ -393,9 +394,9 @@ class ExcelController extends Controller
         //新增用户名称字段
         foreach ($providents_data as $key=>&$provident){
             $provident['period_at']=date('Y-m-d',strtotime($provident['period_at']));
-            array_splice($provident,0,1,['rownum'=>$provident['rownum'],'username'=>$this->getUsername($provident['job_number'])]);
+//            array_splice($provident,0,1,['rownum'=>$provident['rownum'],'username'=>$this->getUsername($provident['job_number'])]);
         }
-        $head_list_value=array_values(array_merge(['rownum'=>'序号'],['username'=>'姓名'],$head_list));
+        $head_list_value=array_values(array_merge(['rownum'=>'序号'],$head_list));
         //导出数据
         $export->sheet('社保和公积金表', function ($sheet) use ($head_list_value, $providents_data) {
             $sheet->setAutoSize(true);

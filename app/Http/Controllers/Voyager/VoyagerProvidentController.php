@@ -173,10 +173,10 @@ class VoyagerProvidentController extends VoyagerBreadController
         $providents = Provident::select($field_data);
         $response_data = \Datatables::eloquent($providents);
         //添加姓名
-        $response_data = $response_data->addColumn('username', function (Provident $provident) {
-            $user = $provident->getUser;
-            return empty($user) ? "" : $user->username;
-        });
+//        $response_data = $response_data->addColumn('username', function (Provident $provident) {
+//            $user = $provident->getUser;
+//            return empty($user) ? "" : $user->username;
+//        });
         //添加操作
         $response_data = $response_data->addColumn('action', function (Provident $provident) {
             return view('voyager::providents.operate', ['provident' => $provident]);
@@ -237,7 +237,7 @@ class VoyagerProvidentController extends VoyagerBreadController
     protected function validator(array $data)
     {
         return \Validator::make($data, [
-            'email' => 'required|string|max:150|exists:users',
+            'job_number' => 'required|string|max:150|exists:job_number',
         ]);
     }
 }

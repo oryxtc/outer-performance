@@ -139,7 +139,7 @@ class VoyagerWelfareController extends VoyagerBreadController
             $data = $this->insertUpdateData($request, $slug, $dataType->addRows, new $dataType->model_name());
 
             return redirect()
-                ->route("voyager.{$dataType->slug}.edit", ['id' => $data->id])
+                ->route("voyager.{$dataType->slug}.index", ['id' => $data->id])
                 ->with([
                     'message'    => "Successfully Added New {$dataType->display_name_singular}",
                     'alert-type' => 'success',

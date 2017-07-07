@@ -17,7 +17,7 @@ class VoyagerWageController extends VoyagerBreadController
 {
 
     public function confirmStatus(){
-        $update_res=Wage::update('status',1);
+        $update_res=Wage::update(['status'=>1]);
         if($update_res===false){
             $this->apiJson(false,'操作失败!');
         }
