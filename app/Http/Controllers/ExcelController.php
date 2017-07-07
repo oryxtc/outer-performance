@@ -157,6 +157,7 @@ class ExcelController extends Controller
     const MEMO_HEAD=[
         'period_at'=>'所属期间',
         'job_number'=>'工号',
+        'username'=>'姓名',
         'bonus'=>'奖金津贴',
         'cash'=>'现金发放',
         'charge'=>'事故扣款',
@@ -736,11 +737,11 @@ class ExcelController extends Controller
         //新增用户名称字段
         foreach ($memos_data as $key=>&$memo){
             $memo['period_at']=date('Y-m-d',strtotime($memo['period_at']));
-            array_splice($memo,0,1,['rownum'=>$memo['rownum'],'username'=>$this->getUsername($memo['job_number'])]);
+//            array_splice($memo,0,1,['rownum'=>$memo['rownum'],'username'=>$this->getUsername($memo['job_number'])]);
         }
-        $head_list_value=array_values(array_merge(['rownum'=>'序号'],['username'=>'姓名'],$head_list));
+        $head_list_value=array_values(array_merge(['rownum'=>'序号'],$head_list));
         //导出数据
-        $export->sheet('社保和公积金表', function ($sheet) use ($head_list_value, $memos_data) {
+        $export->sheet('备忘录', function ($sheet) use ($head_list_value, $memos_data) {
             $sheet->setAutoSize(true);
             $sheet->setWidth('A', 15);
             //填充头部
@@ -779,6 +780,7 @@ class ExcelController extends Controller
                 $errors_mes[] = "工号: " . $memo[$head_list['job_number']] . " 不存在! <br/>";
                 continue;
             }
+            unset($memo['序号']);
             foreach ($memo as $key => $value) {
                 //特殊处理某些数据
                 if ($head_list_flip[$key] === 'period_at') {

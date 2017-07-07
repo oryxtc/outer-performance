@@ -62,6 +62,7 @@ class VoyagerMemoController extends VoyagerBreadController
         //多选框字段
         $attendanceData = [
             'job_number'=>'工号',
+            'username'=>'姓名',
             'remark'=>'备注',
         ];
         return view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable', 'attendanceData'));
@@ -154,7 +155,7 @@ class VoyagerMemoController extends VoyagerBreadController
             $this->insertUpdateData($request, $slug, $dataType->editRows, $data);
 
             return redirect()
-                ->route("voyager.{$dataType->slug}.edit", ['id' => $id])
+                ->route("voyager.{$dataType->slug}.index", ['id' => $id])
                 ->with([
                     'message' => "Successfully Updated {$dataType->display_name_singular}",
                     'alert-type' => 'success',
@@ -186,7 +187,7 @@ class VoyagerMemoController extends VoyagerBreadController
             $data = $this->insertUpdateData($request, $slug, $dataType->addRows, new $dataType->model_name());
 
             return redirect()
-                ->route("voyager.{$dataType->slug}.edit", ['id' => $data->id])
+                ->route("voyager.{$dataType->slug}.index", ['id' => $data->id])
                 ->with([
                     'message' => "Successfully Added New {$dataType->display_name_singular}",
                     'alert-type' => 'success',
@@ -210,10 +211,10 @@ class VoyagerMemoController extends VoyagerBreadController
         $memos = Memo::select($field_data);
         $response_data = \Datatables::eloquent($memos);
         //添加姓名
-        $response_data = $response_data->addColumn('username', function (Memo $memo) {
-            $user = $memo->getUser;
-            return empty($user) ? "" : $user->username;
-        });
+//        $response_data = $response_data->addColumn('username', function (Memo $memo) {
+//            $user = $memo->getUser;
+//            return empty($user) ? "" : $user->username;
+//        });
         //添加操作
         $response_data = $response_data->addColumn('action', function (Memo $memo) {
             return view('voyager::memos.operate', ['memo' => $memo]);
@@ -222,7 +223,7 @@ class VoyagerMemoController extends VoyagerBreadController
         //指定搜索栏模糊匹配
         $response_data = $response_data->filter(function ($query) use ($request, $field_data) {
             foreach ($field_data as $key => $value) {
-                if ($request->has($value)) {
+               if ($request->has($value)) {
                     $query->where($value, 'like', "%{$request->get($value)}%");
                 }
             }
@@ -248,6 +249,7 @@ class VoyagerMemoController extends VoyagerBreadController
         $response_data = $response_data->removeColumn('id');
         //生成实例
         $response_data = $response_data->make(true);
+
 //        dd(\DB::getQueryLog());
         return $response_data;
     }
