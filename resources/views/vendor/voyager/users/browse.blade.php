@@ -152,11 +152,16 @@
             
 
             {{--//初始化勾选--}}
-            $("input[name='checkData'][value='role_id']").attr('checked', true);
-            $("input[name='checkData'][value='belong_company']").attr('checked', true);
+            $("input[name='checkData'][value='area']").attr('checked', true);
             $("input[name='checkData'][value='username']").attr('checked', true);
-            $("input[name='checkData'][value='job_number']").attr('checked', true);
-            $("input[name='checkData'][value='email']").attr('checked', true);
+            $("input[name='checkData'][value='status']").attr('checked', true);
+            $("input[name='checkData'][value='entry_at']").attr('checked', true);
+            $("input[name='checkData'][value='formal_at']").attr('checked', true);
+            $("input[name='checkData'][value='trial_pay']").attr('checked', true);
+            $("input[name='checkData'][value='formal_pay']").attr('checked', true);
+            $("input[name='checkData'][value='professional_so']").attr('checked', true);
+            $("input[name='checkData'][value='part_first_name']").attr('checked', true);
+            $("input[name='checkData'][value='post_name']").attr('checked', true);
 
             //初始化th
             initTableTh();
