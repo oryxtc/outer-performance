@@ -216,7 +216,7 @@ class VoyagerAttendanceController extends VoyagerBreadController
             Attendance::where('id',$data->id)->update(['retrial'=>$retrial]);
 
             return redirect()
-                ->route("voyager.{$dataType->slug}.edit", ['id' => $id])
+                ->route("voyager.{$dataType->slug}.index", ['id' => $id])
                 ->with([
                     'message' => "Successfully Updated {$dataType->display_name_singular}",
                     'alert-type' => 'success',
@@ -263,7 +263,7 @@ class VoyagerAttendanceController extends VoyagerBreadController
 
             Attendance::where('id',$data->id)->update(['retrial'=>$retrial]);
             return redirect()
-                ->route("voyager.{$dataType->slug}.edit", ['id' => $data->id])
+                ->route("voyager.{$dataType->slug}.index", ['id' => $data->id])
                 ->with([
                     'message' => "Successfully Added New {$dataType->display_name_singular}",
                     'alert-type' => 'success',

@@ -141,6 +141,7 @@
 
             //初始化表头
             function initTableTh() {
+                $("#users-table thead tr").append("<th>序号</th>");
                 $("input[name='checkData']:checked").each(function (key,value) {
                     var check_name=$(value).data('name');
                     $("#users-table thead tr").append("<th>"+check_name+"</th>");

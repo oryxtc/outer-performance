@@ -235,7 +235,11 @@ class VoyagerUserController extends VoyagerBreadController
                 }
             }
         }
-        $users = User::select(array_merge($check_data, ['id']))->orderBy('id', 'DESC');
+        //增加索引列
+        \DB::statement(\DB::raw('set @rownum=0'));
+        $check_data=array_merge($check_data, ['id']);
+        $check_data = array_merge([\DB::raw('@rownum  := @rownum  + 1 AS rownum')], $check_data);
+        $users = User::select($check_data);
         $response_data = \Datatables::eloquent($users);
 
         //过滤字段
