@@ -17,11 +17,11 @@ class VoyagerWageController extends VoyagerBreadController
 {
 
     public function confirmStatus(){
-        $update_res=Wage::update(['status'=>1]);
+        $update_res=Wage::where('status',0)->update(['status'=>1]);
         if($update_res===false){
-            $this->apiJson(false,'操作失败!');
+            return $this->apiJson(false,'操作失败!');
         }
-        $this->apiJson();
+        return $this->apiJson(true);
     }
 
     public function index(Request $request)
