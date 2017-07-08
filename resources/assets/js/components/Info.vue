@@ -36,8 +36,7 @@
                 <div v-if="approver.length > 0">
                     <template v-for="item in approver">
                         <div id="select-passman" class="clearfix">
-                            <div class="options_man"><span>{{item}}</span><img class="man"
-                                                                               src="../../images/user-plus.png" alt="">
+                            <div class="options_man"><span>{{item}}</span>
                             </div>
                         </div>
                     </template>
@@ -50,8 +49,7 @@
                 <div v-if="relevant.length > 0">
                     <template v-for="item in relevant">
                         <div id="select-relateman" class="clearfix">
-                            <div class="options_man"><span>{{item}}</span><img class="man"
-                                                                               src="../../images/user-plus.png" alt="">
+                            <div class="options_man"><span>{{item}}</span>
                             </div>
                         </div>
                     </template>
@@ -64,9 +62,7 @@
                 <div v-if="retrial.length > 0">
                     <template v-for="item in retrial">
                         <div id="select-answer" class="clearfix">
-                            <div class="options_man"><span>{{item.name}}</span><img class="man"
-                                                                                    src="../../images/user-plus.png"
-                                                                                    alt=""></div>
+                            <div class="options_man"><span>{{item.name}}</span></div>
                             <span class="answer_info">{{item.status}}</span>
                         </div>
                     </template>
@@ -183,13 +179,6 @@
         margin-left: .1rem;
         position: relative;
     }
-
-    .options_man .man {
-        position: relative;
-        top: .08rem;
-        left: .1rem;
-    }
-
     .options_man span {
         text-align: center;
         display: block;

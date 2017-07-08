@@ -1228,12 +1228,7 @@ module.exports = defaults;
 
 /***/ }),
 /* 7 */,
-/* 8 */
-/***/ (function(module, exports) {
-
-module.exports = "/images/user-plus.png?75cf8b74bf8b631351ad51c5f7cffed2";
-
-/***/ }),
+/* 8 */,
 /* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -33666,13 +33661,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       }
     }, [_c('div', {
       staticClass: "options_man"
-    }, [_c('span', [_vm._v(_vm._s(item))]), _c('img', {
-      staticClass: "man",
-      attrs: {
-        "src": __webpack_require__(8),
-        "alt": ""
-      }
-    })])])]
+    }, [_c('span', [_vm._v(_vm._s(item))])])])]
   })], 2) : _vm._e()]), _vm._v(" "), _c('div', {
     staticClass: "pass-panel"
   }, [_c('div', {
@@ -33688,13 +33677,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       }
     }, [_c('div', {
       staticClass: "options_man"
-    }, [_c('span', [_vm._v(_vm._s(item))]), _c('img', {
-      staticClass: "man",
-      attrs: {
-        "src": __webpack_require__(8),
-        "alt": ""
-      }
-    })])])]
+    }, [_c('span', [_vm._v(_vm._s(item))])])])]
   })], 2) : _vm._e()]), _vm._v(" "), _c('div', {
     staticClass: "pass-panel"
   }, [_c('div', {
@@ -33710,13 +33693,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       }
     }, [_c('div', {
       staticClass: "options_man"
-    }, [_c('span', [_vm._v(_vm._s(item.name))]), _c('img', {
-      staticClass: "man",
-      attrs: {
-        "src": __webpack_require__(8),
-        "alt": ""
-      }
-    })]), _vm._v(" "), _c('span', {
+    }, [_c('span', [_vm._v(_vm._s(item.name))])]), _vm._v(" "), _c('span', {
       staticClass: "answer_info"
     }, [_vm._v(_vm._s(item.status))])])]
   })], 2) : _vm._e()])])])
@@ -44677,7 +44654,7 @@ exports = module.exports = __webpack_require__(3)(undefined);
 
 
 // module
-exports.push([module.i, "\n#app {\n    font-family: 'Avenir', Helvetica, Arial, sans-serif;\n    -webkit-font-smoothing: antialiased;\n    -moz-osx-font-smoothing: grayscale;\n}\nhtml {\n    font-size: 100px;\n    height: 100%;\n}\nbody {\n    font-size: .14em;\n    line-height: 1.5;\n    font-family: Arial, Helvetica, sans-serif;\n    height: 100%;\n    margin: 0;\n    background-color: #f0f0f0;\n}\n.clearfix:after {\n    content: \" \";\n    display: table;\n}\n.clearfix:after {\n    clear: both;\n}\n.mt10 {\n    margin-top: 10px;\n}\nul li {\n    list-style-type: none;\n}\nul li .left_word {\n    color: #818181;\n    margin-right: 27px;\n}\n.info-panel {\n    width: 100%;\n    min-height: 300px;\n    background-color: #ffffff;\n    border-bottom: 1px solid #dddddd;\n    padding: 10px 20px;\n}\n.info-panel .info_title {\n    font-size: 21px;\n}\n.info-panel .reason {\n    width: 80%;\n}\n.options_man {\n    width: .5rem;\n    height: .5rem;\n    border: 1px solid #dddddd;\n    float: left;\n    margin-left: .1rem;\n    position: relative;\n}\n.options_man .man {\n    position: relative;\n    top: .08rem;\n    left: .1rem;\n}\n.options_man span {\n    text-align: center;\n    display: block;\n    line-height: 52px\n}\n.answer_info {\n    display: inline-block;\n    position: relative;\n    top: 30px;\n    left: 20px;\n}\n.pass-title {\n    border-bottom: 1px solid #dddddd;\n    padding: 6px 30px;\n    color: #999;\n}\n#select-answer, #select-passman, #select-relateman {\n    background-color: #ffffff;\n    border-bottom: 1px solid #dddddd;\n    padding: 20px;\n}\n.answer_time {\n    float: right;\n    color: #999;\n}\n.clearfix:before {\n}\n.clearfix:after {\n    content: \" \";\n    display: table;\n    clear: both;\n}\n", ""]);
+exports.push([module.i, "\n#app {\n    font-family: 'Avenir', Helvetica, Arial, sans-serif;\n    -webkit-font-smoothing: antialiased;\n    -moz-osx-font-smoothing: grayscale;\n}\nhtml {\n    font-size: 100px;\n    height: 100%;\n}\nbody {\n    font-size: .14em;\n    line-height: 1.5;\n    font-family: Arial, Helvetica, sans-serif;\n    height: 100%;\n    margin: 0;\n    background-color: #f0f0f0;\n}\n.clearfix:after {\n    content: \" \";\n    display: table;\n}\n.clearfix:after {\n    clear: both;\n}\n.mt10 {\n    margin-top: 10px;\n}\nul li {\n    list-style-type: none;\n}\nul li .left_word {\n    color: #818181;\n    margin-right: 27px;\n}\n.info-panel {\n    width: 100%;\n    min-height: 300px;\n    background-color: #ffffff;\n    border-bottom: 1px solid #dddddd;\n    padding: 10px 20px;\n}\n.info-panel .info_title {\n    font-size: 21px;\n}\n.info-panel .reason {\n    width: 80%;\n}\n.options_man {\n    width: .5rem;\n    height: .5rem;\n    border: 1px solid #dddddd;\n    float: left;\n    margin-left: .1rem;\n    position: relative;\n}\n.options_man span {\n    text-align: center;\n    display: block;\n    line-height: 52px\n}\n.answer_info {\n    display: inline-block;\n    position: relative;\n    top: 30px;\n    left: 20px;\n}\n.pass-title {\n    border-bottom: 1px solid #dddddd;\n    padding: 6px 30px;\n    color: #999;\n}\n#select-answer, #select-passman, #select-relateman {\n    background-color: #ffffff;\n    border-bottom: 1px solid #dddddd;\n    padding: 20px;\n}\n.answer_time {\n    float: right;\n    color: #999;\n}\n.clearfix:before {\n}\n.clearfix:after {\n    content: \" \";\n    display: table;\n    clear: both;\n}\n", ""]);
 
 // exports
 
