@@ -39,7 +39,11 @@ class BindWechat
         if (empty($user)){
             return '你尚未绑定!请在订阅号中完成绑定!';
         }else{
-            \Auth::login($user, true);
+            if(\Auth::check()){
+
+            }else{
+                \Auth::login($user, true);
+            }
         }
         return $next($request);
     }
