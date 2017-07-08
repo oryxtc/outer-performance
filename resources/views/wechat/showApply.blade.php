@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
-    <title>考勤详情</title>
+    <title>申请考勤</title>
 
     <link rel="stylesheet" type="text/css" href="{{ voyager_asset('lib/css/bootstrap.min.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ voyager_asset('lib/css/bootstrap-switch.min.css') }}">
@@ -31,7 +31,7 @@
                 <!-- /.box-header -->
                 <!-- form start -->
                 <div class="list-group" id="app">
-                    <info></info>
+                    <hello></hello>
                 </div>
 
             </div>

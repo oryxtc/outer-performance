@@ -13,7 +13,8 @@
                 <div class="panel panel-bordered">
 
                     <div class="panel-heading">
-                        <h3 class="panel-title">考勤列表</h3>
+                        <a class="btn btn-primary panel-title text-center" href="{{route('wechat.showApplyAttendance')}}">申请考勤</a>
+                        <h3 class="panel-title" style="width: 40%;">考勤列表</h3>
                     </div>
                     <!-- /.box-header -->
                     <!-- form start -->

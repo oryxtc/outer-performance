@@ -4,7 +4,7 @@
             <div class="info-panel">
                 <p class="info_title">{{userData.title}}</p>
                 <p class="mt10"><span
-                        style="color: #999;margin-right: 12px;">{{userData.created_at}}</span>{{userData.username}}</p>
+                        style="color: #999;margin-right: 12px;">{{userData.username}}</span>申请时间:{{userData.created_at}}</p>
                 <ul class="mt10">
                     <li>
                         <span class="left_word">申请时长</span><span>{{userData.continued_at}}</span>

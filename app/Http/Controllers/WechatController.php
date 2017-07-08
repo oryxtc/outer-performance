@@ -122,6 +122,11 @@ class WechatController extends VoyagerBreadController
         return $this->apiJson(true, '', $data);
     }
 
+    public function showApplyAttendance(Request $request)
+    {
+        return view('wechat.showApply');
+    }
+
 
     /**
      * 获取考勤详情
