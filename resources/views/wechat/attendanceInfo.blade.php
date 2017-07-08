@@ -1,35 +1,33 @@
-@extends('wechat.master')
+{{--打包css--}}
+{{--<link rel="stylesheet" href="{{asset('css/app.css')}}">--}}
 
-@section('page_title','个人信息')
+<body>
 
-@section('page_header')
-@stop
+<div class="page-content container-fluid">
+    <div class="row">
+        <div class="col-md-12">
 
-@section('content')
-    <div class="page-content container-fluid">
-        <div class="row">
-            <div class="col-md-12">
+            <div class="panel panel-bordered">
 
-                <div class="panel panel-bordered">
-
-                    <div class="panel-heading">
-                        <h3 class="panel-title">考勤详情</h3>
-                    </div>
-                    <!-- /.box-header -->
-                    <!-- form start -->
-                    <div class="list-group">
-
-                    </div>
-
+                <div class="panel-heading">
+                    <h3 class="panel-title">考勤详情</h3>
                 </div>
+                <!-- /.box-header -->
+                <!-- form start -->
+                <div class="list-group" id="app">
+                    <info></info>
+                </div>
+
             </div>
         </div>
     </div>
-@stop
+</div>
+<body>
 
+{{--打包js--}}
+<script type="text/javascript" src="{{ asset('js/app.js') }}"></script>
 
 <div class="col-xs-12">
 
 </div>
-@section('javascript')
-@stop
+

@@ -35,6 +35,7 @@
     <link rel="stylesheet" href="{{ voyager_asset('css/jquery-ui.css') }}" type="image/x-icon">
 
     <link rel="stylesheet" href="{{asset('vendor/tcg/voyager/assets/css/fonts-googleapis.css')}}">
+
     <script type="text/javascript" src="{{ asset('vendor/tcg/voyager/assets/js/jquery-ui.min.js') }}"></script>
 
 @yield('css')
@@ -110,8 +111,12 @@
 <!-- Javascript -->
 <script type="text/javascript" src="{{ voyager_asset('js/readmore.min.js') }}"></script>
 <script type="text/javascript" src="{{ voyager_asset('js/val.js') }}"></script>
-<script type="text/javascript" src="{{ voyager_asset('js/app.js') }}"></script>
+{{--<script type="text/javascript" src="{{ voyager_asset('js/app.js') }}"></script>--}}
 <script type="text/javascript" src="{{ voyager_asset('js/helpers.js') }}"></script>
+
+
+
+
 @if(!empty(config('voyager.additional_js')))<!-- Additional Javascript -->
 @foreach(config('voyager.additional_js') as $js)
     <script type="text/javascript" src="{{ asset($js) }}"></script>@endforeach
@@ -119,6 +124,8 @@
 
 
 @yield('javascript')
+<script type="application/javascript">
 
+</script>
 </body>
 </html>
