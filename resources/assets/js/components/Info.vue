@@ -92,7 +92,7 @@
         methods: {
             getAttendanceInfo (){
                 let dataStr = {"id": 1};
-                AjaxPlugin.$http.post('39.108.133.144/wechat/getAttendanceInfo', dataStr)
+                AjaxPlugin.$http.post('/wechat/getAttendanceInfo', dataStr)
                     .then((response) => {
                         this.userData = response.data.data.info;
                         this.approver = response.data.data.approver;

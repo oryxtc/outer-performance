@@ -3721,7 +3721,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
       var _this = this;
 
       var dataStr = { "id": 1 };
-      __WEBPACK_IMPORTED_MODULE_5_vux_src_plugins_ajax_index_js__["a" /* default */].$http.post('39.108.133.144/wechat/getAttendanceInfo', dataStr).then(function (response) {
+      __WEBPACK_IMPORTED_MODULE_5_vux_src_plugins_ajax_index_js__["a" /* default */].$http.post('/wechat/getAttendanceInfo', dataStr).then(function (response) {
         _this.userData = response.data.data.info;
         _this.approver = response.data.data.approver;
         _this.relevant = response.data.data.relevant;
