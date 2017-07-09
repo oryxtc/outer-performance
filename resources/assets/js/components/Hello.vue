@@ -29,7 +29,7 @@
                 </div>
                 <div class="reason-title">
                     <group>
-                        <cell title="name"></cell>
+                        <cell :title="titlename"></cell>
                         <x-textarea :max="200" name="detail" :show-counter="false" v-model="reason">
 
                         </x-textarea>
@@ -136,7 +136,6 @@
                 reason_text: 'xxxx',
                 value1: true,
                 value2: false,
-                title: '加載上次 ',
                 minuteListValue: '',
                 minuteListValue2: '',
                 detail: '',
@@ -147,7 +146,7 @@
                 continue_value: "申请时长",
                 list_time: [day, ['天'], hours, ['小时']],
                 list_time_default: ['0', '天', '0', '小时'],
-                type_list: [['事假', '病假']],
+                type_list: [['事假', '病假','加班','年假','婚假','丧假','产假','产检假','陪产假']],
                 type_list_default: ['事假'],
                 results: [],
                 passVal: 'test',
@@ -163,9 +162,13 @@
                 otherValue: '',
                 oneValue: '',
                 oneRelate: '',
-                twoRelate: ''
+                twoRelate: '',
+                created_at:this.format( new Date(), 'yyyy-MM-dd hh:mm:00')
             }
         },
+        props: [
+            'title'
+        ],
         components: {
             Datetime,
             Group,
@@ -186,6 +189,9 @@
                 var minuteListValue2 = this.minuteListValue2;
                 var type = this.type_list_default;
                 return '我因【】于【' + minuteListValue + '至' + minuteListValue2 + '】请假,类型为' + type + '请审批!';
+            },
+            titlename:function () {
+                return  this.title+'_'+this.type_list_default+'_'+this.created_at;
             }
         },
         methods: {
@@ -254,6 +260,21 @@
             },
             getResult2 (val) {
                 this.results = val ? getResult2(this.relateVal) : []
+            },
+            format (date,fmt) { //author: meizz
+                var o = {
+                    "M+": date.getMonth() + 1, //月份
+                    "d+": date.getDate(), //日
+                    "h+": date.getHours(), //小时
+                    "m+": date.getMinutes(), //分
+                    "s+": date.getSeconds(), //秒
+                    "q+": Math.floor((date.getMonth() + 3) / 3), //季度
+                    "S": date.getMilliseconds() //毫秒
+                };
+                if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (date.getFullYear() + "").substr(4 - RegExp.$1.length));
+                for (var k in o)
+                    if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+                return fmt;
             },
 //      onSubmit () {
 //        this.$refs.search.setBlur()

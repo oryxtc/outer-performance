@@ -4,7 +4,8 @@
             <div class="info-panel">
                 <p class="info_title">{{userData.title}}</p>
                 <p class="mt10"><span
-                        style="color: #999;margin-right: 12px;">{{userData.username}}</span>申请时间:{{userData.created_at}}</p>
+                        style="color: #999;margin-right: 12px;">{{userData.username}}</span>申请时间:{{userData.created_at}}
+                </p>
                 <ul class="mt10">
                     <li>
                         <span class="left_word">申请时长</span><span>{{userData.continued_at}}</span>
@@ -22,10 +23,10 @@
                 <p class="reason mt10">{{userData.reson}}</p>
                 <flexbox class="mt10" v-if="userData.can_review">
                     <flexbox-item style="margin-right: 10px;">
-                        <x-button type="default">退审</x-button>
+                        <x-button @click.native="retired" type="default">退审</x-button>
                     </flexbox-item>
                     <flexbox-item>
-                        <x-button type="primary">同意并结束</x-button>
+                        <x-button @click.native="agree" type="primary">同意</x-button>
                     </flexbox-item>
                 </flexbox>
             </div>
@@ -84,6 +85,9 @@
                 retrial: [],
             }
         },
+        props: [
+            'attendanceid'
+        ],
         mounted: function () {
             this.getAttendanceInfo()
         },
@@ -91,13 +95,31 @@
         computed: {},
         methods: {
             getAttendanceInfo (){
-                let dataStr = {"id": 1};
+                let dataStr = {"id": this.attendanceid};
                 AjaxPlugin.$http.post('/wechat/getAttendanceInfo', dataStr)
                     .then((response) => {
                         this.userData = response.data.data.info;
                         this.approver = response.data.data.approver;
                         this.relevant = response.data.data.relevant;
                         this.retrial = response.data.data.retrial;
+                    })
+            },
+            retired(){
+                let dataStr = {"id": this.attendanceid, "type": "retired"};
+                AjaxPlugin.$http.post('/wechat/updateAttendance', dataStr)
+                    .then((response) => {
+                        if (response.data.status == true) {
+                            this.getAttendanceInfo();
+                        }
+                    })
+            },
+            agree(){
+                let dataStr = {"id": this.attendanceid, "type": "agree"};
+                AjaxPlugin.$http.post('/wechat/updateAttendance', dataStr)
+                    .then((response) => {
+                        if (response.data.status == true) {
+                            this.getAttendanceInfo();
+                        }
                     })
             }
         },
@@ -179,6 +201,7 @@
         margin-left: .1rem;
         position: relative;
     }
+
     .options_man span {
         text-align: center;
         display: block;

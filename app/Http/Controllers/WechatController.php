@@ -124,7 +124,8 @@ class WechatController extends VoyagerBreadController
 
     public function showApplyAttendance(Request $request)
     {
-        return view('wechat.showApply');
+        $username=auth()->user()->username;
+        return view('wechat.showApply',['username'=>$username]);
     }
 
 
@@ -151,6 +152,9 @@ class WechatController extends VoyagerBreadController
         $approver_arr = explode(',', $info['approver']);
         $relevant_arr = explode(',', $info['relevant']);
         $username_list = User::select(['job_number', 'username'])->whereIn('job_number', array_merge($approver_arr, $relevant_arr))->pluck('username', 'job_number')->toArray();
+
+        $approver_str=[];
+        $relevant_str=[];
         foreach ($approver_arr as $key => $value) {
             if (!$value) {
                 continue;
@@ -181,11 +185,15 @@ class WechatController extends VoyagerBreadController
         if ($job_number == $info['job_number']) {
             $data['info']['can_review'] = false;
         } elseif (in_array($job_number, explode(',', $info['approver']))) {
-            $data['info']['can_review'] = true;
+            $retrial_arr=json_decode($info['retrial'],true);
+            if($info['status']===1  && $retrial_arr[$job_number]==='1'){
+                $data['info']['can_review'] = true;
+            }else{
+                $data['info']['can_review'] = false;
+            }
         } elseif (in_array($job_number, explode(',', $info['relevant']))) {
             $data['info']['can_review'] = false;
         }
-//        dd($data);
         return $this->apiJson(true, '', $data);
     }
 
@@ -211,7 +219,11 @@ class WechatController extends VoyagerBreadController
                 $item['status'] = $status[$item['status']];
                 $response_data[] = $item;
             } elseif (in_array($job_number, explode(',', $item['approver']))) {
-                $item['can_review'] = true;
+                if($item['status']===1){
+                    $item['can_review'] = true;
+                }else{
+                    $item['can_review'] = false;
+                }
                 $item['status'] = $status[$item['status']];
                 $response_data[] = $item;
             } elseif (in_array($job_number, explode(',', $item['relevant']))) {
@@ -271,8 +283,7 @@ class WechatController extends VoyagerBreadController
      */
     public function attendanceInfo(Request $request, $id)
     {
-        $response_data = [];
-        return view('wechat.attendanceInfo', ['data' => $response_data]);
+        return view('wechat.attendanceInfo', ['id' => $id]);
     }
 
 
@@ -314,6 +325,37 @@ class WechatController extends VoyagerBreadController
             return $this->apiJson(false, '提交失败!');
         }
         return $this->apiJson(true, '提交成功!');
+    }
+
+    /**
+     * 退审或同意考勤
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateAttendance(Request $request)
+    {
+        $request_data=$request->all();
+        $approver_id=auth()->user()->job_number;
+        $id=$request_data['id'];
+        $type=$request_data['type'];
+        $atendance_info=Attendance::where('id',$id)->first()->toArray();
+        $retrial_arr = json_decode($atendance_info['retrial'],true);
+        //退审
+        if($type==='retired'){
+            $retrial_arr[$approver_id]="11";
+            $status=11;
+        }else{
+            $retrial_arr[$approver_id]="21";
+            $status=21;
+            foreach ($retrial_arr as $key=>$value){
+                if($value==="1"){
+                    $status=1;
+                }
+            }
+        }
+        $retrial_str=json_encode($retrial_arr);
+        Attendance::where('id',$id)->update(['retrial'=>$retrial_str,'status'=>$status]);
+        return $this->apiJson();
     }
 
 }

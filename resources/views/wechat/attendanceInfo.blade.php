@@ -31,7 +31,7 @@
                 <!-- /.box-header -->
                 <!-- form start -->
                 <div class="list-group" id="app">
-                    <info></info>
+                    <info attendanceid="{{$id}}"></info>
                 </div>
 
             </div>
