@@ -1,9 +1,9 @@
 <template>
     <div id="app">
         <div class="container container-detail" style="height: 100%">
+            <!--<form action="">-->
             <search
                     @result-click="resultClick"
-                    @on-change="getResult1"
                     v-model="passVal"
                     :results="results"
                     position="absolute"
@@ -39,9 +39,9 @@
             <div class="time-panel mt10">
                 <group>
                     <datetime title="开始时间" v-model="minuteListValue" format="YYYY-MM-DD HH:mm"
-                              :minute-list="['00', '15', '30', '45']" @on-change="change"></datetime>
+                              :minute-list="['00', '15', '30', '45']"></datetime>
                     <datetime title="截止时间" v-model="minuteListValue2" format="YYYY-MM-DD HH:mm"
-                              :minute-list="['00', '15', '30', '45']" @on-change="change"></datetime>
+                              :minute-list="['00', '15', '30', '45']"></datetime>
                     <popup-picker title="申请时长" :data="list_time" v-model="list_time_default"></popup-picker>
                 </group>
             </div>
@@ -96,9 +96,10 @@
                     <x-button>保存为草稿</x-button>
                 </flexbox-item>
                 <flexbox-item>
-                    <x-button type="primary">立即提交</x-button>
+                    <x-button type="primary" @click.native="submitForm">立即提交</x-button>
                 </flexbox-item>
             </flexbox>
+            <!--</form>-->
         </div>
     </div>
 </template>
@@ -116,7 +117,8 @@
         FlexboxItem,
         PopupPicker,
         Search,
-        Masker
+        Masker,
+        AjaxPlugin
     } from 'vux'
 
     let hours = []
@@ -146,11 +148,11 @@
                 continue_value: "申请时长",
                 list_time: [day, ['天'], hours, ['小时']],
                 list_time_default: ['0', '天', '0', '小时'],
-                type_list: [['事假', '病假','加班','年假','婚假','丧假','产假','产检假','陪产假']],
+                type_list: [['事假', '病假', '加班', '年假', '婚假', '丧假', '产假', '产检假', '陪产假']],
                 type_list_default: ['事假'],
                 results: [],
-                passVal: 'test',
-                relateVal: 'test',
+                passVal: '',
+                relateVal: '',
                 isShow: false,
                 isShowRelate: false,
                 isShowManOne: false,
@@ -163,7 +165,9 @@
                 oneValue: '',
                 oneRelate: '',
                 twoRelate: '',
-                created_at:this.format( new Date(), 'yyyy-MM-dd hh:mm:00')
+                created_at: this.format(new Date(), 'yyyy-MM-dd hh:mm:00'),
+                oneJobNumber:'',
+                otherJobNumber:''
             }
         },
         props: [
@@ -181,7 +185,8 @@
             FlexboxItem,
             PopupPicker,
             Search,
-            Masker
+            Masker,
+            AjaxPlugin
         },
         computed: {
             reason: function () {
@@ -190,12 +195,24 @@
                 var type = this.type_list_default;
                 return '我因【】于【' + minuteListValue + '至' + minuteListValue2 + '】请假,类型为' + type + '请审批!';
             },
-            titlename:function () {
-                return  this.title+'_'+this.type_list_default+'_'+this.created_at;
+            titlename: function () {
+                return this.title + '_' + this.type_list_default + '_' + this.created_at;
             }
         },
         methods: {
-            change (value) {
+            submitForm(){
+                let formData = {
+                    type: this.type_list_default[0],
+                    title: this.titlename,
+                    reson: this.reason,
+                    start_at: this.minuteListValue,
+                    end_at: this.minuteListValue2,
+                    continued_at: this.list_time_default,
+                    approver: [this.oneJobNumber, this.otherJobNumber],
+                    relevant: this.created_at,
+                    created_at: this.created_at,
+                }
+                console.log(formData)
             },
             confirm_del_one(){
                 if (this.isCancel == true) {
@@ -222,6 +239,11 @@
                 }
             },
             add_pass_man(){
+                AjaxPlugin.$http.post('/wechat/getUsersList')
+                    .then((response) => {
+                        var data = response.data.data;
+                        this.getResult(data);
+                    });
                 this.isShow = true;
             },
             add_relate_man(){
@@ -233,14 +255,16 @@
             del_relate_man(){
                 this.isCancelRelate = true;
             },
-            resultClick () {
+            resultClick (item) {
                 this.isShow = false;
                 this.isCancel = false;
                 if (this.oneValue == '' || this.isShowManOne == false) {
-                    this.oneValue = this.passVal;
+                    this.oneValue = item.title;
+                    this.oneJobNumber = item.job_number;
                     this.isShowManOne = true;
                 } else {
-                    this.otherValue = this.passVal;
+                    this.otherValue = item.title;
+                    this.otherJobNumber = item.job_number;
                     this.isShowManTwo = true;
                 }
             },
@@ -255,13 +279,21 @@
                     this.isShowRelateManTwo = true;
                 }
             },
-            getResult1 (val) {
-                this.results = val ? getResult1(this.passVal) : []
+            getResult (data) {
+                let rs = []
+                console.log(data)
+                for (var value in data) {
+                    rs.push({
+                        title: data[value],
+                        job_number: value
+                    })
+                }
+                this.results = rs
             },
             getResult2 (val) {
                 this.results = val ? getResult2(this.relateVal) : []
             },
-            format (date,fmt) { //author: meizz
+            format (date, fmt) { //author: meizz
                 var o = {
                     "M+": date.getMonth() + 1, //月份
                     "d+": date.getDate(), //日
@@ -276,14 +308,6 @@
                     if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
                 return fmt;
             },
-//      onSubmit () {
-//        this.$refs.search.setBlur()
-//        this.$vux.toast.show({
-//          type: 'text',
-//          position: 'top',
-//          text: 'on submit'
-//        })
-//      },
             onCancel () {
                 this.isShow = false;
             },
@@ -292,16 +316,18 @@
             }
         }
     }
-    function getResult1(val) {
-        let rs = []
-        for (let i = 0; i < 20; i++) {
-            rs.push({
-                title: `${val} result: ${i + 1} `,
-                other: i
-            })
-        }
-        return rs
-    }
+    //    function getResult(data) {
+    //        let rs = []
+    //        console.log(data)
+    //        for (var value in data) {
+    //            console.log(value)
+    ////            rs.push({
+    ////                title: `${val} result: ${i + 1} `,
+    ////                other: i
+    ////            })
+    //        }
+    //        return rs
+    //    }
     function getResult2(val) {
         let rs = []
         for (let i = 0; i < 20; i++) {

@@ -117,7 +117,12 @@ class WechatController extends VoyagerBreadController
         $users_list = $users_list->get()->toArray();
         $data = [];
         foreach ($users_list as $key => $item) {
-            $data[$item['job_number']] = $item['username'] . '---' . $item['part_name'];
+            if (empty($item['part_name'])){
+                $data[$item['job_number']] = $item['username'] ;
+            }else{
+                $data[$item['job_number']] = $item['username'] . '---' . $item['part_name'];
+            }
+
         }
         return $this->apiJson(true, '', $data);
     }
@@ -300,13 +305,12 @@ class WechatController extends VoyagerBreadController
         $save['type'] = $request->get('type');
         $save['title'] = $request->get('title');
         $save['reson'] = $request->get('reson');
-        $save['start_at'] = $user_info['start_at'];
-        $save['end_at'] = $user_info['end_at'];
-        $save['continued_at'] = $user_info['continued_at'];
-        $save['approver'] = $user_info['approver'];
-        $save['relevant'] = $user_info['relevant'];
-        $save['status'] =  $request->get('status');
-        $save['created_at'] = date('Y-m-d H:i:s', time());
+        $save['start_at'] = $request->get('start_at');
+        $save['end_at'] = $request->get('end_at');
+        $save['continued_at'] = $request->get('continued_at');
+        $save['approver'] = $request->get('approver');
+        $save['status'] =  1;
+        $save['created_at'] = $request->get('created_at');
 
         //重写转审
         $status = 1;

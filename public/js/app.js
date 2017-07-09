@@ -4949,6 +4949,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_vux_src_components_search_index_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_10_vux_src_components_search_index_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_vux_src_components_masker_index_vue__ = __webpack_require__(111);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_vux_src_components_masker_index_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_11_vux_src_components_masker_index_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_vux_src_plugins_ajax_index_js__ = __webpack_require__(138);
+
 
 
 
@@ -4993,8 +4995,8 @@ for (var i = 0; i <= 30; i++) {
       type_list: [['事假', '病假', '加班', '年假', '婚假', '丧假', '产假', '产检假', '陪产假']],
       type_list_default: ['事假'],
       results: [],
-      passVal: 'test',
-      relateVal: 'test',
+      passVal: '',
+      relateVal: '',
       isShow: false,
       isShowRelate: false,
       isShowManOne: false,
@@ -5007,7 +5009,9 @@ for (var i = 0; i <= 30; i++) {
       oneValue: '',
       oneRelate: '',
       twoRelate: '',
-      created_at: this.format(new Date(), 'yyyy-MM-dd hh:mm:00')
+      created_at: this.format(new Date(), 'yyyy-MM-dd hh:mm:00'),
+      oneJobNumber: '',
+      otherJobNumber: ''
     };
   },
 
@@ -5024,7 +5028,8 @@ for (var i = 0; i <= 30; i++) {
     FlexboxItem: __WEBPACK_IMPORTED_MODULE_8_vux_src_components_flexbox_flexbox_item_vue___default.a,
     PopupPicker: __WEBPACK_IMPORTED_MODULE_9_vux_src_components_popup_picker_index_vue___default.a,
     Search: __WEBPACK_IMPORTED_MODULE_10_vux_src_components_search_index_vue___default.a,
-    Masker: __WEBPACK_IMPORTED_MODULE_11_vux_src_components_masker_index_vue___default.a
+    Masker: __WEBPACK_IMPORTED_MODULE_11_vux_src_components_masker_index_vue___default.a,
+    AjaxPlugin: __WEBPACK_IMPORTED_MODULE_12_vux_src_plugins_ajax_index_js__["a" /* default */]
   },
   computed: {
     reason: function reason() {
@@ -5038,7 +5043,20 @@ for (var i = 0; i <= 30; i++) {
     }
   },
   methods: {
-    change: function change(value) {},
+    submitForm: function submitForm() {
+      var formData = {
+        type: this.type_list_default[0],
+        title: this.titlename,
+        reson: this.reason,
+        start_at: this.minuteListValue,
+        end_at: this.minuteListValue2,
+        continued_at: this.list_time_default,
+        approver: [this.oneJobNumber, this.otherJobNumber],
+        relevant: this.created_at,
+        created_at: this.created_at
+      };
+      console.log(formData);
+    },
     confirm_del_one: function confirm_del_one() {
       if (this.isCancel == true) {
         this.isCancel = false;
@@ -5064,6 +5082,12 @@ for (var i = 0; i <= 30; i++) {
       }
     },
     add_pass_man: function add_pass_man() {
+      var _this = this;
+
+      __WEBPACK_IMPORTED_MODULE_12_vux_src_plugins_ajax_index_js__["a" /* default */].$http.post('/wechat/getUsersList').then(function (response) {
+        var data = response.data.data;
+        _this.getResult(data);
+      });
       this.isShow = true;
     },
     add_relate_man: function add_relate_man() {
@@ -5075,14 +5099,16 @@ for (var i = 0; i <= 30; i++) {
     del_relate_man: function del_relate_man() {
       this.isCancelRelate = true;
     },
-    resultClick: function resultClick() {
+    resultClick: function resultClick(item) {
       this.isShow = false;
       this.isCancel = false;
       if (this.oneValue == '' || this.isShowManOne == false) {
-        this.oneValue = this.passVal;
+        this.oneValue = item.title;
+        this.oneJobNumber = item.job_number;
         this.isShowManOne = true;
       } else {
-        this.otherValue = this.passVal;
+        this.otherValue = item.title;
+        this.otherJobNumber = item.job_number;
         this.isShowManTwo = true;
       }
     },
@@ -5097,11 +5123,19 @@ for (var i = 0; i <= 30; i++) {
         this.isShowRelateManTwo = true;
       }
     },
-    getResult1: function getResult1(val) {
-      this.results = val ? _getResult(this.passVal) : [];
+    getResult: function getResult(data) {
+      var rs = [];
+      console.log(data);
+      for (var value in data) {
+        rs.push({
+          title: data[value],
+          job_number: value
+        });
+      }
+      this.results = rs;
     },
     getResult2: function getResult2(val) {
-      this.results = val ? _getResult2(this.relateVal) : [];
+      this.results = val ? _getResult(this.relateVal) : [];
     },
     format: function format(date, fmt) {
       //author: meizz
@@ -5127,22 +5161,13 @@ for (var i = 0; i <= 30; i++) {
     }
   }
 });
+
 function _getResult(val) {
   var rs = [];
   for (var _i = 0; _i < 20; _i++) {
     rs.push({
       title: val + ' result: ' + (_i + 1) + ' ',
       other: _i
-    });
-  }
-  return rs;
-}
-function _getResult2(val) {
-  var rs = [];
-  for (var _i2 = 0; _i2 < 20; _i2++) {
-    rs.push({
-      title: val + ' result: ' + (_i2 + 1) + ' ',
-      other: _i2
     });
   }
   return rs;
@@ -5567,7 +5592,6 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     },
     on: {
       "result-click": _vm.resultClick,
-      "on-change": _vm.getResult1,
       "on-cancel": _vm.onCancel
     },
     model: {
@@ -5640,9 +5664,6 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       "format": "YYYY-MM-DD HH:mm",
       "minute-list": ['00', '15', '30', '45']
     },
-    on: {
-      "on-change": _vm.change
-    },
     model: {
       value: (_vm.minuteListValue),
       callback: function($$v) {
@@ -5655,9 +5676,6 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       "title": "截止时间",
       "format": "YYYY-MM-DD HH:mm",
       "minute-list": ['00', '15', '30', '45']
-    },
-    on: {
-      "on-change": _vm.change
     },
     model: {
       value: (_vm.minuteListValue2),
@@ -5805,6 +5823,11 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
   }, [_c('flexbox-item', [_c('x-button', [_vm._v("保存为草稿")])], 1), _vm._v(" "), _c('flexbox-item', [_c('x-button', {
     attrs: {
       "type": "primary"
+    },
+    nativeOn: {
+      "click": function($event) {
+        _vm.submitForm($event)
+      }
     }
   }, [_vm._v("立即提交")])], 1)], 1)], 1)])
 },staticRenderFns: []}

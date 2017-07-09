@@ -106,5 +106,7 @@ use Illuminate\Routing\Route;
 
     \Route::any('/updateAttendance', 'WechatController@updateAttendance')->name('updateAttendance');
 
+    \Route::any('/getUsersList', 'WechatController@getUsersList')->name('getUsersList');
+
 });
 
