@@ -5686,6 +5686,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_vux_src_components_masker_index_vue__ = __webpack_require__(127);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_vux_src_components_masker_index_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_11_vux_src_components_masker_index_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_vux_src_plugins_ajax_index_js__ = __webpack_require__(18);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13_vux_src_components_alert_index_vue__ = __webpack_require__(173);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13_vux_src_components_alert_index_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_13_vux_src_components_alert_index_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14_vux_src_directives_transfer_dom_index_js__ = __webpack_require__(42);
+
+
 
 
 
@@ -5712,6 +5717,9 @@ for (var i = 0; i <= 30; i++) {
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   name: 'hello',
+  directives: {
+    TransferDom: __WEBPACK_IMPORTED_MODULE_14_vux_src_directives_transfer_dom_index_js__["a" /* default */]
+  },
   data: function data() {
     return {
       name: '张三',
@@ -5749,7 +5757,9 @@ for (var i = 0; i <= 30; i++) {
       oneJobNumber: '',
       otherJobNumber: '',
       oneRelateJobnumber: '',
-      twoRelateJobnumber: ''
+      twoRelateJobnumber: '',
+      onSuccessShow: false,
+      onFailShow: false
     };
   },
 
@@ -5767,7 +5777,8 @@ for (var i = 0; i <= 30; i++) {
     PopupPicker: __WEBPACK_IMPORTED_MODULE_9_vux_src_components_popup_picker_index_vue___default.a,
     Search: __WEBPACK_IMPORTED_MODULE_10_vux_src_components_search_index_vue___default.a,
     Masker: __WEBPACK_IMPORTED_MODULE_11_vux_src_components_masker_index_vue___default.a,
-    AjaxPlugin: __WEBPACK_IMPORTED_MODULE_12_vux_src_plugins_ajax_index_js__["a" /* default */]
+    AjaxPlugin: __WEBPACK_IMPORTED_MODULE_12_vux_src_plugins_ajax_index_js__["a" /* default */],
+    Alert: __WEBPACK_IMPORTED_MODULE_13_vux_src_components_alert_index_vue___default.a
   },
   computed: {
     reason: function reason() {
@@ -5785,6 +5796,8 @@ for (var i = 0; i <= 30; i++) {
       window.history.back(-1);
     },
     submitFormDraft: function submitFormDraft() {
+      var _this = this;
+
       var formData = {
         type: this.type_list_default[0],
         title: this.titlename,
@@ -5799,11 +5812,21 @@ for (var i = 0; i <= 30; i++) {
       };
       __WEBPACK_IMPORTED_MODULE_12_vux_src_plugins_ajax_index_js__["a" /* default */].$http.post('/wechat/applyAttendance', formData).then(function (response) {
         if (response.data.status == true) {
-          window.history.back(-1);
-        } else {}
+          _this.onSuccessShow = true;
+          setTimeout(function () {
+            window.history.back(-1);
+          }, 2000);
+        } else {
+          _this.onFailShow = true;
+          setTimeout(function () {
+            _this.onFailShow = false;
+          }, 3000);
+        }
       });
     },
     submitForm: function submitForm() {
+      var _this2 = this;
+
       var formData = {
         type: this.type_list_default[0],
         title: this.titlename,
@@ -5818,7 +5841,15 @@ for (var i = 0; i <= 30; i++) {
       };
       __WEBPACK_IMPORTED_MODULE_12_vux_src_plugins_ajax_index_js__["a" /* default */].$http.post('/wechat/applyAttendance', formData).then(function (response) {
         if (response.data.status == true) {
-          window.history.back(-1);
+          _this2.onSuccessShow = true;
+          setTimeout(function () {
+            window.history.back(-1);
+          }, 2000);
+        } else {
+          _this2.onFailShow = true;
+          setTimeout(function () {
+            _this2.onFailShow = false;
+          }, 3000);
         }
       });
     },
@@ -5851,20 +5882,20 @@ for (var i = 0; i <= 30; i++) {
       }
     },
     add_pass_man: function add_pass_man() {
-      var _this = this;
+      var _this3 = this;
 
       __WEBPACK_IMPORTED_MODULE_12_vux_src_plugins_ajax_index_js__["a" /* default */].$http.post('/wechat/getUsersList').then(function (response) {
         var data = response.data.data;
-        _this.getResult(data);
+        _this3.getResult(data);
       });
       this.isShow = true;
     },
     add_relate_man: function add_relate_man() {
-      var _this2 = this;
+      var _this4 = this;
 
       __WEBPACK_IMPORTED_MODULE_12_vux_src_plugins_ajax_index_js__["a" /* default */].$http.post('/wechat/getUsersList').then(function (response) {
         var data = response.data.data;
-        _this2.getResult(data);
+        _this4.getResult(data);
       });
       this.isShowRelate = true;
     },
@@ -6680,6 +6711,38 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       expression: "relateVal"
     }
   }) : _vm._e(), _vm._v(" "), _c('div', {
+    directives: [{
+      name: "transfer-dom",
+      rawName: "v-transfer-dom"
+    }]
+  }, [_c('alert', {
+    attrs: {
+      "title": "成功"
+    },
+    model: {
+      value: (_vm.onSuccessShow),
+      callback: function($$v) {
+        _vm.onSuccessShow = $$v
+      },
+      expression: "onSuccessShow"
+    }
+  }, [_vm._v("申请成功!")])], 1), _vm._v(" "), _c('div', {
+    directives: [{
+      name: "transfer-dom",
+      rawName: "v-transfer-dom"
+    }]
+  }, [_c('alert', {
+    attrs: {
+      "title": "失败"
+    },
+    model: {
+      value: (_vm.onFailShow),
+      callback: function($$v) {
+        _vm.onFailShow = $$v
+      },
+      expression: "onFailShow"
+    }
+  }, [_vm._v("申请时间或申请时长不能为空!")])], 1), _vm._v(" "), _c('div', {
     staticClass: "reason-panel"
   }, [_c('div', {
     staticClass: "header-wrap"
@@ -19388,6 +19451,449 @@ module.exports = g;
 
 __webpack_require__(27);
 module.exports = __webpack_require__(28);
+
+
+/***/ }),
+/* 157 */,
+/* 158 */,
+/* 159 */,
+/* 160 */,
+/* 161 */,
+/* 162 */,
+/* 163 */,
+/* 164 */,
+/* 165 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__x_dialog__ = __webpack_require__(174);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__x_dialog___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__x_dialog__);
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  name: 'alert',
+  components: {
+    XDialog: __WEBPACK_IMPORTED_MODULE_0__x_dialog___default.a
+  },
+  created: function created() {
+    if (typeof this.value !== 'undefined') {
+      this.showValue = this.value;
+    }
+  },
+
+  props: {
+    value: Boolean,
+    title: String,
+    content: String,
+    buttonText: String,
+    maskTransition: {
+      type: String,
+      default: 'vux-mask'
+    },
+    dialogTransition: {
+      type: String,
+      default: 'vux-dialog'
+    }
+  },
+  data: function data() {
+    return {
+      showValue: false
+    };
+  },
+
+  methods: {
+    _onHide: function _onHide() {
+      this.showValue = false;
+    }
+  },
+  watch: {
+    value: function value(val) {
+      this.showValue = val;
+    },
+    showValue: function showValue(val) {
+      this.$emit('input', val);
+    }
+  }
+});
+
+/***/ }),
+/* 166 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = ({
+  name: 'x-dialog',
+  props: {
+    value: {
+      type: Boolean,
+      default: false
+    },
+    maskTransition: {
+      type: String,
+      default: 'vux-mask'
+    },
+    dialogTransition: {
+      type: String,
+      default: 'vux-dialog'
+    },
+    dialogClass: {
+      type: String,
+      default: 'weui-dialog'
+    },
+    hideOnBlur: Boolean,
+    dialogStyle: Object,
+    scroll: {
+      type: Boolean,
+      default: true
+    }
+  },
+  watch: {
+    value: {
+      handler: function handler(val) {
+        this.currentValue = val;
+      },
+      immediate: true
+    },
+    currentValue: function currentValue(val) {
+      this.$emit(val ? 'on-show' : 'on-hide');
+      this.$emit('input', val);
+    }
+  },
+  data: function data() {
+    return {
+      currentValue: false
+    };
+  },
+
+  methods: {
+    onTouchMove: function onTouchMove(event) {
+      !this.scroll && event.preventDefault();
+    }
+  }
+});
+
+/***/ }),
+/* 167 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "\n.vux-fade-enter-active,\n.vux-fade-leave-active {\n  opacity: 1;\n  transition: opacity linear 0.2s;\n}\n.vux-fade-enter,\n.vux-fade-leave-to {\n  opacity: 0;\n}\n.vux-dialog-enter-active,\n.vux-dialog-leave-active {\n  opacity: 1;\n  transition-duration: 400ms;\n  transform: translate(-50%, -50%) scale(1) !important;\n  transition-property: transform, opacity!important;\n}\n.vux-dialog-leave-active {\n  transition-duration: 300ms;\n}\n.vux-dialog-enter {\n  opacity: 0;\n  transform: translate(-50%, -50%) scale(1.185) !important;\n}\n.vux-dialog-leave-active {\n  opacity: 0;\n  transform: translate(-50%, -50%) scale(0.85) !important;\n}\n.vux-mask-enter,\n.vux-mask-leave-active {\n  opacity: 0;\n}\n.vux-mask-leave-active,\n.vux-mask-enter-active {\n  transition: opacity 300ms;\n}\n/**\n* actionsheet\n*/\n/**\n* datetime\n*/\n/**\n* tabbar\n*/\n/**\n* tab\n*/\n/**\n* dialog\n*/\n/**\n* x-number\n*/\n/**\n* checkbox\n*/\n/**\n* check-icon\n*/\n/**\n* Cell\n*/\n/**\n* Mask\n*/\n/**\n* Range\n*/\n/**\n* Tabbar\n*/\n/**\n* Header\n*/\n/**\n* Timeline\n*/\n/**\n* Switch\n*/\n/**\n* Button\n*/\n/**\n* swipeout\n*/\n/**\n* Cell\n*/\n/**\n* Badge\n*/\n/**\n* Popover\n*/\n/**\n* Button tab\n*/\n/* alias */\n/**\n* Swiper\n*/\n/**\n* checklist\n*/\n/**\n* popup-picker\n*/\n/**\n* popup\n*/\n/**\n* form-preview\n*/\n/**\n* load-more\n*/\n/**\n* sticky\n*/\n/**\n* group\n*/\n/**\n* toast\n*/\n/**\n* icon\n*/\n/**\n* calendar\n*/\n/**\n* search\n*/\n/**\n* radio\n*/\n.weui-mask {\n  position: fixed;\n  z-index: 1000;\n  top: 0;\n  right: 0;\n  left: 0;\n  bottom: 0;\n  background: rgba(0, 0, 0, 0.6);\n}\n.weui-mask_transparent {\n  position: fixed;\n  z-index: 1000;\n  top: 0;\n  right: 0;\n  left: 0;\n  bottom: 0;\n}\n.weui-dialog {\n  position: fixed;\n  z-index: 5000;\n  width: 80%;\n  max-width: 300px;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  background-color: #FFFFFF;\n  text-align: center;\n  border-radius: 3px;\n  overflow: hidden;\n}\n.weui-dialog__hd {\n  padding: 1.3em 1.6em 0.5em;\n}\n.weui-dialog__title {\n  font-weight: 400;\n  font-size: 18px;\n}\n.weui-dialog__bd {\n  padding: 0 1.6em 0.8em;\n  min-height: 40px;\n  font-size: 15px;\n  line-height: 1.3;\n  word-wrap: break-word;\n  word-break: break-all;\n  color: #999999;\n}\n.weui-dialog__bd:first-child {\n  padding: 2.7em 20px 1.7em;\n  color: #353535;\n}\n.weui-dialog__ft {\n  position: relative;\n  line-height: 48px;\n  font-size: 18px;\n  display: flex;\n}\n.weui-dialog__ft:after {\n  content: \" \";\n  position: absolute;\n  left: 0;\n  top: 0;\n  right: 0;\n  height: 1px;\n  border-top: 1px solid #D5D5D6;\n  color: #D5D5D6;\n  transform-origin: 0 0;\n  transform: scaleY(0.5);\n}\n.weui-dialog__btn {\n  display: block;\n  flex: 1;\n  color: #3CC51F;\n  text-decoration: none;\n  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);\n  position: relative;\n}\n.weui-dialog__btn:active {\n  background-color: #EEEEEE;\n}\n.weui-dialog__btn:after {\n  content: \" \";\n  position: absolute;\n  left: 0;\n  top: 0;\n  width: 1px;\n  bottom: 0;\n  border-left: 1px solid #D5D5D6;\n  color: #D5D5D6;\n  transform-origin: 0 0;\n  transform: scaleX(0.5);\n}\n.weui-dialog__btn:first-child:after {\n  display: none;\n}\n.weui-dialog__btn_default {\n  color: #353535;\n}\n.weui-dialog__btn_primary {\n  color: #0BB20C;\n}\n.weui-skin_android .weui-dialog {\n  text-align: left;\n  box-shadow: 0 6px 30px 0 rgba(0, 0, 0, 0.1);\n}\n.weui-skin_android .weui-dialog__title {\n  font-size: 21px;\n}\n.weui-skin_android .weui-dialog__hd {\n  text-align: left;\n}\n.weui-skin_android .weui-dialog__bd {\n  color: #999999;\n  padding: 0.25em 1.6em 2em;\n  font-size: 17px;\n  text-align: left;\n}\n.weui-skin_android .weui-dialog__bd:first-child {\n  padding: 1.6em 1.6em 2em;\n  color: #353535;\n}\n.weui-skin_android .weui-dialog__ft {\n  display: block;\n  text-align: right;\n  line-height: 42px;\n  font-size: 16px;\n  padding: 0 1.6em 0.7em;\n}\n.weui-skin_android .weui-dialog__ft:after {\n  display: none;\n}\n.weui-skin_android .weui-dialog__btn {\n  display: inline-block;\n  vertical-align: top;\n  padding: 0 .8em;\n}\n.weui-skin_android .weui-dialog__btn:after {\n  display: none;\n}\n.weui-skin_android .weui-dialog__btn:active {\n  background-color: rgba(0, 0, 0, 0.06);\n}\n.weui-skin_android .weui-dialog__btn:visited {\n  background-color: rgba(0, 0, 0, 0.06);\n}\n.weui-skin_android .weui-dialog__btn:last-child {\n  margin-right: -0.8em;\n}\n.weui-skin_android .weui-dialog__btn_default {\n  color: #808080;\n}\n@media screen and (min-width: 1024px) {\n.weui-dialog {\n    width: 35%;\n}\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 168 */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(0)(undefined);
+// imports
+
+
+// module
+exports.push([module.i, "\n.vux-fade-enter-active,\n.vux-fade-leave-active {\n  opacity: 1;\n  transition: opacity linear 0.2s;\n}\n.vux-fade-enter,\n.vux-fade-leave-to {\n  opacity: 0;\n}\n.vux-dialog-enter-active,\n.vux-dialog-leave-active {\n  opacity: 1;\n  transition-duration: 400ms;\n  transform: translate(-50%, -50%) scale(1) !important;\n  transition-property: transform, opacity!important;\n}\n.vux-dialog-leave-active {\n  transition-duration: 300ms;\n}\n.vux-dialog-enter {\n  opacity: 0;\n  transform: translate(-50%, -50%) scale(1.185) !important;\n}\n.vux-dialog-leave-active {\n  opacity: 0;\n  transform: translate(-50%, -50%) scale(0.85) !important;\n}\n.vux-mask-enter,\n.vux-mask-leave-active {\n  opacity: 0;\n}\n.vux-mask-leave-active,\n.vux-mask-enter-active {\n  transition: opacity 300ms;\n}\n/**\n* actionsheet\n*/\n/**\n* datetime\n*/\n/**\n* tabbar\n*/\n/**\n* tab\n*/\n/**\n* dialog\n*/\n/**\n* x-number\n*/\n/**\n* checkbox\n*/\n/**\n* check-icon\n*/\n/**\n* Cell\n*/\n/**\n* Mask\n*/\n/**\n* Range\n*/\n/**\n* Tabbar\n*/\n/**\n* Header\n*/\n/**\n* Timeline\n*/\n/**\n* Switch\n*/\n/**\n* Button\n*/\n/**\n* swipeout\n*/\n/**\n* Cell\n*/\n/**\n* Badge\n*/\n/**\n* Popover\n*/\n/**\n* Button tab\n*/\n/* alias */\n/**\n* Swiper\n*/\n/**\n* checklist\n*/\n/**\n* popup-picker\n*/\n/**\n* popup\n*/\n/**\n* form-preview\n*/\n/**\n* load-more\n*/\n/**\n* sticky\n*/\n/**\n* group\n*/\n/**\n* toast\n*/\n/**\n* icon\n*/\n/**\n* calendar\n*/\n/**\n* search\n*/\n/**\n* radio\n*/\n.weui-mask {\n  position: fixed;\n  z-index: 1000;\n  top: 0;\n  right: 0;\n  left: 0;\n  bottom: 0;\n  background: rgba(0, 0, 0, 0.6);\n}\n.weui-mask_transparent {\n  position: fixed;\n  z-index: 1000;\n  top: 0;\n  right: 0;\n  left: 0;\n  bottom: 0;\n}\n.weui-dialog {\n  position: fixed;\n  z-index: 5000;\n  width: 80%;\n  max-width: 300px;\n  top: 50%;\n  left: 50%;\n  transform: translate(-50%, -50%);\n  background-color: #FFFFFF;\n  text-align: center;\n  border-radius: 3px;\n  overflow: hidden;\n}\n.weui-dialog__hd {\n  padding: 1.3em 1.6em 0.5em;\n}\n.weui-dialog__title {\n  font-weight: 400;\n  font-size: 18px;\n}\n.weui-dialog__bd {\n  padding: 0 1.6em 0.8em;\n  min-height: 40px;\n  font-size: 15px;\n  line-height: 1.3;\n  word-wrap: break-word;\n  word-break: break-all;\n  color: #999999;\n}\n.weui-dialog__bd:first-child {\n  padding: 2.7em 20px 1.7em;\n  color: #353535;\n}\n.weui-dialog__ft {\n  position: relative;\n  line-height: 48px;\n  font-size: 18px;\n  display: flex;\n}\n.weui-dialog__ft:after {\n  content: \" \";\n  position: absolute;\n  left: 0;\n  top: 0;\n  right: 0;\n  height: 1px;\n  border-top: 1px solid #D5D5D6;\n  color: #D5D5D6;\n  transform-origin: 0 0;\n  transform: scaleY(0.5);\n}\n.weui-dialog__btn {\n  display: block;\n  flex: 1;\n  color: #3CC51F;\n  text-decoration: none;\n  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);\n  position: relative;\n}\n.weui-dialog__btn:active {\n  background-color: #EEEEEE;\n}\n.weui-dialog__btn:after {\n  content: \" \";\n  position: absolute;\n  left: 0;\n  top: 0;\n  width: 1px;\n  bottom: 0;\n  border-left: 1px solid #D5D5D6;\n  color: #D5D5D6;\n  transform-origin: 0 0;\n  transform: scaleX(0.5);\n}\n.weui-dialog__btn:first-child:after {\n  display: none;\n}\n.weui-dialog__btn_default {\n  color: #353535;\n}\n.weui-dialog__btn_primary {\n  color: #0BB20C;\n}\n.weui-skin_android .weui-dialog {\n  text-align: left;\n  box-shadow: 0 6px 30px 0 rgba(0, 0, 0, 0.1);\n}\n.weui-skin_android .weui-dialog__title {\n  font-size: 21px;\n}\n.weui-skin_android .weui-dialog__hd {\n  text-align: left;\n}\n.weui-skin_android .weui-dialog__bd {\n  color: #999999;\n  padding: 0.25em 1.6em 2em;\n  font-size: 17px;\n  text-align: left;\n}\n.weui-skin_android .weui-dialog__bd:first-child {\n  padding: 1.6em 1.6em 2em;\n  color: #353535;\n}\n.weui-skin_android .weui-dialog__ft {\n  display: block;\n  text-align: right;\n  line-height: 42px;\n  font-size: 16px;\n  padding: 0 1.6em 0.7em;\n}\n.weui-skin_android .weui-dialog__ft:after {\n  display: none;\n}\n.weui-skin_android .weui-dialog__btn {\n  display: inline-block;\n  vertical-align: top;\n  padding: 0 .8em;\n}\n.weui-skin_android .weui-dialog__btn:after {\n  display: none;\n}\n.weui-skin_android .weui-dialog__btn:active {\n  background-color: rgba(0, 0, 0, 0.06);\n}\n.weui-skin_android .weui-dialog__btn:visited {\n  background-color: rgba(0, 0, 0, 0.06);\n}\n.weui-skin_android .weui-dialog__btn:last-child {\n  margin-right: -0.8em;\n}\n.weui-skin_android .weui-dialog__btn_default {\n  color: #808080;\n}\n@media screen and (min-width: 1024px) {\n.weui-dialog {\n    width: 35%;\n}\n}\n", ""]);
+
+// exports
+
+
+/***/ }),
+/* 169 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "vux-x-dialog",
+    on: {
+      "touchmove": _vm.onTouchMove
+    }
+  }, [_c('transition', {
+    attrs: {
+      "name": _vm.maskTransition
+    }
+  }, [_c('div', {
+    directives: [{
+      name: "show",
+      rawName: "v-show",
+      value: (_vm.currentValue),
+      expression: "currentValue"
+    }],
+    staticClass: "weui-mask",
+    on: {
+      "click": function($event) {
+        _vm.hideOnBlur && (_vm.currentValue = false)
+      }
+    }
+  })]), _vm._v(" "), _c('transition', {
+    attrs: {
+      "name": _vm.dialogTransition
+    }
+  }, [_c('div', {
+    directives: [{
+      name: "show",
+      rawName: "v-show",
+      value: (_vm.currentValue),
+      expression: "currentValue"
+    }],
+    class: _vm.dialogClass,
+    style: (_vm.dialogStyle)
+  }, [_vm._t("default")], 2)])], 1)
+},staticRenderFns: []}
+module.exports.render._withStripped = true
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+     require("vue-hot-reload-api").rerender("data-v-0bc6b680", module.exports)
+  }
+}
+
+/***/ }),
+/* 170 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "vux-alert"
+  }, [_c('x-dialog', {
+    attrs: {
+      "mask-transition": _vm.maskTransition,
+      "dialog-transition": _vm.dialogTransition
+    },
+    on: {
+      "on-hide": function($event) {
+        _vm.$emit('on-hide')
+      },
+      "on-show": function($event) {
+        _vm.$emit('on-show')
+      }
+    },
+    model: {
+      value: (_vm.showValue),
+      callback: function($$v) {
+        _vm.showValue = $$v
+      },
+      expression: "showValue"
+    }
+  }, [_c('div', {
+    staticClass: "weui-dialog__hd"
+  }, [_c('strong', {
+    staticClass: "weui-dialog__title"
+  }, [_vm._v(_vm._s(_vm.title))])]), _vm._v(" "), _c('div', {
+    staticClass: "weui-dialog__bd"
+  }, [_vm._t("default", [_c('div', {
+    domProps: {
+      "innerHTML": _vm._s(_vm.content)
+    }
+  })])], 2), _vm._v(" "), _c('div', {
+    staticClass: "weui-dialog__ft"
+  }, [_c('a', {
+    staticClass: "weui-dialog__btn weui-dialog__btn_primary",
+    attrs: {
+      "href": "javascript:;"
+    },
+    on: {
+      "click": _vm._onHide
+    }
+  }, [_vm._v(_vm._s(_vm.buttonText || '确定'))])])])], 1)
+},staticRenderFns: []}
+module.exports.render._withStripped = true
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+     require("vue-hot-reload-api").rerender("data-v-1ddb1f0f", module.exports)
+  }
+}
+
+/***/ }),
+/* 171 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(167);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var update = __webpack_require__(1)("de924700", content, false);
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../../../css-loader/index.js!../../../../vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-0bc6b680\",\"scoped\":false,\"hasInlineConfig\":true}!../../../../vux-loader/src/after-less-loader.js!../../../../less-loader/dist/index.js!../../../../vux-loader/src/style-loader.js!../../../../vue-loader/lib/selector.js?type=styles&index=0!./index.vue", function() {
+     var newContent = require("!!../../../../css-loader/index.js!../../../../vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-0bc6b680\",\"scoped\":false,\"hasInlineConfig\":true}!../../../../vux-loader/src/after-less-loader.js!../../../../less-loader/dist/index.js!../../../../vux-loader/src/style-loader.js!../../../../vue-loader/lib/selector.js?type=styles&index=0!./index.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 172 */
+/***/ (function(module, exports, __webpack_require__) {
+
+// style-loader: Adds some css to the DOM by adding a <style> tag
+
+// load the styles
+var content = __webpack_require__(168);
+if(typeof content === 'string') content = [[module.i, content, '']];
+if(content.locals) module.exports = content.locals;
+// add the styles to the DOM
+var update = __webpack_require__(1)("2442acaa", content, false);
+// Hot Module Replacement
+if(false) {
+ // When the styles change, update the <style> tags
+ if(!content.locals) {
+   module.hot.accept("!!../../../../css-loader/index.js!../../../../vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-1ddb1f0f\",\"scoped\":false,\"hasInlineConfig\":true}!../../../../vux-loader/src/after-less-loader.js!../../../../less-loader/dist/index.js!../../../../vux-loader/src/style-loader.js!../../../../vue-loader/lib/selector.js?type=styles&index=0!./index.vue", function() {
+     var newContent = require("!!../../../../css-loader/index.js!../../../../vue-loader/lib/style-compiler/index.js?{\"vue\":true,\"id\":\"data-v-1ddb1f0f\",\"scoped\":false,\"hasInlineConfig\":true}!../../../../vux-loader/src/after-less-loader.js!../../../../less-loader/dist/index.js!../../../../vux-loader/src/style-loader.js!../../../../vue-loader/lib/selector.js?type=styles&index=0!./index.vue");
+     if(typeof newContent === 'string') newContent = [[module.id, newContent, '']];
+     update(newContent);
+   });
+ }
+ // When the module is disposed, remove the <style> tags
+ module.hot.dispose(function() { update(); });
+}
+
+/***/ }),
+/* 173 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+function injectStyle (ssrContext) {
+  if (disposed) return
+  __webpack_require__(172)
+}
+var Component = __webpack_require__(2)(
+  /* script */
+  __webpack_require__(165),
+  /* template */
+  __webpack_require__(170),
+  /* styles */
+  injectStyle,
+  /* scopeId */
+  null,
+  /* moduleIdentifier (server only) */
+  null
+)
+Component.options.__file = "D:\\www\\oryxtc\\performance\\node_modules\\vux\\src\\components\\alert\\index.vue"
+if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key.substr(0, 2) !== "__"})) {console.error("named exports are not supported in *.vue files.")}
+if (Component.options.functional) {console.error("[vue-loader] index.vue: functional components are not supported with templates, they should use render functions.")}
+
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-1ddb1f0f", Component.options)
+  } else {
+    hotAPI.reload("data-v-1ddb1f0f", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 174 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var disposed = false
+function injectStyle (ssrContext) {
+  if (disposed) return
+  __webpack_require__(171)
+}
+var Component = __webpack_require__(2)(
+  /* script */
+  __webpack_require__(166),
+  /* template */
+  __webpack_require__(169),
+  /* styles */
+  injectStyle,
+  /* scopeId */
+  null,
+  /* moduleIdentifier (server only) */
+  null
+)
+Component.options.__file = "D:\\www\\oryxtc\\performance\\node_modules\\vux\\src\\components\\x-dialog\\index.vue"
+if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key.substr(0, 2) !== "__"})) {console.error("named exports are not supported in *.vue files.")}
+if (Component.options.functional) {console.error("[vue-loader] index.vue: functional components are not supported with templates, they should use render functions.")}
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-0bc6b680", Component.options)
+  } else {
+    hotAPI.reload("data-v-0bc6b680", Component.options)
+  }
+  module.hot.dispose(function (data) {
+    disposed = true
+  })
+})()}
+
+module.exports = Component.exports
 
 
 /***/ })

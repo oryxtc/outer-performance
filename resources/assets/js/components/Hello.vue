@@ -22,6 +22,12 @@
                     ref="search"
                     v-if="isShowRelate"
             ></search>
+            <div v-transfer-dom>
+                <alert v-model="onSuccessShow"  title="成功"  >申请成功!</alert>
+            </div>
+            <div v-transfer-dom>
+                <alert v-model="onFailShow" title="失败">申请时间或申请时长不能为空!</alert>
+            </div>
             <div class="reason-panel">
                 <div class="header-wrap">
                     <popup-picker title="类型" :data="type_list" v-model="type_list_default"></popup-picker>
@@ -102,7 +108,9 @@
             PopupPicker,
             Search,
             Masker,
-            AjaxPlugin
+            AjaxPlugin,
+            Alert,
+            TransferDomDirective as TransferDom
     } from 'vux'
 
     let hours = []
@@ -116,6 +124,9 @@
 
     export default {
         name: 'hello',
+        directives: {
+            TransferDom
+        },
         data () {
             return {
                 name: '张三',
@@ -153,7 +164,9 @@
                 oneJobNumber: '',
                 otherJobNumber: '',
                 oneRelateJobnumber: '',
-                twoRelateJobnumber: ''
+                twoRelateJobnumber: '',
+                onSuccessShow:false,
+                onFailShow:false
             }
         },
         props: [
@@ -172,7 +185,8 @@
             PopupPicker,
             Search,
             Masker,
-            AjaxPlugin
+            AjaxPlugin,
+            Alert
         },
         computed: {
             reason: function () {
@@ -205,9 +219,15 @@
                 AjaxPlugin.$http.post('/wechat/applyAttendance', formData)
                         .then((response) => {
                             if (response.data.status == true) {
-                                window.history.back(-1);
+                                this.onSuccessShow=true;
+                                setTimeout(() => {
+                                    window.history.back(-1);
+                                }, 2000)
                             } else {
-                                //
+                                this.onFailShow=true;
+                                setTimeout(() => {
+                                    this.onFailShow=false;
+                                }, 3000)
                             }
                         })
 
@@ -228,7 +248,15 @@
                 AjaxPlugin.$http.post('/wechat/applyAttendance', formData)
                         .then((response) => {
                             if (response.data.status == true) {
-                                window.history.back(-1);
+                                this.onSuccessShow=true;
+                                setTimeout(() => {
+                                    window.history.back(-1);
+                                }, 2000)
+                            }else {
+                                this.onFailShow=true;
+                                setTimeout(() => {
+                                    this.onFailShow=false;
+                                }, 3000)
                             }
                         })
 

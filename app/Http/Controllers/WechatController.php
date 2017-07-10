@@ -316,8 +316,7 @@ class WechatController extends VoyagerBreadController
         $save['approver']=implode(',',$save['approver']);
         $save['relevant']=implode(',',$save['relevant']);
         $save['continued_at']=implode('',$save['continued_at']);
-
-        if(empty($save['start_at']) || $save['end_at'] || $save['continued_at'] || $save['approver']){
+        if(empty($save['start_at']) || empty($save['end_at']) || empty($save['continued_at']) || empty($save['approver'])){
             return $this->apiJson(false, '信息不完整!');
         }
         //重写转审
