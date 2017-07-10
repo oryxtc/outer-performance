@@ -14,7 +14,6 @@
             ></search>
             <search
                     @result-click="resultClick2"
-                    @on-change="getResult2"
                     v-model="relateVal"
                     :results="results"
                     position="absolute"
@@ -47,9 +46,8 @@
             </div>
             <div class="pass-panel">
                 <div class="pass-title">
-                    <!--<group>-->
-                    <x-switch title="审批人" v-model="passMan"></x-switch>
-                    <!--</group>-->
+                    <!--<x-switch title="审批人" v-model="passMan"></x-switch>-->
+                    <cell title="审批人" ></cell>
                 </div>
                 <group>
                     <cell>
@@ -72,9 +70,8 @@
             </div>
             <div class="pass-panel">
                 <div class="pass-title">
-                    <!--<group>-->
-                    <x-switch title="相关人" v-model="busiMan"></x-switch>
-                    <!--</group>-->
+                    <!--<x-switch title="相关人" v-model="busiMan"></x-switch>-->
+                    <cell title="相关人" ></cell>
                 </div>
                 <group>
                     <cell>
@@ -93,12 +90,16 @@
             </div>
             <flexbox class="mt10">
                 <flexbox-item>
-                    <x-button>保存为草稿</x-button>
+                    <!--<x-button type="primary" @click.native="submitFormDraft">保存为草稿</x-button>-->
+                    <x-button type="warn"   @click.native="closeSubmit">取消并返回</x-button>
                 </flexbox-item>
                 <flexbox-item>
                     <x-button type="primary" @click.native="submitForm">立即提交</x-button>
                 </flexbox-item>
             </flexbox>
+            <!--<flexbox class="mt10">-->
+                    <!--<x-button type="primary" @click.native="closeSubmit">取消并返回</x-button>-->
+            <!--</flexbox>-->
             <!--</form>-->
         </div>
     </div>
@@ -165,9 +166,11 @@
                 oneValue: '',
                 oneRelate: '',
                 twoRelate: '',
-                created_at: this.format(new Date(), 'yyyy-MM-dd hh:mm:00'),
+                created_at: this.format(new Date(), 'yyyy-MM-dd'),
                 oneJobNumber:'',
-                otherJobNumber:''
+                otherJobNumber:'',
+                oneRelateJobnumber:'',
+                twoRelateJobnumber:''
             }
         },
         props: [
@@ -200,6 +203,32 @@
             }
         },
         methods: {
+            closeSubmit(){
+                window.history.back(-1);
+            },
+            submitFormDraft(){
+                let formData = {
+                    type: this.type_list_default[0],
+                    title: this.titlename,
+                    reson: this.reason,
+                    start_at: this.minuteListValue,
+                    end_at: this.minuteListValue2,
+                    continued_at: this.list_time_default,
+                    approver: [this.oneJobNumber, this.otherJobNumber],
+                    relevant: [this.oneRelateJobnumber, this.twoRelateJobnumber],
+                    created_at: this.created_at,
+                    status: 0,
+                }
+                AjaxPlugin.$http.post('/wechat/applyAttendance', formData)
+                        .then((response) => {
+                            if (response.data.status == true) {
+                                window.history.back(-1);
+                            }else {
+                                //
+                            }
+                        })
+
+            },
             submitForm(){
                 let formData = {
                     type: this.type_list_default[0],
@@ -209,32 +238,43 @@
                     end_at: this.minuteListValue2,
                     continued_at: this.list_time_default,
                     approver: [this.oneJobNumber, this.otherJobNumber],
-                    relevant: this.created_at,
+                    relevant: [this.oneRelateJobnumber, this.twoRelateJobnumber],
                     created_at: this.created_at,
+                    status: 1,
                 }
-                console.log(formData)
+                AjaxPlugin.$http.post('/wechat/applyAttendance', formData)
+                        .then((response) => {
+                            if (response.data.status == true) {
+                                window.history.back(-1);
+                            }
+                        })
+
             },
             confirm_del_one(){
                 if (this.isCancel == true) {
                     this.isCancel = false;
+                    this.oneJobNumber='';
                     this.isShowManOne = false;
                 }
             },
             confirm_del_two(){
                 if (this.isCancel == true) {
                     this.isCancel = false;
+                    this.otherJobNumber='';
                     this.isShowManTwo = false;
                 }
             },
             confirm_del_relate_one(){
                 if (this.isCancelRelate == true) {
                     this.isCancelRelate = false;
+                    this.oneRelateJobnumber='';
                     this.isShowRelateManOne = false;
                 }
             },
             confirm_del_relate_two(){
                 if (this.isCancelRelate == true) {
                     this.isCancelRelate = false;
+                    this.twoRelateJobnumber='';
                     this.isShowRelateManTwo = false;
                 }
             },
@@ -247,6 +287,11 @@
                 this.isShow = true;
             },
             add_relate_man(){
+                AjaxPlugin.$http.post('/wechat/getUsersList')
+                        .then((response) => {
+                            var data = response.data.data;
+                            this.getResult(data);
+                        });
                 this.isShowRelate = true;
             },
             del_pass_man(){
@@ -268,14 +313,16 @@
                     this.isShowManTwo = true;
                 }
             },
-            resultClick2(){
+            resultClick2(item){
                 this.isShowRelate = false;
                 this.isCancelRelate = false;
                 if (this.oneRelate == '' || this.isShowRelateManOne == false) {
-                    this.oneRelate = this.relateVal;
+                    this.oneRelate = item.title;
+                    this.oneRelateJobnumber =  item.job_number;
                     this.isShowRelateManOne = true;
                 } else {
-                    this.twoRelate = this.relateVal;
+                    this.twoRelate = item.title;
+                    this.twoRelateJobnumber =  item.job_number;
                     this.isShowRelateManTwo = true;
                 }
             },
@@ -289,9 +336,6 @@
                     })
                 }
                 this.results = rs
-            },
-            getResult2 (val) {
-                this.results = val ? getResult2(this.relateVal) : []
             },
             format (date, fmt) { //author: meizz
                 var o = {
@@ -315,28 +359,6 @@
                 this.isShowRelate = false;
             }
         }
-    }
-    //    function getResult(data) {
-    //        let rs = []
-    //        console.log(data)
-    //        for (var value in data) {
-    //            console.log(value)
-    ////            rs.push({
-    ////                title: `${val} result: ${i + 1} `,
-    ////                other: i
-    ////            })
-    //        }
-    //        return rs
-    //    }
-    function getResult2(val) {
-        let rs = []
-        for (let i = 0; i < 20; i++) {
-            rs.push({
-                title: `${val} result: ${i + 1} `,
-                other: i
-            })
-        }
-        return rs
     }
 </script>
 

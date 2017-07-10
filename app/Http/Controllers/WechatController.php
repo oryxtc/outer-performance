@@ -215,7 +215,7 @@ class WechatController extends VoyagerBreadController
             '21' => '通过',
         ];
 
-        $attendance_list = Attendance::orderBy('id', 'DESC')->get()->toArray();
+        $attendance_list = Attendance::where('status','<>',0)->orderBy('id', 'DESC')->get()->toArray();
         $job_number = auth()->user()->job_number;
         $response_data = [];
         foreach ($attendance_list as $key => $item) {
@@ -308,19 +308,26 @@ class WechatController extends VoyagerBreadController
         $save['start_at'] = $request->get('start_at');
         $save['end_at'] = $request->get('end_at');
         $save['continued_at'] = $request->get('continued_at');
-        $save['approver'] = $request->get('approver');
-        $save['status'] =  1;
+        $save['approver'] = array_filter($request->get('approver'));
+        $save['relevant'] = array_filter($request->get('relevant'));
+        $save['status'] =  $request->get('status');
         $save['created_at'] = $request->get('created_at');
+        //格式化
+        $save['approver']=implode(',',$save['approver']);
+        $save['relevant']=implode(',',$save['relevant']);
+        $save['continued_at']=implode('',$save['continued_at']);
 
+        if(empty($save['start_at']) || $save['end_at'] || $save['continued_at'] || $save['approver']){
+            return $this->apiJson(false, '信息不完整!');
+        }
         //重写转审
-        $status = 1;
-        $approver = $user_info['approver'];
-        $approver_arr = explode(',', $approver);
-        if (empty($approver)) {
+        $approver_arr = explode(',', $save['approver']);
+
+        if (empty($save['approver'])) {
             $save['retrial'] = '{}';
         } else {
             foreach ($approver_arr as $value) {
-                $retrial_arr[$value] = $status;
+                $retrial_arr[$value] = 1;
             }
             $save['retrial'] = json_encode($retrial_arr);
         }

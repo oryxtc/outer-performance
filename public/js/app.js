@@ -5745,9 +5745,11 @@ for (var i = 0; i <= 30; i++) {
       oneValue: '',
       oneRelate: '',
       twoRelate: '',
-      created_at: this.format(new Date(), 'yyyy-MM-dd hh:mm:00'),
+      created_at: this.format(new Date(), 'yyyy-MM-dd'),
       oneJobNumber: '',
-      otherJobNumber: ''
+      otherJobNumber: '',
+      oneRelateJobnumber: '',
+      twoRelateJobnumber: ''
     };
   },
 
@@ -5779,6 +5781,28 @@ for (var i = 0; i <= 30; i++) {
     }
   },
   methods: {
+    closeSubmit: function closeSubmit() {
+      window.history.back(-1);
+    },
+    submitFormDraft: function submitFormDraft() {
+      var formData = {
+        type: this.type_list_default[0],
+        title: this.titlename,
+        reson: this.reason,
+        start_at: this.minuteListValue,
+        end_at: this.minuteListValue2,
+        continued_at: this.list_time_default,
+        approver: [this.oneJobNumber, this.otherJobNumber],
+        relevant: [this.oneRelateJobnumber, this.twoRelateJobnumber],
+        created_at: this.created_at,
+        status: 0
+      };
+      __WEBPACK_IMPORTED_MODULE_12_vux_src_plugins_ajax_index_js__["a" /* default */].$http.post('/wechat/applyAttendance', formData).then(function (response) {
+        if (response.data.status == true) {
+          window.history.back(-1);
+        } else {}
+      });
+    },
     submitForm: function submitForm() {
       var formData = {
         type: this.type_list_default[0],
@@ -5788,32 +5812,41 @@ for (var i = 0; i <= 30; i++) {
         end_at: this.minuteListValue2,
         continued_at: this.list_time_default,
         approver: [this.oneJobNumber, this.otherJobNumber],
-        relevant: this.created_at,
-        created_at: this.created_at
+        relevant: [this.oneRelateJobnumber, this.twoRelateJobnumber],
+        created_at: this.created_at,
+        status: 1
       };
-      console.log(formData);
+      __WEBPACK_IMPORTED_MODULE_12_vux_src_plugins_ajax_index_js__["a" /* default */].$http.post('/wechat/applyAttendance', formData).then(function (response) {
+        if (response.data.status == true) {
+          window.history.back(-1);
+        }
+      });
     },
     confirm_del_one: function confirm_del_one() {
       if (this.isCancel == true) {
         this.isCancel = false;
+        this.oneJobNumber = '';
         this.isShowManOne = false;
       }
     },
     confirm_del_two: function confirm_del_two() {
       if (this.isCancel == true) {
         this.isCancel = false;
+        this.otherJobNumber = '';
         this.isShowManTwo = false;
       }
     },
     confirm_del_relate_one: function confirm_del_relate_one() {
       if (this.isCancelRelate == true) {
         this.isCancelRelate = false;
+        this.oneRelateJobnumber = '';
         this.isShowRelateManOne = false;
       }
     },
     confirm_del_relate_two: function confirm_del_relate_two() {
       if (this.isCancelRelate == true) {
         this.isCancelRelate = false;
+        this.twoRelateJobnumber = '';
         this.isShowRelateManTwo = false;
       }
     },
@@ -5827,6 +5860,12 @@ for (var i = 0; i <= 30; i++) {
       this.isShow = true;
     },
     add_relate_man: function add_relate_man() {
+      var _this2 = this;
+
+      __WEBPACK_IMPORTED_MODULE_12_vux_src_plugins_ajax_index_js__["a" /* default */].$http.post('/wechat/getUsersList').then(function (response) {
+        var data = response.data.data;
+        _this2.getResult(data);
+      });
       this.isShowRelate = true;
     },
     del_pass_man: function del_pass_man() {
@@ -5848,14 +5887,16 @@ for (var i = 0; i <= 30; i++) {
         this.isShowManTwo = true;
       }
     },
-    resultClick2: function resultClick2() {
+    resultClick2: function resultClick2(item) {
       this.isShowRelate = false;
       this.isCancelRelate = false;
       if (this.oneRelate == '' || this.isShowRelateManOne == false) {
-        this.oneRelate = this.relateVal;
+        this.oneRelate = item.title;
+        this.oneRelateJobnumber = item.job_number;
         this.isShowRelateManOne = true;
       } else {
-        this.twoRelate = this.relateVal;
+        this.twoRelate = item.title;
+        this.twoRelateJobnumber = item.job_number;
         this.isShowRelateManTwo = true;
       }
     },
@@ -5869,9 +5910,6 @@ for (var i = 0; i <= 30; i++) {
         });
       }
       this.results = rs;
-    },
-    getResult2: function getResult2(val) {
-      this.results = val ? _getResult(this.relateVal) : [];
     },
     format: function format(date, fmt) {
       //author: meizz
@@ -5897,17 +5935,6 @@ for (var i = 0; i <= 30; i++) {
     }
   }
 });
-
-function _getResult(val) {
-  var rs = [];
-  for (var _i = 0; _i < 20; _i++) {
-    rs.push({
-      title: val + ' result: ' + (_i + 1) + ' ',
-      other: _i
-    });
-  }
-  return rs;
-}
 
 /***/ }),
 /* 63 */
@@ -6643,7 +6670,6 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     },
     on: {
       "result-click": _vm.resultClick2,
-      "on-change": _vm.getResult2,
       "on-cancel": _vm.onCancelRelate
     },
     model: {
@@ -6732,16 +6758,9 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     staticClass: "pass-panel"
   }, [_c('div', {
     staticClass: "pass-title"
-  }, [_c('x-switch', {
+  }, [_c('cell', {
     attrs: {
       "title": "审批人"
-    },
-    model: {
-      value: (_vm.passMan),
-      callback: function($$v) {
-        _vm.passMan = $$v
-      },
-      expression: "passMan"
     }
   })], 1), _vm._v(" "), _c('group', [_c('cell', [_c('div', {
     attrs: {
@@ -6795,16 +6814,9 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     staticClass: "pass-panel"
   }, [_c('div', {
     staticClass: "pass-title"
-  }, [_c('x-switch', {
+  }, [_c('cell', {
     attrs: {
       "title": "相关人"
-    },
-    model: {
-      value: (_vm.busiMan),
-      callback: function($$v) {
-        _vm.busiMan = $$v
-      },
-      expression: "busiMan"
     }
   })], 1), _vm._v(" "), _c('group', [_c('cell', [(_vm.isShowRelateManOne) ? _c('div', {
     staticClass: "options_man",
@@ -6852,7 +6864,16 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     }
   })])])], 1)], 1), _vm._v(" "), _c('flexbox', {
     staticClass: "mt10"
-  }, [_c('flexbox-item', [_c('x-button', [_vm._v("保存为草稿")])], 1), _vm._v(" "), _c('flexbox-item', [_c('x-button', {
+  }, [_c('flexbox-item', [_c('x-button', {
+    attrs: {
+      "type": "warn"
+    },
+    nativeOn: {
+      "click": function($event) {
+        _vm.closeSubmit($event)
+      }
+    }
+  }, [_vm._v("取消并返回")])], 1), _vm._v(" "), _c('flexbox-item', [_c('x-button', {
     attrs: {
       "type": "primary"
     },
