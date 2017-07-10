@@ -6714,9 +6714,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       },
       expression: "reason"
     }
-  })], 1)], 1)]), _vm._v(" "), _c('div', {
-    staticClass: "time-panel mt10"
-  }, [_c('group', [_c('datetime', {
+  }), _vm._v(" "), _c('datetime', {
     attrs: {
       "title": "开始时间",
       "format": "YYYY-MM-DD HH:mm",
@@ -6754,15 +6752,11 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       },
       expression: "list_time_default"
     }
-  })], 1)], 1), _vm._v(" "), _c('div', {
-    staticClass: "pass-panel"
-  }, [_c('div', {
-    staticClass: "pass-title"
-  }, [_c('cell', {
+  }), _vm._v(" "), _c('cell', {
     attrs: {
       "title": "审批人"
     }
-  })], 1), _vm._v(" "), _c('group', [_c('cell', [_c('div', {
+  }), _vm._v(" "), _c('cell', [_c('div', {
     attrs: {
       "id": "select-passman"
     }
@@ -6810,15 +6804,11 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       "src": __webpack_require__(19),
       "alt": ""
     }
-  })])])])], 1)], 1), _vm._v(" "), _c('div', {
-    staticClass: "pass-panel"
-  }, [_c('div', {
-    staticClass: "pass-title"
-  }, [_c('cell', {
+  })])])]), _vm._v(" "), _c('cell', {
     attrs: {
       "title": "相关人"
     }
-  })], 1), _vm._v(" "), _c('group', [_c('cell', [(_vm.isShowRelateManOne) ? _c('div', {
+  }), _vm._v(" "), _c('cell', [(_vm.isShowRelateManOne) ? _c('div', {
     staticClass: "options_man",
     on: {
       "click": _vm.confirm_del_relate_one
@@ -6862,7 +6852,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
       "src": __webpack_require__(19),
       "alt": ""
     }
-  })])])], 1)], 1), _vm._v(" "), _c('flexbox', {
+  })])])], 1)], 1)]), _vm._v(" "), _c('flexbox', {
     staticClass: "mt10"
   }, [_c('flexbox-item', [_c('x-button', {
     attrs: {

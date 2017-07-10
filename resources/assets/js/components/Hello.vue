@@ -30,75 +30,58 @@
                     <group>
                         <cell :title="titlename"></cell>
                         <x-textarea :max="200" name="detail" :show-counter="false" v-model="reason">
-
                         </x-textarea>
+                        <datetime title="开始时间" v-model="minuteListValue" format="YYYY-MM-DD HH:mm"
+                                  :minute-list="['00', '15', '30', '45']"></datetime>
+                        <datetime title="截止时间" v-model="minuteListValue2" format="YYYY-MM-DD HH:mm"
+                                  :minute-list="['00', '15', '30', '45']"></datetime>
+                        <popup-picker title="申请时长" :data="list_time" v-model="list_time_default"></popup-picker>
+                        
+                        <cell title="审批人"></cell>
+                        <cell>
+                            <div id="select-passman">
+                                <div class="options_man" v-if="isShowManOne" @click="confirm_del_one">
+                                    <span>{{oneValue}}</span><img class="del" src="../../images/cancel-circle.png"
+                                                                  alt="" v-if="isCancel"></div>
+                                <div class="options_man" v-if="isShowManTwo" @click="confirm_del_two">
+                                    <span>{{otherValue}}</span><img class="del" src="../../images/cancel-circle.png"
+                                                                    alt="" v-if="isCancel"></div>
+                                <div class="options_man" @click="add_pass_man"><img class="man"
+                                                                                    src="../../images/user-plus.png"
+                                                                                    alt=""></div>
+                                <div class="options_man" @click="del_pass_man"><img class="man"
+                                                                                    src="../../images/user-minus.png"
+                                                                                    alt=""></div>
+                            </div>
+                        </cell>
+                        <cell title="相关人"></cell>
+
+                        <cell>
+                            <div class="options_man" v-if="isShowRelateManOne" @click="confirm_del_relate_one"><span>{{oneRelate}}</span><img
+                                    class="del" src="../../images/cancel-circle.png" alt="" v-if="isCancelRelate"></div>
+                            <div class="options_man" v-if="isShowRelateManTwo" @click="confirm_del_relate_two"><span>{{twoRelate}}</span><img
+                                    class="del" src="../../images/cancel-circle.png" alt="" v-if="isCancelRelate"></div>
+                            <div class="options_man" @click="add_relate_man"><img class="man"
+                                                                                  src="../../images/user-plus.png"
+                                                                                  alt=""></div>
+                            <div class="options_man" @click="del_relate_man"><img class="man"
+                                                                                  src="../../images/user-minus.png"
+                                                                                  alt=""></div>
+                        </cell>
                     </group>
                 </div>
-            </div>
-            <div class="time-panel mt10">
-                <group>
-                    <datetime title="开始时间" v-model="minuteListValue" format="YYYY-MM-DD HH:mm"
-                              :minute-list="['00', '15', '30', '45']"></datetime>
-                    <datetime title="截止时间" v-model="minuteListValue2" format="YYYY-MM-DD HH:mm"
-                              :minute-list="['00', '15', '30', '45']"></datetime>
-                    <popup-picker title="申请时长" :data="list_time" v-model="list_time_default"></popup-picker>
-                </group>
-            </div>
-            <div class="pass-panel">
-                <div class="pass-title">
-                    <!--<x-switch title="审批人" v-model="passMan"></x-switch>-->
-                    <cell title="审批人" ></cell>
-                </div>
-                <group>
-                    <cell>
-                        <div id="select-passman">
-                            <div class="options_man" v-if="isShowManOne" @click="confirm_del_one">
-                                <span>{{oneValue}}</span><img class="del" src="../../images/cancel-circle.png"
-                                                              alt="" v-if="isCancel"></div>
-                            <div class="options_man" v-if="isShowManTwo" @click="confirm_del_two">
-                                <span>{{otherValue}}</span><img class="del" src="../../images/cancel-circle.png"
-                                                                alt="" v-if="isCancel"></div>
-                            <div class="options_man" @click="add_pass_man"><img class="man"
-                                                                                src="../../images/user-plus.png"
-                                                                                alt=""></div>
-                            <div class="options_man" @click="del_pass_man"><img class="man"
-                                                                                src="../../images/user-minus.png"
-                                                                                alt=""></div>
-                        </div>
-                    </cell>
-                </group>
-            </div>
-            <div class="pass-panel">
-                <div class="pass-title">
-                    <!--<x-switch title="相关人" v-model="busiMan"></x-switch>-->
-                    <cell title="相关人" ></cell>
-                </div>
-                <group>
-                    <cell>
-                        <div class="options_man" v-if="isShowRelateManOne" @click="confirm_del_relate_one"><span>{{oneRelate}}</span><img
-                                class="del" src="../../images/cancel-circle.png" alt="" v-if="isCancelRelate"></div>
-                        <div class="options_man" v-if="isShowRelateManTwo" @click="confirm_del_relate_two"><span>{{twoRelate}}</span><img
-                                class="del" src="../../images/cancel-circle.png" alt="" v-if="isCancelRelate"></div>
-                        <div class="options_man" @click="add_relate_man"><img class="man"
-                                                                              src="../../images/user-plus.png"
-                                                                              alt=""></div>
-                        <div class="options_man" @click="del_relate_man"><img class="man"
-                                                                              src="../../images/user-minus.png"
-                                                                              alt=""></div>
-                    </cell>
-                </group>
             </div>
             <flexbox class="mt10">
                 <flexbox-item>
                     <!--<x-button type="primary" @click.native="submitFormDraft">保存为草稿</x-button>-->
-                    <x-button type="warn"   @click.native="closeSubmit">取消并返回</x-button>
+                    <x-button type="warn" @click.native="closeSubmit">取消并返回</x-button>
                 </flexbox-item>
                 <flexbox-item>
                     <x-button type="primary" @click.native="submitForm">立即提交</x-button>
                 </flexbox-item>
             </flexbox>
             <!--<flexbox class="mt10">-->
-                    <!--<x-button type="primary" @click.native="closeSubmit">取消并返回</x-button>-->
+            <!--<x-button type="primary" @click.native="closeSubmit">取消并返回</x-button>-->
             <!--</flexbox>-->
             <!--</form>-->
         </div>
@@ -107,19 +90,19 @@
 
 <script>
     import {
-        Datetime,
-        Group,
-        XSwitch,
-        XTextarea,
-        Selector,
-        Cell,
-        Flexbox,
-        XButton,
-        FlexboxItem,
-        PopupPicker,
-        Search,
-        Masker,
-        AjaxPlugin
+            Datetime,
+            Group,
+            XSwitch,
+            XTextarea,
+            Selector,
+            Cell,
+            Flexbox,
+            XButton,
+            FlexboxItem,
+            PopupPicker,
+            Search,
+            Masker,
+            AjaxPlugin
     } from 'vux'
 
     let hours = []
@@ -167,10 +150,10 @@
                 oneRelate: '',
                 twoRelate: '',
                 created_at: this.format(new Date(), 'yyyy-MM-dd'),
-                oneJobNumber:'',
-                otherJobNumber:'',
-                oneRelateJobnumber:'',
-                twoRelateJobnumber:''
+                oneJobNumber: '',
+                otherJobNumber: '',
+                oneRelateJobnumber: '',
+                twoRelateJobnumber: ''
             }
         },
         props: [
@@ -223,7 +206,7 @@
                         .then((response) => {
                             if (response.data.status == true) {
                                 window.history.back(-1);
-                            }else {
+                            } else {
                                 //
                             }
                         })
@@ -253,37 +236,37 @@
             confirm_del_one(){
                 if (this.isCancel == true) {
                     this.isCancel = false;
-                    this.oneJobNumber='';
+                    this.oneJobNumber = '';
                     this.isShowManOne = false;
                 }
             },
             confirm_del_two(){
                 if (this.isCancel == true) {
                     this.isCancel = false;
-                    this.otherJobNumber='';
+                    this.otherJobNumber = '';
                     this.isShowManTwo = false;
                 }
             },
             confirm_del_relate_one(){
                 if (this.isCancelRelate == true) {
                     this.isCancelRelate = false;
-                    this.oneRelateJobnumber='';
+                    this.oneRelateJobnumber = '';
                     this.isShowRelateManOne = false;
                 }
             },
             confirm_del_relate_two(){
                 if (this.isCancelRelate == true) {
                     this.isCancelRelate = false;
-                    this.twoRelateJobnumber='';
+                    this.twoRelateJobnumber = '';
                     this.isShowRelateManTwo = false;
                 }
             },
             add_pass_man(){
                 AjaxPlugin.$http.post('/wechat/getUsersList')
-                    .then((response) => {
-                        var data = response.data.data;
-                        this.getResult(data);
-                    });
+                        .then((response) => {
+                            var data = response.data.data;
+                            this.getResult(data);
+                        });
                 this.isShow = true;
             },
             add_relate_man(){
@@ -318,11 +301,11 @@
                 this.isCancelRelate = false;
                 if (this.oneRelate == '' || this.isShowRelateManOne == false) {
                     this.oneRelate = item.title;
-                    this.oneRelateJobnumber =  item.job_number;
+                    this.oneRelateJobnumber = item.job_number;
                     this.isShowRelateManOne = true;
                 } else {
                     this.twoRelate = item.title;
-                    this.twoRelateJobnumber =  item.job_number;
+                    this.twoRelateJobnumber = item.job_number;
                     this.isShowRelateManTwo = true;
                 }
             },
