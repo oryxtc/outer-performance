@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Voyager;
 
 use App\Attendance;
 use App\Http\Controllers\ExcelController;
+use App\Http\Controllers\WagesController;
 use App\Memo;
 use App\Provident;
 use App\User;
@@ -237,8 +238,11 @@ class VoyagerWageController extends VoyagerBreadController
             ->get()
             ->toArray();
         foreach ($users_list as $key => $user) {
+            $wages_class=new WagesController($user,$limit_date);
+            $wage_data=$wages_class->calculateWage();
+            dd($wage_data);
             //所属区间
-            $save_data[$key]['period_at'] = date('Y-m-d H:i:s', strtotime('-1 month '));
+            $save_data[$key]['period_at'] = date('Y-m-d', strtotime('-1 month '));
             //工号
             $save_data[$key]['job_number'] = $user['job_number'];
             //姓名
@@ -290,6 +294,7 @@ class VoyagerWageController extends VoyagerBreadController
             //创建失败
             $save_data[$key]['created_at'] =date('Y-m-d H:i:s', time());
         }
+        dd($save_data);
         $add_save=Wage::insert($save_data);
         if($add_save===false){
             return $this->apiJson(false,'计算失败!');
@@ -619,8 +624,8 @@ class VoyagerWageController extends VoyagerBreadController
     public function getLimitDate()
     {
         $today_date = date('Y-m', time());
-        $min_limit_date = date('Y-m-d', strtotime(date('Y-m-01', strtotime($today_date)) . ' -1 month -1 day'));
-        $max_limit_date = date('Y-m-d', strtotime(date('Y-m-d', strtotime($min_limit_date)) . ' +1 month -1 day'));
+        $min_limit_date = date('Y-m-d 00:00:00', strtotime(date('Y-m-01', strtotime($today_date)) . ' -1 month'));
+        $max_limit_date = date('Y-m-d 24:00:00', strtotime(date('Y-m-d', strtotime($min_limit_date)) . ' +1 month -1 day'));
         return ['min_limit_date' => $min_limit_date, 'max_limit_date' => $max_limit_date];
     }
 
@@ -635,20 +640,33 @@ class VoyagerWageController extends VoyagerBreadController
         $job_number = $user['job_number'];
         $limit_date = $this->getLimitDate();
         //转正时间
-        $formal_at = empty($user['formal_at']) ? '2000-01-01' : $user['formal_at'];
+        $formal_at = empty($user['formal_at']) ? '1970-01-01' : $user['formal_at'];
         //入职时间
         $entry_at = $user['entry_at'];
         //事假天数
         $leave_day = 0;
         $attendances_list = Attendance::where('job_number', $job_number)
-            ->where('status', 11)
+            ->where('status', Attendance::STATUS_PASSED)
             ->where('type', '<>', '加班')
-            ->whereDate('start_at', '>', $limit_date['min_limit_date'])
-            ->whereDate('start_at', '<=', $limit_date['max_limit_date'])
-            ->whereDate('start_at', '<', $formal_at)
+            ->whereDate('start_at', '<', $limit_date['max_limit_date'])
+            ->whereDate('end_at', '>', $limit_date['min_limit_date'])
             ->get()
             ->toArray();
+
         foreach ($attendances_list as $item) {
+            //确认开始时间
+            if(strtotime($item['start_at']) < strtotime($limit_date['min_limit_date'])){
+                $start_at=$limit_date['min_limit_date'];
+            }else{
+                $start_at=$item['start_at'];
+            }
+            //确认截止时间
+            if(strtotime($item['end_at']) > strtotime($limit_date['max_limit_date'])){
+                $end_at=$limit_date['max_limit_date'];
+            }else{
+                $end_at=$item['end_at'];
+            }
+            dd($limit_date,date('Y-m-d H:i:s',strtotime($limit_date['max_limit_date']. '-1 day')));
             $hours_total = $this->dateToHours($item['continued_at']);
             $leave_day = $leave_day + $hours_total;
         }
