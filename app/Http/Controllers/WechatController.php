@@ -46,7 +46,7 @@ class WechatController extends VoyagerBreadController
                         }
                         return '绑定失败! 密码错误!';
                     }
-                    return "请按照以下格式输入: \t\n  绑定 your@email.com 密码 password \t\n 即可完成绑定!";;
+                    return "请按照以下格式输入: \t\n  绑定 xx@xx.com 密码 xxxxxx \t\n 即可完成绑定!";;
                 }
             }
             return '请关于订阅号,并完成绑定!';
