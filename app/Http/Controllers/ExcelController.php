@@ -244,10 +244,7 @@ class ExcelController extends Controller
         }
         //获取最终数据
         $users_data = $users_data->get()->toArray();
-        //角色id转为角色名称
-        foreach ($users_data as $key=>&$user){
-            $user['role_id']=$this->getRoleName($user['role_id']);
-        }
+
         foreach ($check_data as $key => $value) {
             $head_list_value[] = $head_list[$value];
         }
