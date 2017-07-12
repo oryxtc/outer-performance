@@ -234,6 +234,7 @@ class VoyagerWageController extends VoyagerBreadController
         $limit_date = $this->getLimitDate();
         //获取员工
         $users_list = User::WhereDate('leave_at', '>', $limit_date['min_limit_date'])
+            ->orWhereNull ('leave_at')
             ->get()
             ->toArray();
         foreach ($users_list as $key => $user) {

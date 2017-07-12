@@ -65,6 +65,7 @@ class VoyagerProvidentController extends VoyagerBreadController
 
     public function edit(Request $request, $id)
     {
+
         $slug = $this->getSlug($request);
 
         $dataType = Voyager::model('DataType')->where('slug', '=', $slug)->first();
@@ -94,6 +95,7 @@ class VoyagerProvidentController extends VoyagerBreadController
     // POST BR(E)AD
     public function update(Request $request, $id)
     {
+
         //验证数据
         $this->validator($request->all())->validate();
 
@@ -237,7 +239,7 @@ class VoyagerProvidentController extends VoyagerBreadController
     protected function validator(array $data)
     {
         return \Validator::make($data, [
-            'job_number' => 'required|string|max:150|exists:job_number',
+            'job_number' => 'required|string|max:150|exists:users,job_number',
         ]);
     }
 }
