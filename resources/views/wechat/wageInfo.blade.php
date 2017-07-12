@@ -19,7 +19,7 @@
                     <!-- form start -->
                     <div class="list-group">
                         @foreach($dataType->readRows as $row)
-                            @if($row->field=='status' || $row->field=='remark' || $row->field=='created_at')
+                            @if($row->field=='status' || $row->field=='social_security_company'|| $row->field=='provident_fund_company'|| $row->field=='total_company'|| $row->field=='remark' || $row->field=='created_at')
 
                             @else
                                 <div class="panel-heading" style="border-bottom:0;">
