@@ -233,68 +233,13 @@ class VoyagerWageController extends VoyagerBreadController
         $save_data = [];
         $limit_date = $this->getLimitDate();
         //获取员工
-        $users_list = User::where('status', '在职')
-            ->orWhereDate('leave_at', '>', $limit_date['min_limit_date'])
+        $users_list = User::WhereDate('leave_at', '>', $limit_date['min_limit_date'])
             ->get()
             ->toArray();
         foreach ($users_list as $key => $user) {
             $wages_class=new WagesController($user);
-            $wage_data=$wages_class->calculateWage();
-            dd($wage_data);
-            //所属区间
-            $save_data[$key]['period_at'] = date('Y-m-d', strtotime('-1 month '));
-            //工号
-            $save_data[$key]['job_number'] = $user['job_number'];
-            //姓名
-            $save_data[$key]['username'] = $this->getUsername($user);
-            //试用期天数
-            $save_data[$key]['probation'] = $this->getProbation($user);
-            //正式期天数
-            $save_data[$key]['formal'] = $this->getFormal($user);
-            //试用加班天数
-            $save_data[$key]['overtime_probation'] = $this->getOvertimeProbation($user)['overtime_probation'];
-            //正式加班天数
-            $save_data[$key]['overtime_formal'] = $this->getOvertimeProbation($user)['overtime_formal'];
-            //病假天数
-            $save_data[$key]['sick'] = $this->getSick($user);
-            //产假天数
-            $save_data[$key]['maternity'] = $this->getMaternity($user);
-            //在岗工资
-            $save_data[$key]['pay_wages'] = $this->getPayWages($user);
-            //加班工资
-            $save_data[$key]['pay_sick'] = $this->getPaySick($user);
-            //工资小计
-            $save_data[$key]['pay_subtotal'] = $save_data[$key]['pay_wages'] - 0 + $save_data[$key]['pay_sick'];
-            //奖金津贴
-            $save_data[$key]['bonus'] = $this->getBonus($user);
-            //月固定津贴
-            $save_data[$key]['fixed'] = $this->getFixed($user);
-            //交通个通讯福利
-            $save_data[$key]['traffic_communication'] = $this->getTrafficCommunication($user);
-            //事故扣款
-            $save_data[$key]['charge'] = $this->getCharge($user);
-            //应发工资
-            $save_data[$key]['pay_should'] = round($save_data[$key]['pay_subtotal'] - 0 + $save_data[$key]['bonus'] + $save_data[$key]['fixed'] + $save_data[$key]['traffic_communication'] - $save_data[$key]['charge'], 2);
-            //社保个人部分
-            $save_data[$key]['social_security_personal'] = round($this->getProvidentInfo($user)['social_security_personal'],2);
-            //公积金个人部分
-            $save_data[$key]['provident_fund_personal'] = round($this->getProvidentInfo($user)['provident_fund_personal'],2);
-            //税前应发小计
-            $save_data[$key]['pre_tax_subtotal'] = round($save_data[$key]['pay_should']-$save_data[$key]['social_security_personal']-$save_data[$key]['provident_fund_personal'],2);
-            //代扣个税
-            $save_data[$key]['tax_personal'] = $this->getTaxPersonal($user,$save_data[$key]['pre_tax_subtotal']);
-            //实发工资
-            $save_data[$key]['pay_real'] = round( $save_data[$key]['pre_tax_subtotal'] -$save_data[$key]['tax_personal'] ,2);
-            //现金发放
-            $save_data[$key]['cash'] = $this->getCash($user);
-            //银行发放
-            $save_data[$key]['pay_bank'] = round( $save_data[$key]['pay_real'] -$save_data[$key]['cash'] ,2);
-            //状态
-            $save_data[$key]['status'] = 0;
-            //创建失败
-            $save_data[$key]['created_at'] =date('Y-m-d H:i:s', time());
+            $save_data[]=$wages_class->calculateWage();
         }
-        dd($save_data);
         $add_save=Wage::insert($save_data);
         if($add_save===false){
             return $this->apiJson(false,'计算失败!');
@@ -625,7 +570,7 @@ class VoyagerWageController extends VoyagerBreadController
     {
         $today_date = date('Y-m', time());
         $min_limit_date = date('Y-m-d 00:00:00', strtotime(date('Y-m-01', strtotime($today_date)) . ' -1 month'));
-        $max_limit_date = date('Y-m-d 00:00:00', strtotime(date('Y-m-d', strtotime($min_limit_date)) . ' +1 month -1 day'));
+        $max_limit_date = date('Y-m-d 23:59:59', strtotime(date('Y-m-d', strtotime($min_limit_date)) . ' +1 month -1 day'));
         return ['min_limit_date' => $min_limit_date, 'max_limit_date' => $max_limit_date];
     }
 

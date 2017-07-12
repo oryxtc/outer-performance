@@ -205,11 +205,14 @@
             $("input[name='checkData'][value='period_at']").attr('checked', true);
             $("input[name='checkData'][value='username']").attr('checked', true);
             $("input[name='checkData'][value='job_number']").attr('checked', true);
+            $("input[name='checkData'][value='social_security_company']").attr('checked', true);
+            $("input[name='checkData'][value='provident_fund_company']").attr('checked', true);
             $("input[name='checkData'][value='pre_tax_subtotal']").attr('checked', true);
             $("input[name='checkData'][value='tax_personal']").attr('checked', true);
             $("input[name='checkData'][value='pay_real']").attr('checked', true);
             $("input[name='checkData'][value='pay_bank']").attr('checked', true);
             $("input[name='checkData'][value='cash']").attr('checked', true);
+            $("input[name='checkData'][value='total_company']").attr('checked', true);
             $("input[name='checkData'][value='status']").attr('checked', true);
 
             //初始化th
