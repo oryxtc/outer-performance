@@ -13,8 +13,9 @@
                 <div class="panel panel-bordered">
 
                     <div class="panel-heading">
-                        <a class="btn btn-primary panel-title text-center" href="{{route('wechat.showApplyAttendance')}}">申请考勤</a>
-                        <h3 class="panel-title" >考勤列表</h3>
+                        <a class="btn btn-primary panel-title text-center"
+                           href="{{route('wechat.showApplyAttendance')}}">申请考勤</a>
+                        <h3 class="panel-title">考勤列表</h3>
                     </div>
                     <!-- /.box-header -->
                     <!-- form start -->
@@ -22,8 +23,10 @@
                         @foreach($data as $key=>$item)
                             <a href="{{route('wechat.attendanceInfo',['id'=>$item['id']])}}"
                                class="list-group-item ">
+                                <div style="width:100%; white-space:nowrap;text-overflow:ellipsis;overflow:hidden;">
                                 {{$item['title']}}
-                                <span style="margin-right: 10px" class="pull-right">状态:{{$item['status']}}</span>
+                                </div>
+                                <div>状态:{{$item['status']}}</div>
                             </a>
                         @endforeach
                     </div>

@@ -627,7 +627,13 @@ class ExcelController extends Controller
             }
             foreach ($attendance as $key => $value) {
                 //特殊处理某些数据
-                if ($head_list_flip[$key] === 'start_at') {
+                if($head_list_flip[$key] === 'title'){
+                    if(empty($value)){
+                        $save_data[$attendance_key][$head_list_flip[$key]] =$save_data[$attendance_key]['username'].'_'.$save_data[$attendance_key]['type'].'_'.date('Y-m-d',strtotime($save_data[$attendance_key]['created_at']));
+                    }else{
+                        $save_data[$attendance_key][$head_list_flip[$key]] = $value;
+                    }
+                } elseif ($head_list_flip[$key] === 'start_at') {
                     $validator=\Validator::make(['start_at'=>$value],[
                         'start_at'=>'date'
                     ]);
