@@ -8,9 +8,11 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use TCG\Voyager\Facades\Voyager;
 use TCG\Voyager\Models\Role;
+use TCG\Voyager\Traits\VoyagerUser;
 
 class VoyagerUserController extends VoyagerBreadController
 {
+    use VoyagerUser;
 
     public function index(Request $request)
     {
@@ -58,6 +60,13 @@ class VoyagerUserController extends VoyagerBreadController
         }
         //多选框字段
         $checkData = ExcelController::CHECK_DATA;
+        //看是否是超级管理员
+        $role_id=auth()->user()->role_id;
+        $role_name=\DB::table('roles')->where('id',$role_id)->value('name');
+        if($role_name!=='admin'){
+            unset($checkData['trial_pay']);
+            unset($checkData['formal_pay']);
+        }
         return view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable', 'checkData'));
     }
 
