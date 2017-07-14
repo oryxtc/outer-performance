@@ -56,7 +56,7 @@
 @section('content')
     <div class="page-content container-fluid">
         {{--下来选择框--}}
-        <form method="post" id="search-form" class="form-inline" role="form"
+        <form method="post" class="form-inline" role="form"
               style="margin-top: 20px;margin-left: -15px">
             <div class="dropdown" style="margin-left: 4%">
                 <button id="dLabel" type="button" class="btn btn-info" data-toggle="dropdown" data-value=""
@@ -73,23 +73,25 @@
                 </ul>
                 <input type="text" id="search-data" class="form-control" data-name="">
 
-                <button  type="button" class="btn btn-info" data-value=""data-name=""  style="width: 110px;margin-left: 20px">
+                <button type="button" class="btn btn-info" data-value="" data-name=""
+                        style="width: 110px;margin-left: 20px">
                     开始月份
                 </button>
                 <div class='input-group date form_datetime' id='datetimepicker1'>
                     <input type='text' id="period-at-start" class="form-control" readonly="readonly"/>
                     <span class="input-group-addon">
-                        <span class="glyphicon glyphicon-calendar" ></span>
+                        <span class="glyphicon glyphicon-calendar"></span>
                     </span>
                 </div>
 
-                <button  type="button" class="btn btn-info" data-value=""data-name=""  style="width: 110px;margin-left: 20px">
+                <button type="button" class="btn btn-info" data-value="" data-name=""
+                        style="width: 110px;margin-left: 20px">
                     结束月份
                 </button>
                 <div class='input-group date form_datetime' id='datetimepicker2'>
                     <input type='text' id="period-at-end" class="form-control" readonly="readonly"/>
                     <span class="input-group-addon">
-                        <span class="glyphicon glyphicon-calendar" ></span>
+                        <span class="glyphicon glyphicon-calendar"></span>
                     </span>
                 </div>
                 <button type="submit" id="search-btn" class="btn btn-primary">搜索</button>
@@ -177,8 +179,8 @@
                 locale: moment.locale('zh-cn'),
                 viewMode: 'months',
                 format: "YYYY-MM",
-                ignoreReadonly:true,
-                showClear:true
+                ignoreReadonly: true,
+                showClear: true
             });
 
             //初始化datatables
@@ -264,16 +266,18 @@
 
             //导出社保和公积金列表
             $('#exportProvidents').click(function () {
+                //先清空
+                $("#search-form input").remove()
                 //搜索栏
                 if ($("#dLabel").data('value')) {
                     var search_key = $("#dLabel").data('name');
                     var search_value = $("#dLabel").data('value');
                     $('#search-form').append("<input type='text' name=searchData[" + search_key + "] value=" + search_value + " >")
                 }
-                if($("#period-at-start").data('value')){
+                if ($("#period-at-start").data('value')) {
                     $('#search-form').append("<input type='text' name='period_at_start' value=" + $("#period-at-start").data('value') + " >")
                 }
-                if($("#period-at-end").data('value')){
+                if ($("#period-at-end").data('value')) {
                     $('#search-form').append("<input type='text' name='period_at_end' value=" + $("#period-at-end").data('value') + " >")
                 }
                 $("#search-form").submit()

@@ -79,7 +79,7 @@
 @section('content')
     <div class="page-content container-fluid">
         {{--下来选择框--}}
-        <form method="post" id="search-form" class="form-inline" role="form">
+        <form method="post" id="" class="form-inline" role="form">
             {{--多选控制--}}
             <h3 class="page-title" style="height: 50px">
                 <i class="voyager-search"></i> 勾选显示字段
@@ -255,6 +255,8 @@
                 var search_value=$("#search-data").val();
                 $("#dLabel").data('name',search_key);
                 $("#dLabel").data('value',search_value);
+                $("#period-at-start").data('value', $("#period-at-start").val());
+                $("#period-at-end").data('value', $("#period-at-end").val());
                 oTable.draw();
                 e.preventDefault();
             });
@@ -312,6 +314,8 @@
                     $(".alert-danger").text('请至少选择一个字段进行导出!').show().delay(3000).hide(0)
                     return
                 }
+                //先清空
+                $("#search-form input").remove()
                 //选择的
                 $(check_data_list).each(function (key, value) {
                     $('#search-form').append("<input type='text' name=checkData[" + key + "] value=" + $(value).val() + " />")
@@ -321,6 +325,12 @@
                     var search_key = $("#dLabel").data('name');
                     var search_value = $("#dLabel").data('value');
                     $('#search-form').append("<input type='text' name=searchData[" + search_key + "] value=" + search_value + " >")
+                }
+                if ($("#period-at-start").data('value')) {
+                    $('#search-form').append("<input type='text' name='period_at_start' value=" + $("#period-at-start").data('value') + " >")
+                }
+                if ($("#period-at-end").data('value')) {
+                    $('#search-form').append("<input type='text' name='period_at_end' value=" + $("#period-at-end").data('value') + " >")
                 }
                 $("#search-form").submit()
             })

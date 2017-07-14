@@ -243,6 +243,8 @@
 
             //导出考勤
             $('#exportAttendances').click(function () {
+                //先清空
+                $("#search-form input").remove()
                 //搜索栏
                 if ($("#dLabel").data('value')) {
                     var search_key = $("#dLabel").data('name');
