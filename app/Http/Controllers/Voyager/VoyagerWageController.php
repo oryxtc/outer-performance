@@ -583,7 +583,7 @@ class VoyagerWageController extends VoyagerBreadController
     {
         $today_date = date('Y-m', time());
         $min_limit_date = date('Y-m-d 00:00:00', strtotime(date('Y-m-01', strtotime($today_date)) . ' -1 month'));
-        $max_limit_date = date('Y-m-d 23:59:59', strtotime(date('Y-m-d', strtotime($min_limit_date)) . ' +1 month -1 day'));
+        $max_limit_date = date('Y-m-d 24:00:00', strtotime(date('Y-m-d', strtotime($min_limit_date)) . ' +1 month -1 day'));
         return ['min_limit_date' => $min_limit_date, 'max_limit_date' => $max_limit_date];
     }
 
