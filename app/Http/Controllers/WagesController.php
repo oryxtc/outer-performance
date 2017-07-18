@@ -100,7 +100,7 @@ class WagesController extends Controller
         //银行发放
         $save_data['pay_bank'] = round($save_data['pay_real'] - $save_data['cash'], 2);
         //公司成本
-        $save_data['total_company'] = round($save_data['pay_real'] + $save_data['social_security_company'] + $save_data['provident_fund_company'], 2);
+        $save_data['total_company'] = round($save_data['pay_real']+  $save_data['social_security_personal']+ $save_data['social_security_company']+ $save_data['provident_fund_personal'] + $save_data['provident_fund_company'] + $save_data['tax_personal'], 2);
         //状态
         $save_data['status'] = 0;
         //创建失败
@@ -544,6 +544,7 @@ class WagesController extends Controller
      */
     public function getSick()
     {
+        $this->sick=floor($this->sick_probation + $this->sick_formal);
         return floor($this->sick_probation + $this->sick_formal);
     }
 
@@ -554,6 +555,7 @@ class WagesController extends Controller
      */
     public function getMaternity()
     {
+        $this->maternity=floor($this->maternity_formal + $this->maternity_probation);
         return floor($this->maternity_formal + $this->maternity_probation);
     }
 

@@ -237,6 +237,18 @@ class VoyagerWageController extends VoyagerBreadController
             ->orWhereNull ('leave_at')
             ->get()
             ->toArray();
+        //获取未计算员工
+        $calculate_users_list=Wage::WhereDate('period_at', '>=', $limit_date['min_limit_date'])
+            ->WhereDate('period_at', '<', $limit_date['max_limit_date'])
+            ->pluck('job_number')
+            ->toArray();
+        //过滤掉已经计算过的
+        foreach ($users_list as $key=>$item){
+            if(in_array($item['job_number'],$calculate_users_list)){
+                unset($users_list[$key]);
+            }
+        }
+        //开始计算
         foreach ($users_list as $key => $user) {
             $wages_class=new WagesController($user);
             $save_data[]=$wages_class->calculateWage();
