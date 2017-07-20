@@ -1,4 +1,4 @@
-@if (Voyager::can('delete_users') && $role_name!=='admin')
+@if (Voyager::can('delete_users') && $user->id !== 1 )
     <a href="javascript:;" title="Delete" class="btn btn-sm btn-danger pull-right delete" data-id="{{ $user->id }}"
        id="delete-{{ $user->id }}">
         <i class="voyager-trash"></i> <span class="hidden-xs hidden-sm">删除</span>
