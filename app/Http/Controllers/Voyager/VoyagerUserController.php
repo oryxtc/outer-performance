@@ -257,7 +257,11 @@ class VoyagerUserController extends VoyagerBreadController
         });
         //添加编辑
         $response_data = $response_data->addColumn('action', function (User $user) {
-            return view('voyager::users.operate', ['user' => $user]);
+            //看是否是超级管理员
+            $role_id=User::where('id',$user->id)->value('role_id');
+            $role_name=\DB::table('roles')->where('id',$role_id)->value('name');
+
+            return view('voyager::users.operate', ['user' => $user,'role_name'=>$role_name]);
         });
         //指定搜索栏模糊匹配
         $response_data = $response_data->filter(function ($query) use ($request, $head_list) {
