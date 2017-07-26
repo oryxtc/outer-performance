@@ -100,9 +100,9 @@ class ExcelController extends Controller
         'report_relation' => '汇报关系',
         'tutor_name' => '导师名称',
         'hrbp' => 'HRBP',
-        'professional_rank' => '专业职级',
+        'professional_rank' => '管理职级',
         'professional_title' => '专业称谓',
-        'management_rank' => '管理级别',
+        'management_rank' => '专业职级',
         'management_title' => '管理称谓',
         'graduate_school' => '毕业学校',
         'graduate_at' => '毕业时间',
@@ -307,7 +307,7 @@ class ExcelController extends Controller
                     $save_data[$user_key][$head_list_flip[$key]] = empty($value) ? bcrypt($user[$head_list['email']]) : bcrypt($value);
                     //试用薪酬
                 } elseif ($head_list_flip[$key] === 'trial_pay') {
-                    $save_data[$user_key][$head_list_flip[$key]] = empty($save_value) ? round($user[$head_list['formal_pay']], 2) : round($value, 2);
+                    $save_data[$user_key][$head_list_flip[$key]] = empty($save_value) ? round($user[$head_list['trial_pay']], 2) : round($value, 2);
                 } elseif ($head_list_flip[$key] === 'status'){
                     $save_data[$user_key][$head_list_flip[$key]] = empty($value) ? '在职' : $value;
                 } else {
