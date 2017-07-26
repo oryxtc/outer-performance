@@ -100,7 +100,7 @@ class ExcelController extends Controller
         'report_relation' => '汇报关系',
         'tutor_name' => '导师名称',
         'hrbp' => 'HRBP',
-        'professional_rank' => '管理职级',
+        'professional_rank' => '管理级别',
         'professional_title' => '专业称谓',
         'management_rank' => '专业职级',
         'management_title' => '管理称谓',
