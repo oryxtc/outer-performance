@@ -676,10 +676,11 @@ class WagesController extends Controller
         //计算试用期天数
         if (strtotime($entry_at) < strtotime($limit_date['min_limit_date'])) {
             $probation_start_at = $limit_date['min_limit_date'];
-        } else {
+        } elseif(strtotime($entry_at) > strtotime($limit_date['max_limit_date'])){
+            $probation_start_at = $limit_date['max_limit_date'];
+        }else{
             $probation_start_at = $entry_at;
         }
-
         if (empty($formal_at)) {
             if (strtotime($leave_at) < strtotime($limit_date['max_limit_date'])) {
                 $probation_end_at = $leave_at;
