@@ -148,14 +148,14 @@ class VoyagerWelfareController extends VoyagerBreadController
     }
 
     /**
-     * 验证管理级别
+     * 验证专业子等
      * @param array $data
      * @return mixed
      */
     protected function validator(array $data)
     {
         return \Validator::make($data, [
-            'management_rank' => 'required|string',
+            'professional_so' => 'required|string',
         ]);
     }
 }

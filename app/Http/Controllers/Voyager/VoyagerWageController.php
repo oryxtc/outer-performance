@@ -402,8 +402,8 @@ class VoyagerWageController extends VoyagerBreadController
         $probation = $this->getProbation($user);
         $formal = $this->getFormal($user);
 
-        $management_rank = $user['professional_rank'];
-        $info = Welfare::where('professional_rank', $management_rank)
+        $professional_so = $user['professional_so'];
+        $info = Welfare::where('professional_so', $professional_so)
             ->first();
         if (empty($info)) {
             return 0;
@@ -447,8 +447,8 @@ class VoyagerWageController extends VoyagerBreadController
         $probation = $this->getProbation($user);
         $formal = $this->getFormal($user);
 
-        $management_rank = $user['professional_rank'];
-        $fixed = Welfare::where('professional_rank', $management_rank)
+        $professional_so = $user['professional_so'];
+        $fixed = Welfare::where('professional_so', $professional_so)
             ->value('fixed');
         if ($probation - 0 + $formal < 25) {
             $fixed = $fixed / 30 * ($probation + $formal);
@@ -464,7 +464,7 @@ class VoyagerWageController extends VoyagerBreadController
     public function getBonus($user)
     {
         $job_number = $user['job_number'];
-        $management_rank = $user['professional_rank'];
+        $professional_so = $user['professional_so'];
         $limit_date = $this->getLimitDate();
         $bonus = Memo::where('job_number', $job_number)
             ->whereDate('period_at', '<=', $limit_date['max_limit_date'])
@@ -474,8 +474,8 @@ class VoyagerWageController extends VoyagerBreadController
             ->whereDate('period_at', '<=', $limit_date['max_limit_date'])
             ->whereDate('period_at', '>', $limit_date['min_limit_date'])
             ->sum('extend');
-        //获取对应管理级别的扩展福利
-        $welfare_info = Welfare::where('professional_rank', $management_rank)
+        //获取对应专业子等的扩展福利
+        $welfare_info = Welfare::where('professional_so', $professional_so)
             ->first();
         return round($bonus-0+$extend+$welfare_info['extended_first']+$welfare_info['extended_second'], 2);
     }

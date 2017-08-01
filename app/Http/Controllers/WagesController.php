@@ -227,8 +227,8 @@ class WagesController extends Controller
             return round(100 / 30 * ($formal + $probation), 2);
         }
 
-        $management_rank = $user['professional_rank'];
-        $info = Welfare::where('management_rank', $management_rank)
+        $professional_so = $user['professional_so'];
+        $info = Welfare::where('professional_so', $professional_so)
             ->first();
 
         if (empty($info)) {
@@ -246,6 +246,7 @@ class WagesController extends Controller
                 $TrafficCommunication = $TrafficCommunication / 30 * ($formal);
             }
         }
+
         return round($TrafficCommunication, 2);
     }
 
@@ -814,9 +815,9 @@ class WagesController extends Controller
             return round(100 / 30 * ($formal + $probation), 2);
         }
 
-        $management_rank = $user['professional_rank'];
+        $professional_so = $user['professional_so'];
 
-        $fixed = Welfare::where('management_rank', $management_rank)
+        $fixed = Welfare::where('professional_so', $professional_so)
             ->value('fixed');
         if ($formal < 25) {
             $fixed = $fixed / 30 * ($formal);
