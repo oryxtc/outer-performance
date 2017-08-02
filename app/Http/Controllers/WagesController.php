@@ -738,6 +738,7 @@ class WagesController extends Controller
         //正式期期总时长(天数)
         $formal_total_at = (strtotime($formal_end_at) - strtotime($formal_start_at)) / 3600 / 24;
         $formal_total_at = ceil($formal_total_at - $this->sick_formal - $this->maternity_formal - $this->think_formal);
+        $formal_total_at = ($formal_total_at > 30 ? 30 : $formal_total_at);
         $this->formal = $formal_total_at;
         return $formal_total_at;
     }
