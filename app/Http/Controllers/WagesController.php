@@ -107,11 +107,27 @@ class WagesController extends Controller
         $save_data['pay_bank'] = round($save_data['pay_real'] - $save_data['cash'], 2);
         //公司成本
         $save_data['total_company'] = round($save_data['pay_real']+  $save_data['social_security_personal']+ $save_data['social_security_company']+ $save_data['provident_fund_personal'] + $save_data['provident_fund_company'] + $save_data['tax_personal'], 2);
+        //备注
+        $save_data['remark'] = $this->getRemark();
         //状态
         $save_data['status'] = 0;
         //创建失败
         $save_data['created_at'] = date('Y-m-d H:i:s', time());
         return $save_data;
+    }
+
+    /**
+     * 获取备注
+     * @return mixed
+     */
+    public function getRemark(){
+        $job_number = $this->job_number;
+        $limit_date = $this->limit_date;
+        $remark=Memo::where('job_number', $job_number)
+            ->whereDate('period_at', '<=', $limit_date['max_limit_date'])
+            ->whereDate('period_at', '>=', $limit_date['min_limit_date'])
+            ->value('remark');
+        return $remark;
     }
 
 
