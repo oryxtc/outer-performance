@@ -33,4 +33,5 @@ return [
     'Categories' => '分类管理',
     'Posts' => '资讯管理',
     'Memos' => '备忘录管理',
+    'Constants' => '基本配置',
 ];

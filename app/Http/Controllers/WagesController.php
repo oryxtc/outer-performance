@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 
 use App\Attendance;
+use App\Constant;
 use App\Memo;
 use App\Provident;
 use App\User;
@@ -737,8 +738,8 @@ class WagesController extends Controller
         }
         //正式期期总时长(天数)
         $formal_total_at = (strtotime($formal_end_at) - strtotime($formal_start_at)) / 3600 / 24;
-        $formal_total_at = ceil($formal_total_at - $this->sick_formal - $this->maternity_formal - $this->think_formal);
         $formal_total_at = ($formal_total_at > 30 ? 30 : $formal_total_at);
+        $formal_total_at = ceil($formal_total_at - $this->sick_formal - $this->maternity_formal - $this->think_formal);
         $this->formal = $formal_total_at;
         return $formal_total_at;
     }
@@ -759,8 +760,11 @@ class WagesController extends Controller
         $sick = $this->sick;
         //产假天数
         $maternity = $this->maternity;
+        //病假工资
+        $sick_pay=floatval(Constant::where('key','sick_pay')->value('value'));
+        $maternity_pay=floatval(Constant::where('key','maternity_pay')->value('value'));
 
-        $pay_wages = $user['trial_pay'] / 30 * $probation + $user['formal_pay'] / 30 * $formal + 1200 / 30 * $sick + 1800 / 30 * $maternity;
+        $pay_wages = $user['trial_pay'] / 30 * $probation + $user['formal_pay'] / 30 * $formal + $sick_pay / 30 * $sick + $maternity_pay / 30 * $maternity;
 
         return round($pay_wages, 2);
     }
