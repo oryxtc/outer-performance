@@ -254,13 +254,13 @@ class WagesController extends Controller
         $info = $info->toArray();
         if ($driver == '是') {
             $TrafficCommunication = $info['traffic_driver'] - 0 + $info['communication'] + $info['extended_first'] + $info['extended_second'];
-            if ($formal < 25) {
-                $TrafficCommunication = $TrafficCommunication / 30 * ($formal);
+            if (($formal+$probation) < 25) {
+                $TrafficCommunication = $TrafficCommunication / 30 * ($formal+$probation);
             }
         } else {
             $TrafficCommunication = $info['traffic_notdriver'] - 0 + $info['communication'] + $info['extended_first'] + $info['extended_second'];
-            if ($formal < 25) {
-                $TrafficCommunication = $TrafficCommunication / 30 * ($formal);
+            if ($formal+$probation < 25) {
+                $TrafficCommunication = $TrafficCommunication / 30 * ($formal+$probation);
             }
         }
 
