@@ -840,8 +840,8 @@ class WagesController extends Controller
 
         $fixed = Welfare::where('professional_so', $professional_so)
             ->value('fixed');
-        if ($formal < 25) {
-            $fixed = $fixed / 30 * ($formal);
+        if (($formal+$probation) < 25) {
+            $fixed = $fixed / 30 * ($formal+$probation);
         }
         return round($fixed, 2);
     }
