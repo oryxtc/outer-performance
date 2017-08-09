@@ -271,6 +271,7 @@ class ExcelController extends Controller
      */
     public function importUsers(Request $request)
     {
+        set_time_limit(120);
         //从导入的excel中获取数据
         $filename = $request->file('file')->getPathname();
         $users_data = \Excel::load($filename, function ($reader) {
@@ -416,6 +417,7 @@ class ExcelController extends Controller
      */
     public function importProvidents(Request $request)
     {
+        set_time_limit(120);
         //从导入的excel中获取数据
         $filename = $request->file('file')->getPathname();
         $providents_data = \Excel::load($filename, function ($reader) {
@@ -592,6 +594,7 @@ class ExcelController extends Controller
      */
     public function importAttendances(Request $request)
     {
+        set_time_limit(120);
         //从导入的excel中获取数据
         $filename = $request->file('file')->getPathname();
         $attendances_data = \Excel::load($filename, function ($reader) {
@@ -766,6 +769,7 @@ class ExcelController extends Controller
      */
     public function importMemos(Request $request)
     {
+        set_time_limit(120);
         //从导入的excel中获取数据
         $filename = $request->file('file')->getPathname();
         $memos_data = \Excel::load($filename, function ($reader) {
