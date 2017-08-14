@@ -714,8 +714,10 @@ class WagesController extends Controller
                 $probation_end_at = $limit_date['max_limit_date'];
             }
         }
+
         //试用期总时长(天数)
         $probation_total_at = (strtotime($probation_end_at) - strtotime($probation_start_at)) / 3600 / 24;
+        $probation_total_at = ($probation_total_at <= 0 ? 0 : $probation_total_at);
         $probation_total_at = ($probation_total_at > 30 ? 30 : $probation_total_at);
         $probation_total_at = floor($probation_total_at - $this->sick_probation - $this->maternity_probation - $this->think_probation);
         $this->probation = $probation_total_at;
@@ -755,6 +757,7 @@ class WagesController extends Controller
         }
         //正式期期总时长(天数)
         $formal_total_at = (strtotime($formal_end_at) - strtotime($formal_start_at)) / 3600 / 24;
+        $formal_total_at = ($formal_total_at <= 0 ? 0 : $formal_total_at);
         $formal_total_at = ($formal_total_at > 30 ? 30 : $formal_total_at);
         $formal_total_at = ceil($formal_total_at - $this->sick_formal - $this->maternity_formal - $this->think_formal);
         $this->formal = $formal_total_at;
