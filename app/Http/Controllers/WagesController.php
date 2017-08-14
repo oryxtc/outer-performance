@@ -716,6 +716,7 @@ class WagesController extends Controller
         }
         //试用期总时长(天数)
         $probation_total_at = (strtotime($probation_end_at) - strtotime($probation_start_at)) / 3600 / 24;
+        $probation_total_at = ($probation_total_at > 30 ? 30 : $probation_total_at);
         $probation_total_at = floor($probation_total_at - $this->sick_probation - $this->maternity_probation - $this->think_probation);
         $this->probation = $probation_total_at;
         return $probation_total_at;
