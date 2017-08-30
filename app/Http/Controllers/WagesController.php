@@ -820,6 +820,9 @@ class WagesController extends Controller
         $formal_total_at = ($formal_total_at <= 0 ? 0 : $formal_total_at);
         $formal_total_at = ($formal_total_at >= $limit_date['day_number'] ? $this->month_daily : $formal_total_at);
         $formal_total_at = round($formal_total_at - $this->sick_formal - $this->maternity_formal - $this->think_formal, 1);
+        if ($formal_total_at + $this->probation >= $this->month_daily) {
+            $formal_total_at = $this->month_daily - $this->probation;
+        }
         $this->formal = $formal_total_at;
         return $formal_total_at;
     }
