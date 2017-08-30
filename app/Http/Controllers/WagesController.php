@@ -30,6 +30,7 @@ class WagesController extends Controller
     public $provident_info      = [];// 社保公积金信息
     public $salary              = 0; // 薪酬
     public $daily_hours         = 0; // 每日工作时长
+    public $month_daily         = 0; // 每月工作时长
 
 
     public function __construct($user)
@@ -52,6 +53,8 @@ class WagesController extends Controller
         $this->provident_info = $this->getProvidentInfo();
 
         $this->daily_hours = $this->getDailyHours();
+
+        $this->month_daily = $this->getMonthDaily();
 
         $this->salary = $this->getSalaryInfo();
 
@@ -130,9 +133,21 @@ class WagesController extends Controller
      */
     public function getDailyHours()
     {
-        $daily_hours = Constant::where('key', 'daily_hours2')->value('value');
+        $daily_hours = Constant::where('key', 'daily_hours')->value('value');
         $daily_hours = $daily_hours ?: 8;
         return $daily_hours;
+    }
+
+
+    /**
+     * 获取每月工作时长
+     * @return mixed
+     */
+    public function getMonthDaily()
+    {
+        $month_daily = Constant::where('key', 'month_daily')->value('value');
+        $month_daily = $month_daily ?: 8;
+        return $month_daily;
     }
 
     /**
@@ -143,13 +158,13 @@ class WagesController extends Controller
         $user = $this->user;
         $daily_hours = $this->daily_hours;
         //试用期日薪
-        $data['trial_daily_salary'] = round($user['trial_pay'] / 30, 2);
+        $data['trial_daily_salary'] = round($user['trial_pay'] / $this->month_daily, 2);
         //试用期时新
-        $data['trial_hourly_salary'] = round($user['trial_pay'] / 30 / $daily_hours, 2);
+        $data['trial_hourly_salary'] = round($user['trial_pay'] / $this->month_daily / $daily_hours, 2);
         //正式期日薪
-        $data['formal_daily_salary'] = round($user['formal_pay'] / 30, 2);
+        $data['formal_daily_salary'] = round($user['formal_pay'] / $this->month_daily, 2);
         //正式期日薪
-        $data['formal_hourly_salary'] = round($user['formal_pay'] / 30 / $daily_hours, 2);
+        $data['formal_hourly_salary'] = round($user['formal_pay'] / $this->month_daily / $daily_hours, 2);
         return $data;
     }
 
@@ -280,7 +295,7 @@ class WagesController extends Controller
 
         //如果是离职员工
         if ($user['status'] === '离职') {
-            return round(100 / 30 * ($formal + $probation), 2);
+            return round(100 / $this->month_daily * ($formal + $probation), 2);
         }
 
         $professional_so = $user['professional_so'];
@@ -294,12 +309,12 @@ class WagesController extends Controller
         if ($driver == '是') {
             $TrafficCommunication = $info['traffic_driver'] - 0 + $info['communication'] + $info['extended_first'] + $info['extended_second'];
             if (($formal + $probation) < 25) {
-                $TrafficCommunication = $TrafficCommunication / 30 * ($formal + $probation);
+                $TrafficCommunication = $TrafficCommunication / $this->month_daily * ($formal + $probation);
             }
         } else {
             $TrafficCommunication = $info['traffic_notdriver'] - 0 + $info['communication'] + $info['extended_first'] + $info['extended_second'];
             if ($formal + $probation < 25) {
-                $TrafficCommunication = $TrafficCommunication / 30 * ($formal + $probation);
+                $TrafficCommunication = $TrafficCommunication / $this->month_daily * ($formal + $probation);
             }
         }
 
@@ -763,7 +778,7 @@ class WagesController extends Controller
         //试用期总时长(天数)
         $probation_total_at = ceil((strtotime($probation_end_at) - strtotime($probation_start_at)) / 3600 / 24);
         $probation_total_at = ($probation_total_at <= 0 ? 0 : $probation_total_at);
-        $probation_total_at = ($probation_total_at >= $limit_date['day_number'] ? 30 : $probation_total_at);
+        $probation_total_at = ($probation_total_at >= $limit_date['day_number'] ? $this->month_daily : $probation_total_at);
         $probation_total_at = round($probation_total_at - $this->sick_probation - $this->maternity_probation - $this->think_probation, 1);
         $this->probation = $probation_total_at;
         return $probation_total_at;
@@ -803,7 +818,7 @@ class WagesController extends Controller
         //正式期期总时长(天数)
         $formal_total_at = ceil((strtotime($formal_end_at) - strtotime($formal_start_at)) / 3600 / 24);
         $formal_total_at = ($formal_total_at <= 0 ? 0 : $formal_total_at);
-        $formal_total_at = ($formal_total_at >= $limit_date['day_number'] ? 30 : $formal_total_at);
+        $formal_total_at = ($formal_total_at >= $limit_date['day_number'] ? $this->month_daily : $formal_total_at);
         $formal_total_at = round($formal_total_at - $this->sick_formal - $this->maternity_formal - $this->think_formal, 1);
         $this->formal = $formal_total_at;
         return $formal_total_at;
@@ -834,10 +849,10 @@ class WagesController extends Controller
             + $this->salary['trial_hourly_salary'] * ($probation - floor($probation))
             + $this->salary['formal_daily_salary'] * floor($formal)
             + $this->salary['formal_hourly_salary'] * ($formal - floor($formal))
-            + $sick_pay / 30 * floor($sick)
-            + $sick_pay / 30 / $daily_hours * ($sick - floor($sick))
-            + $maternity_pay / 30 * floor($maternity)
-            + $maternity_pay / 30 / $daily_hours * ($maternity - floor($maternity));
+            + $sick_pay / $this->month_daily * floor($sick)
+            + $sick_pay / $this->month_daily / $daily_hours * ($sick - floor($sick))
+            + $maternity_pay / $this->month_daily * floor($maternity)
+            + $maternity_pay / $this->month_daily / $daily_hours * ($maternity - floor($maternity));
 
         return round($pay_wages, 2);
     }
@@ -893,7 +908,7 @@ class WagesController extends Controller
         $probation = $this->probation;
         //如果是离职员工
         if ($user['status'] === '离职') {
-            return round(100 / 30 * ($formal + $probation), 2);
+            return round(100 / $this->month_daily * ($formal + $probation), 2);
         }
 
         $professional_so = $user['professional_so'];
@@ -901,7 +916,7 @@ class WagesController extends Controller
         $fixed = Welfare::where('professional_so', $professional_so)
             ->value('fixed');
         if (($formal + $probation) < 25) {
-            $fixed = $fixed / 30 * ($formal + $probation);
+            $fixed = $fixed / $this->month_daily * ($formal + $probation);
         }
         return round($fixed, 2);
     }
