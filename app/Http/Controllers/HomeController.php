@@ -27,7 +27,7 @@ class HomeController extends Controller
     }
 
     /**
-     * git 同步
+     * git 同步1
      */
     public function gitsys()
     {
