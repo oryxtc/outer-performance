@@ -26,6 +26,9 @@ class HomeController extends Controller
         return view('home');
     }
 
+    /**
+     * git 同步
+     */
     public function gitsys()
     {
         //git webhook 自动部署脚本
