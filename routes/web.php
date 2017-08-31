@@ -19,6 +19,8 @@ use Illuminate\Routing\Route;
 
 \Route::get('/home', 'HomeController@index')->name('home');
 
+\Route::any('/gitsys', 'HomeController@gitsys');
+
 \Route::group(['middleware' => 'admin','middleware'=>['web','errors.session']], function () {
     \Auth::routes();
 });
