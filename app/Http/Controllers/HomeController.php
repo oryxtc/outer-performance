@@ -13,7 +13,7 @@ class HomeController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
+        $this->middleware('auth')->except('gitsys');
     }
 
     /**
@@ -30,7 +30,7 @@ class HomeController extends Controller
     {
         //git webhook 自动部署脚本
         //项目存放物理路径
-        $path = "/data/www/git_test/test/";
+        $path = "/home/www/performance/";
 
         $requestBody = file_get_contents("php://input");
 
