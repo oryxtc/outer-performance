@@ -97,27 +97,27 @@ class WagesController extends Controller
         //事故扣款
         $save_data['charge'] = $this->getCharge();
         //应发工资
-        $save_data['pay_should'] = round($save_data['pay_subtotal'] - 0 + $save_data['bonus'] + $save_data['fixed'] + $save_data['traffic_communication'] - $save_data['charge'], 2);
+        $save_data['pay_should'] = round($save_data['pay_subtotal'] - 0 + $save_data['bonus'] + $save_data['fixed'] + $save_data['traffic_communication'] - $save_data['charge'], 5);
         //社保个人部分
-        $save_data['social_security_personal'] = round($this->provident_info['social_security_personal'], 2);
+        $save_data['social_security_personal'] = round($this->provident_info['social_security_personal'], 5);
         //社保公司部分
-        $save_data['social_security_company'] = round($this->provident_info['social_security_company'], 2);
+        $save_data['social_security_company'] = round($this->provident_info['social_security_company'], 5);
         //公积金个人部分
-        $save_data['provident_fund_personal'] = round($this->provident_info['provident_fund_personal'], 2);
+        $save_data['provident_fund_personal'] = round($this->provident_info['provident_fund_personal'], 5);
         //公积金公司部分
-        $save_data['provident_fund_company'] = round($this->provident_info['provident_fund_company'], 2);
+        $save_data['provident_fund_company'] = round($this->provident_info['provident_fund_company'], 5);
         //税前应发小计
-        $save_data['pre_tax_subtotal'] = round($save_data['pay_should'] - $save_data['social_security_personal'] - $save_data['provident_fund_personal'], 2);
+        $save_data['pre_tax_subtotal'] = round($save_data['pay_should'] - $save_data['social_security_personal'] - $save_data['provident_fund_personal'], 5);
         //代扣个税
         $save_data['tax_personal'] = $this->getTaxPersonal($save_data['pre_tax_subtotal']);
         //实发工资
-        $save_data['pay_real'] = round($save_data['pre_tax_subtotal'] - $save_data['tax_personal'], 2);
+        $save_data['pay_real'] = round($save_data['pre_tax_subtotal'] - $save_data['tax_personal'], 5);
         //现金发放
         $save_data['cash'] = $this->getCash();
         //银行发放
-        $save_data['pay_bank'] = round($save_data['pay_real'] - $save_data['cash'], 2);
+        $save_data['pay_bank'] = round($save_data['pay_real'] - $save_data['cash'], 5);
         //公司成本
-        $save_data['total_company'] = round($save_data['pay_real'] + $save_data['social_security_personal'] + $save_data['social_security_company'] + $save_data['provident_fund_personal'] + $save_data['provident_fund_company'] + $save_data['tax_personal'], 2);
+        $save_data['total_company'] = round($save_data['pay_real'] + $save_data['social_security_personal'] + $save_data['social_security_company'] + $save_data['provident_fund_personal'] + $save_data['provident_fund_company'] + $save_data['tax_personal'], 5);
         //备注
         $save_data['remark'] = $this->getRemark();
         //状态
@@ -158,13 +158,13 @@ class WagesController extends Controller
         $user = $this->user;
         $daily_hours = $this->daily_hours;
         //试用期日薪
-        $data['trial_daily_salary'] = round($user['trial_pay'] / $this->month_daily, 2);
+        $data['trial_daily_salary'] = round($user['trial_pay'] / $this->month_daily, 5);
         //试用期时新
-        $data['trial_hourly_salary'] = round($user['trial_pay'] / $this->month_daily / $daily_hours, 2);
+        $data['trial_hourly_salary'] = round($user['trial_pay'] / $this->month_daily / $daily_hours, 5);
         //正式期日薪
-        $data['formal_daily_salary'] = round($user['formal_pay'] / $this->month_daily, 2);
+        $data['formal_daily_salary'] = round($user['formal_pay'] / $this->month_daily, 5);
         //正式期日薪
-        $data['formal_hourly_salary'] = round($user['formal_pay'] / $this->month_daily / $daily_hours, 2);
+        $data['formal_hourly_salary'] = round($user['formal_pay'] / $this->month_daily / $daily_hours, 5);
         return $data;
     }
 
@@ -197,7 +197,7 @@ class WagesController extends Controller
             ->where('period_at', '<=', $limit_date['max_limit_date'])
             ->where('period_at', '>=', $limit_date['min_limit_date'])
             ->sum('cash');
-        return round($cash, 2);
+        return round($cash, 5);
     }
 
     /**
@@ -239,7 +239,7 @@ class WagesController extends Controller
             $tax_rate = 0.45;
             $de_num = 13505;
         }
-        return round($value * $tax_rate - $de_num, 2);
+        return round($value * $tax_rate - $de_num, 5);
     }
 
 
@@ -279,7 +279,7 @@ class WagesController extends Controller
             ->where('period_at', '<=', $limit_date['max_limit_date'])
             ->where('period_at', '>=', $limit_date['min_limit_date'])
             ->sum('charge');
-        return round($charges, 2);
+        return round($charges, 5);
     }
 
     /**
@@ -295,7 +295,7 @@ class WagesController extends Controller
 
         //如果是离职员工
         if ($user['status'] === '离职') {
-            return round(100 / $this->month_daily * ($formal + $probation), 2);
+            return round(100 / $this->month_daily * ($formal + $probation), 5);
         }
 
         $professional_so = $user['professional_so'];
@@ -318,7 +318,7 @@ class WagesController extends Controller
             }
         }
 
-        return round($TrafficCommunication, 2);
+        return round($TrafficCommunication, 5);
     }
 
     /**
@@ -857,7 +857,7 @@ class WagesController extends Controller
             + $maternity_pay / $this->month_daily * floor($maternity)
             + $maternity_pay / $this->month_daily / $daily_hours * ($maternity - floor($maternity));
 
-        return round($pay_wages, 2);
+        return round($pay_wages, 5);
     }
 
 
@@ -897,7 +897,7 @@ class WagesController extends Controller
             ->where('period_at', '>=', $limit_date['min_limit_date'])
             ->sum('extend');
 
-        return round($bonus - 0 + $extend, 2);
+        return round($bonus - 0 + $extend, 5);
     }
 
     /**
@@ -911,7 +911,7 @@ class WagesController extends Controller
         $probation = $this->probation;
         //如果是离职员工
         if ($user['status'] === '离职') {
-            return round(100 / $this->month_daily * ($formal + $probation), 2);
+            return round(100 / $this->month_daily * ($formal + $probation), 5);
         }
 
         $professional_so = $user['professional_so'];
@@ -921,7 +921,7 @@ class WagesController extends Controller
         if (($formal + $probation) < 25) {
             $fixed = $fixed / $this->month_daily * ($formal + $probation);
         }
-        return round($fixed, 2);
+        return round($fixed, 5);
     }
 
     /**
