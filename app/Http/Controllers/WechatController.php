@@ -16,7 +16,7 @@ class WechatController extends VoyagerBreadController
     public function __construct()
     {
         $this->middleware('web');
-        //$this->middleware('wechat.oauth');
+        $this->middleware('wechat.oauth');
         $this->middleware('wechat.bind')->except('serve');
     }
 
