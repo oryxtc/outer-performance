@@ -17,9 +17,9 @@ use Illuminate\Routing\Route;
     return view('welcome');
 });
 
-\Route::get('/qiniu', function () {
-    return '七牛';
-});
+\Route::get('/qiniu/index', 'Qiniu\IndexController@index');
+\Route::get('/qiniu/getToken', 'Qiniu\IndexController@getToken');
+\Route::any('/qiniu/upload', 'Qiniu\IndexController@upload');
 
 \Route::get('/home', 'HomeController@index')->name('home');
 

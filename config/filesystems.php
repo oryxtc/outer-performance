@@ -62,6 +62,19 @@ return [
             'region' => env('AWS_REGION'),
             'bucket' => env('AWS_BUCKET'),
         ],
+        'qiniu' => [
+            'driver'  => 'qiniu',
+            'domains' => [
+                'default'   => 'ooqid2far.bkt.clouddn.com', //你的七牛域名
+                'https'     => 'https://outer-performance.oryxtc.top',         //你的HTTPS域名
+                'custom'    => 'ooqid2far.bkt.clouddn.com',                //Useless 没啥用，请直接使用上面的 default 项
+            ],
+            'access_key'=> 'nB52GB7RllcK67CtHCvdr58UCWN_CSgum5On_GQM',  //AccessKey
+            'secret_key'=> 'lV6_d8jbxQLDkdHzo1PYBeuvGnJ8LyEyI5zZN67F',  //SecretKey
+            'bucket'    => 'images',  //Bucket名字
+            'notify_url'=> 'https://outer-performance.oryxtc.top/qiniu/callback',  //持久化处理回调地址
+            'access'    => 'public'  //空间访问控制 public 或 private
+        ],
 
     ],
 

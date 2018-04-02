@@ -187,7 +187,8 @@ return [
         Maatwebsite\Excel\ExcelServiceProvider::class,
 
         Yajra\Datatables\DatatablesServiceProvider::class,
-
+        //qiniu
+        zgldh\QiniuStorage\QiniuFilesystemServiceProvider::class
     ],
 
     /*
