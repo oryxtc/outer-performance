@@ -17,6 +17,10 @@ use Illuminate\Routing\Route;
     return view('welcome');
 });
 
+\Route::get('/qiniu', function () {
+    return '七牛';
+});
+
 \Route::get('/home', 'HomeController@index')->name('home');
 
 \Route::any('/gitsys', 'HomeController@gitsys');
