@@ -21,6 +21,8 @@ use Illuminate\Routing\Route;
 \Route::get('/qiniu/getToken', 'Qiniu\IndexController@getToken');
 \Route::any('/qiniu/upload', 'Qiniu\IndexController@upload');
 
+\Route::any('/kdiniao/printOrder', 'Kdiniao\IndexController@printOrder');
+
 \Route::get('/home', 'HomeController@index')->name('home');
 
 \Route::any('/gitsys', 'HomeController@gitsys');
