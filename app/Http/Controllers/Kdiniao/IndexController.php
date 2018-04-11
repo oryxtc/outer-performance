@@ -20,7 +20,7 @@ defined('TestEBusinessID') or define('TestEBusinessID', '1295921');
 //电商加密私钥，快递鸟提供，注意保管，不要泄漏
 defined('APIKey') or define('APIKey', '0adb7183-de36-49a4-9ce1-33724893dda5');
 //请求url，正式环境地址：http://api.kdniao.cc/api/Eorderservice    测试环境地址：http://testapi.kdniao.cc:8081/api/EOrderService
-defined('ReqURL') or define('ReqURL', 'http://testapi.kdniao.cc:8081/api/Eorderservice');
+defined('ReqURL') or define('ReqURL', 'http://api.kdniao.cc/api/Eorderservice');
 
 //电商加密私钥，快递鸟提供，注意保管，不要泄漏
 defined('AppKey') or define('AppKey', '0adb7183-de36-49a4-9ce1-33724893dda5');
