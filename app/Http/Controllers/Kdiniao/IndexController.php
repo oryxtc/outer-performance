@@ -72,7 +72,7 @@ class IndexController extends Controller
             $output = curl_exec($ch);
             return $output;
         } else {
-            return $res;
+            return $ip;
         }
     }
 
