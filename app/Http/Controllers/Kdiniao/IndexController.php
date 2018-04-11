@@ -51,12 +51,12 @@ class IndexController extends Controller
 
     public function getPrint(){
         $eorder = [];
-        $eorder["ShipperCode"] = "XFEX";
+        $eorder["ShipperCode"] = "YD";
         $eorder["OrderCode"] = "1";
         $eorder["PayType"] = 1;
         $eorder["ExpType"] = 1;
-        $eorder["CustomerName"] = 'testxfex';
-        $eorder["CustomerPwd"] = 'testxfexpwd';
+        $eorder["CustomerName"] = 'testyd';
+        $eorder["CustomerPwd"] = 'testydpwd';
         $eorder["IsReturnTemp"] = '1';
         $eorder["IsReturnPrintTemplate"] = '1';
 
@@ -99,9 +99,6 @@ class IndexController extends Controller
         $result = json_decode($jsonResult, true);
         echo "<br/><br/>电子面单提交结果:<br/>";
         print_r($result);
-
-        echo htmlspecialchars_decode($result['PrintTemplate']);
-
     }
 
 
