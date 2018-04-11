@@ -58,6 +58,7 @@ class IndexController extends Controller
         $eorder["CustomerName"] = 'testyd';
         $eorder["CustomerPwd"] = 'testydpwd';
         $eorder["IsReturnTemp"] = '1';
+        $eorder["IsReturnPrintTemplate"] = '1';
 
         $sender = [];
         $sender["Name"] = "李先生";
