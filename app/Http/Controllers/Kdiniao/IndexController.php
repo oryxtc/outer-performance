@@ -45,7 +45,7 @@ class IndexController extends Controller
         $is_priview   = '1';
         $request_data = urlencode($request_data);
         //组装表单
-        $form = '<form id="form1" method="POST" action="' . API_URL . '"><input type="text" name="RequestData" value="' . $request_data . '"/><input type="text" name="EBusinessID" value="' . EBusinessID . '"/><input type="text" name="DataSign" value="' . $data_sign . '"/><input type="text" name="IsPriview" value="' . $is_priview . '"/></form><script>form1.submit();</script>';
+        $form = '<form id="form1" method="POST" action="' . API_URL . '"><input type="text" name="RequestData" value="' . $request_data . '"/><input type="text" name="EBusinessID" value="' . EBusinessID . '"/><input type="text" name="DataSign" value="' . $data_sign . '"/><input type="text" name="IsPreview" value="' . $is_priview . '"/></form><script>form1.submit();</script>';
         print_r($form);
     }
 
