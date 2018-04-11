@@ -39,7 +39,7 @@ class IndexController extends Controller
          * @description    先通过快递鸟电子面单接口提交电子面单后，再组装POST表单调用快递鸟批量打印接口页面
          */
         //OrderCode:需要打印的订单号，和调用快递鸟电子面单的订单号一致，PortName：本地打印机名称，请参考使用手册设置打印机名称。支持多打印机同时打印。
-        $request_data = '[{"OrderCode":"1111","PortName":"SEC30CDA7B0CDB4"}]';
+        $request_data = '[{"OrderCode":"3922490598838","PortName":"SEC30CDA7B0CDB4"}]';
         $data_sign    = $this->encrypt($this->get_ip() . $request_data, APIKey);
         //是否预览，0-不预览 1-预览
         $is_priview   = '1';
