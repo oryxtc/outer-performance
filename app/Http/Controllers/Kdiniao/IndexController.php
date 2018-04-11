@@ -51,12 +51,12 @@ class IndexController extends Controller
 
     public function getPrint(){
         $eorder = [];
-        $eorder["ShipperCode"] = "YD";
+        $eorder["ShipperCode"] = "SF";
         $eorder["OrderCode"] = "3922490598838";
         $eorder["PayType"] = 1;
         $eorder["ExpType"] = 1;
-        $eorder["CustomerName"] = 'testyd';
-        $eorder["CustomerPwd"] = 'testydpwd';
+//        $eorder["CustomerName"] = 'testyd';
+//        $eorder["CustomerPwd"] = 'testydpwd';
         $eorder["IsReturnTemp"] = '1';
         $eorder["IsReturnPrintTemplate"] = '1';
 
