@@ -33,7 +33,7 @@ class IndexController extends Controller
         defined('APIKey') or define('APIKey', '0adb7183-de36-49a4-9ce1-33724893dda5');
 
         //OrderCode:需要打印的订单号，和调用快递鸟电子面单的订单号一致，PortName：本地打印机名称，请参考使用手册设置打印机名称。支持多打印机同时打印。
-        $request_data = '[{"OrderCode":"3922490598838","PortName":"FAX"}]';
+        $request_data = '[{"OrderCode":"3922490598838","PortName":"YD"}]';
         $data_sign    = $this->encrypt($this->get_ip() . $request_data, APIKey);
         //是否预览，0-不预览 1-预览
         $is_priview   = '1';
