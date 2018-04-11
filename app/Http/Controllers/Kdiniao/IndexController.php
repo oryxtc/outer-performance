@@ -93,11 +93,13 @@ class IndexController extends Controller
 
         echo "电子面单接口提交内容：<br/>".$jsonParam;
         $jsonResult = $this->submitEOrder($jsonParam);
-        echo "<br/><br/>电子面单提交结果:<br/>";
-        echo htmlspecialchars_decode($jsonResult['PrintTemplate']);
+
 
         //解析电子面单返回结果
         $result = json_decode($jsonResult, true);
+        echo "<br/><br/>电子面单提交结果:<br/>";
+        echo htmlspecialchars_decode($result['PrintTemplate']);
+
         echo "<br/><br/>返回码:".$result["ResultCode"];
         if($result["ResultCode"] == "100") {
             echo "<br/>是否成功:".$result["Success"];
