@@ -57,6 +57,7 @@ class IndexController extends Controller
         $eorder["ExpType"] = 1;
         $eorder["CustomerName"] = 'testyd';
         $eorder["CustomerPwd"] = 'testydpwd';
+        $eorder["MonthCode"] = '1';
         $eorder["IsReturnTemp"] = '1';
         $eorder["IsReturnPrintTemplate"] = '1';
 
