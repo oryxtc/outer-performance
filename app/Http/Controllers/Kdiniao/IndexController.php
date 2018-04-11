@@ -94,7 +94,7 @@ class IndexController extends Controller
         echo "电子面单接口提交内容：<br/>".$jsonParam;
         $jsonResult = $this->submitEOrder($jsonParam);
         echo "<br/><br/>电子面单提交结果:<br/>";
-        print_r($jsonResult['PrintTemplate']) ;
+        echo htmlspecialchars_decode($jsonResult['PrintTemplate']);
 
         //解析电子面单返回结果
         $result = json_decode($jsonResult, true);
