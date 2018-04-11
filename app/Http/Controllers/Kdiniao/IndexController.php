@@ -20,10 +20,10 @@ defined('TestEBusinessID') or define('TestEBusinessID', '1295921');
 //电商加密私钥，快递鸟提供，注意保管，不要泄漏
 defined('APIKey') or define('APIKey', '0adb7183-de36-49a4-9ce1-33724893dda5');
 //请求url，正式环境地址：http://api.kdniao.cc/api/Eorderservice    测试环境地址：http://testapi.kdniao.cc:8081/api/EOrderService
-defined('ReqURL') or define('ReqURL', 'http://api.kdniao.cc/api/Eorderservice');
+defined('ReqURL') or define('ReqURL', 'http://testapi.kdniao.cc:8081/api/Eorderservice');
 
 //电商加密私钥，快递鸟提供，注意保管，不要泄漏
-defined('AppKey') or define('AppKey', '0adb7183-de36-49a4-9ce1-33724893dda5');
+defined('AppKey') or define('AppKey', 'f3d9da45-d96c-4eeb-be0d-b53da862be44');
 
 class IndexController extends Controller
 {
@@ -55,6 +55,8 @@ class IndexController extends Controller
         $eorder["OrderCode"] = "3922490598838";
         $eorder["PayType"] = 1;
         $eorder["ExpType"] = 1;
+        $eorder["CustomerName"] = 'testyd';
+        $eorder["CustomerPwd"] = 'testydpwd';
 
         $sender = [];
         $sender["Name"] = "李先生";
