@@ -9,6 +9,15 @@
 namespace App\Http\Controllers\Kdiniao;
 
 use App\Http\Controllers\Controller;
+
+//批量打印接口地址
+defined('API_URL') or define('API_URL', 'http://www.kdniao.com/External/PrintOrder.aspx');
+//IP服务地址
+defined('IP_SERVICE_URL') or define('IP_SERVICE_URL', 'http://www.kdniao.com/External/GetIp.ashx');
+//电商ID
+defined('EBusinessID') or define('EBusinessID', '1295921');
+//电商加密私钥，快递鸟提供，注意保管，不要泄漏
+defined('APIKey') or define('APIKey', '0adb7183-de36-49a4-9ce1-33724893dda5');
 class IndexController extends Controller
 {
 
@@ -22,18 +31,8 @@ class IndexController extends Controller
          * @date            2017-11-22
          * @description    先通过快递鸟电子面单接口提交电子面单后，再组装POST表单调用快递鸟批量打印接口页面
          */
-
-        //批量打印接口地址
-        defined('API_URL') or define('API_URL', 'http://www.kdniao.com/External/PrintOrder.aspx');
-        //IP服务地址
-        defined('IP_SERVICE_URL') or define('IP_SERVICE_URL', 'http://www.kdniao.com/External/GetIp.ashx');
-        //电商ID
-        defined('EBusinessID') or define('EBusinessID', '1295921');
-        //电商加密私钥，快递鸟提供，注意保管，不要泄漏
-        defined('APIKey') or define('APIKey', '0adb7183-de36-49a4-9ce1-33724893dda5');
-
         //OrderCode:需要打印的订单号，和调用快递鸟电子面单的订单号一致，PortName：本地打印机名称，请参考使用手册设置打印机名称。支持多打印机同时打印。
-        $request_data = '[{"OrderCode":"3922490598838","PortName":"YD"}]';
+        $request_data = '[{"OrderCode":"3922490598838","ShipperCode":"YD"}]';
         $data_sign    = $this->encrypt($this->get_ip() . $request_data, APIKey);
         //是否预览，0-不预览 1-预览
         $is_priview   = '1';
