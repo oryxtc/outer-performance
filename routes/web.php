@@ -22,6 +22,7 @@ use Illuminate\Routing\Route;
 \Route::any('/qiniu/upload', 'Qiniu\IndexController@upload');
 
 \Route::any('/kdiniao/printOrder', 'Kdiniao\IndexController@printOrder');
+\Route::any('/kdiniao/getPrint', 'Kdiniao\IndexController@getPrint');
 
 \Route::get('/home', 'HomeController@index')->name('home');
 
