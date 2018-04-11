@@ -98,9 +98,7 @@ class IndexController extends Controller
         //解析电子面单返回结果
         $result = json_decode($jsonResult, true);
         echo "<br/><br/>电子面单提交结果:<br/>";
-
-
-        echo "<br/><br/>返回码:".$result["ResultCode"]."<br/><br/>";
+        print_r($result);
 
         echo htmlspecialchars_decode($result['PrintTemplate']);
 
