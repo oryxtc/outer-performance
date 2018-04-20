@@ -23,6 +23,7 @@ use Illuminate\Routing\Route;
 
 \Route::any('/kdiniao/printOrder', 'Kdiniao\IndexController@printOrder');
 \Route::any('/kdiniao/getPrint', 'Kdiniao\IndexController@getPrint');
+\Route::any('/kdiniao/getLogisticsTrack', 'Kdiniao\IndexController@getLogisticsTrack');
 
 \Route::get('/home', 'HomeController@index')->name('home');
 

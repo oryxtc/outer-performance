@@ -9,6 +9,8 @@
 namespace App\Http\Controllers\Kdiniao;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 //批量打印接口地址
 defined('API_URL') or define('API_URL', 'http://www.kdniao.com/External/PrintOrder.aspx');
@@ -27,6 +29,10 @@ defined('AppKey') or define('AppKey', '0adb7183-de36-49a4-9ce1-33724893dda5');
 
 class IndexController extends Controller
 {
+
+    public function getLogisticsTrack(Request $request){
+        Log::info($request);
+    }
 
 
     public function printOrder()
@@ -57,7 +63,7 @@ class IndexController extends Controller
         $eorder["ExpType"] = 1;
         $eorder["CustomerName"] = 'testyd';
         $eorder["CustomerPwd"] = 'testydpwd';
-        $eorder["MonthCode"] = '1';
+        $eorder["MonthCode"] = 'testydpwd';
         $eorder["IsReturnTemp"] = '1';
         $eorder["IsReturnPrintTemplate"] = '1';
 
